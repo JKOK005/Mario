@@ -1,0 +1,8 @@
+prefix=/home/apc16/apc_2016/mario_catkin_workspace/stowing/install
+
+Name: ur_kinematics
+Description: Description of ur_kinematics
+Version: 1.1.6
+Cflags: -I/home/apc16/apc_2016/mario_catkin_workspace/stowing/install/include
+Libs: -L/home/apc16/apc_2016/mario_catkin_workspace/stowing/install/lib -lur3_kin -lur5_kin -lur10_kin -lur3_moveit_plugin -lur5_moveit_plugin -lur10_moveit_plugin
+Requires: roscpp geometry_msgs moveit_core moveit_ros_planning pluginlib tf_conversions

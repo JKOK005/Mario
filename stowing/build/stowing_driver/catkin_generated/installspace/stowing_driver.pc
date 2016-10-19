@@ -1,8 +1,8 @@
-prefix=/home/apc16/APC 2016/mario_catkin_workspace/stowing/install
+prefix=/home/apc16/apc_2016/mario_catkin_workspace/stowing/install
 
 Name: stowing_driver
 Description: Description of stowing_driver
 Version: 0.0.0
 Cflags: 
-Libs: -L/home/apc16/APC 2016/mario_catkin_workspace/stowing/install/lib 
+Libs: -L/home/apc16/apc_2016/mario_catkin_workspace/stowing/install/lib 
 Requires: 

@@ -8,7 +8,7 @@
 
 # since this file is sourced either use the provided _CATKIN_SETUP_DIR
 # or fall back to the destination set at configure time
-: ${_CATKIN_SETUP_DIR:=/home/apc16/APC 2016/mario_catkin_workspace/stowing/install}
+: ${_CATKIN_SETUP_DIR:=/home/apc16/apc_2016/mario_catkin_workspace/stowing/install}
 _SETUP_UTIL="$_CATKIN_SETUP_DIR/_setup_util.py"
 unset _CATKIN_SETUP_DIR
 

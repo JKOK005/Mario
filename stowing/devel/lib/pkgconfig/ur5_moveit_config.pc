@@ -1,0 +1,8 @@
+prefix=/home/apc16/apc_2016/mario_catkin_workspace/stowing/devel
+
+Name: ur5_moveit_config
+Description: Description of ur5_moveit_config
+Version: 1.1.6
+Cflags: 
+Libs: -L/home/apc16/apc_2016/mario_catkin_workspace/stowing/devel/lib 
+Requires: 

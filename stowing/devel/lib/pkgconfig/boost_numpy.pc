@@ -1,0 +1,8 @@
+prefix=/home/apc16/apc_2016/mario_catkin_workspace/stowing/devel
+
+Name: boost_numpy
+Description: Description of boost_numpy
+Version: 1.1.102
+Cflags: -I/home/apc16/apc_2016/mario_catkin_workspace/stowing/src/Boost.NumPy
+Libs: -L/home/apc16/apc_2016/mario_catkin_workspace/stowing/devel/lib -lboost_numpy
+Requires: 

@@ -7,7 +7,8 @@
 # new environment variables
 
 # modified environment variables
-export CMAKE_PREFIX_PATH="/home/apc16/APC 2016/mario_catkin_workspace/stowing/devel:$CMAKE_PREFIX_PATH"
-export PWD="/home/apc16/APC 2016/mario_catkin_workspace/stowing/build"
-export ROSLISP_PACKAGE_DIRECTORIES="/home/apc16/APC 2016/mario_catkin_workspace/stowing/devel/share/common-lisp"
-export ROS_PACKAGE_PATH="/home/apc16/APC 2016/mario_catkin_workspace/stowing/src:$ROS_PACKAGE_PATH"
+export CPATH="/opt/ros/indigo/include"
+export LD_LIBRARY_PATH="/opt/ros/indigo/lib/x86_64-linux-gnu:/home/apc16/apc_2016/mario_catkin_workspace/stowing/devel/lib:/opt/ros/indigo/lib"
+export PKG_CONFIG_PATH="/opt/ros/indigo/lib/x86_64-linux-gnu/pkgconfig:/home/apc16/apc_2016/mario_catkin_workspace/stowing/devel/lib/pkgconfig:/opt/ros/indigo/lib/pkgconfig"
+export PWD="/home/apc16/apc_2016/mario_catkin_workspace/stowing/build"
+export PYTHONPATH="/opt/ros/indigo/lib/python2.7/dist-packages"

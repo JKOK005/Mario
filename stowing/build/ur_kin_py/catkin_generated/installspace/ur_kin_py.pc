@@ -1,0 +1,8 @@
+prefix=/home/apc16/apc_2016/mario_catkin_workspace/stowing/install
+
+Name: ur_kin_py
+Description: Description of ur_kin_py
+Version: 0.1.0
+Cflags: 
+Libs: -L/home/apc16/apc_2016/mario_catkin_workspace/stowing/install/lib 
+Requires: boost_numpy ur_kinematics
