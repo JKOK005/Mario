@@ -1,0 +1,72 @@
+11/10/2016
+
+Progress:
+1) Managed to install UR5 model and display in RViZ
+2) Model has joint controllers which allows me to control the joints of the robot
+
+TODO:
+1) Figure out how to control the joints of the UR5 through publishing topics
+2) Cretae the static base for the UR5 
+3) Run test scripts that will publish topics to the UR5, causing it to move
+4) Figure out the topics that the UR5 subscribes to and document them down
+
+
+12/10/2016
+
+TODO:
+1) Design APC set up in Gazebo
+2) Integrate motion planning with Gazebo. Disucss with Albert on possible softwares that I can use. 
+3) Get the UR5 to move in simulation, given a specific pose.
+
+
+13/10/2016
+
+Progress:
+1) UR5 robot in Gazebo simulation.
+	To call the robot: roslaunch ur_gazebo ur5.launch
+
+2) Topics to publish to to instruct the robot to move:
+	-> /arm_controller/command			: Publish / subscribe
+	-> /arm_controller/follow_joint_trajectory/goal : Action server
+
+3) /arm_controller/command topic needs trajectory_msgs/JointTrajectory message
+
+4) When publishing to /arm_controller/command topic, ensure that you add a spin to keep the publishing node running
+
+5) /arm_controller/command allows me to control the joint space of the robot	
+
+
+TODO:
+1) Figure out how to get IK for UR5 -> UR_kinematics does not seem to be working
+
+
+17/10/2016
+
+Progress:
+1) Got UR5 Ik working. 
+2) To import the IK, use 
+	from ur_kin_py.kin import Kinematics
+	kin = Kinematics('ur5') # or ur10
+
+TODO:
+1) Do a visual in Gazebo with IK
+2) Incorporate motion planning using OMPL
+
+
+18/10/2016
+
+Progress:
+1) Edited ur5_robot.urdf.xacro to reposition robot
+2) Use moveit to obtain joint limits of the robot
+3) Wrote template ur_motion_planning script called ur5_lib.py
+
+TODO:
+1) Complete ur5_lib.py functions 
+2) Test motion planning on Gazebo
+
+19/10/2016
+
+TODO:
+1) Consider changing poseinterpolator.py to tfx and use tfx quaternion slerp interpolation
+2) Check if quat2euler returns the sequence r,p,y!
+
