@@ -1,0 +1,8 @@
+prefix=/home/apc16/apc_2016/mario_catkin_workspace/stowing/devel
+
+Name: or_ompl
+Description: Description of or_ompl
+Version: 0.7.0
+Cflags: -I/home/apc16/apc_2016/mario_catkin_workspace/stowing/src/or_ompl/include -I/home/apc16/apc_2016/mario_catkin_workspace/stowing/devel/include -I/usr/include -I/usr/include/eigen3 -I/opt/ros/indigo/include -I/usr/local/include/openrave-0.9
+Libs: -L/home/apc16/apc_2016/mario_catkin_workspace/stowing/devel/lib -lor_ompl -l:/usr/lib/x86_64-linux-gnu/libboost_chrono.so -l:/usr/lib/x86_64-linux-gnu/libboost_system.so -l:/opt/ros/indigo/lib/x86_64-linux-gnu/libompl.so -lopenrave0.9
+Requires: 

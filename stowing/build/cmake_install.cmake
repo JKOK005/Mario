@@ -118,6 +118,8 @@ IF(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   INCLUDE("/home/apc16/apc_2016/mario_catkin_workspace/stowing/build/gtest/cmake_install.cmake")
   INCLUDE("/home/apc16/apc_2016/mario_catkin_workspace/stowing/build/Boost.NumPy/cmake_install.cmake")
+  INCLUDE("/home/apc16/apc_2016/mario_catkin_workspace/stowing/build/openrave_catkin/cmake_install.cmake")
+  INCLUDE("/home/apc16/apc_2016/mario_catkin_workspace/stowing/build/or_ompl/cmake_install.cmake")
   INCLUDE("/home/apc16/apc_2016/mario_catkin_workspace/stowing/build/universal_robot/universal_robot/cmake_install.cmake")
   INCLUDE("/home/apc16/apc_2016/mario_catkin_workspace/stowing/build/universal_robot/ur_bringup/cmake_install.cmake")
   INCLUDE("/home/apc16/apc_2016/mario_catkin_workspace/stowing/build/universal_robot/ur_description/cmake_install.cmake")

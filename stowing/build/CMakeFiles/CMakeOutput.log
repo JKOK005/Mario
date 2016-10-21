@@ -291,3 +291,39 @@ Linking C executable cmTryCompileExec2945129247
 make[1]: Leaving directory `/home/apc16/apc_2016/mario_catkin_workspace/stowing/build/CMakeFiles/CMakeTmp'
 
 
+Performing C++ SOURCE FILE Test OR_OMPL_HAS_PPSEROPTS succeded with the following output:
+Change Dir: /home/apc16/apc_2016/mario_catkin_workspace/stowing/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/make "cmTryCompileExec3247332432/fast"
+/usr/bin/make -f CMakeFiles/cmTryCompileExec3247332432.dir/build.make CMakeFiles/cmTryCompileExec3247332432.dir/build
+make[1]: Entering directory `/home/apc16/apc_2016/mario_catkin_workspace/stowing/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /home/apc16/apc_2016/mario_catkin_workspace/stowing/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building CXX object CMakeFiles/cmTryCompileExec3247332432.dir/src.cxx.o
+/usr/bin/c++   -DOPENRAVE_CORE_DLL -DOPENRAVE_DLL -DOR_OMPL_HAS_PPSEROPTS -L/usr/local/lib -I/usr/local/include/openrave-0.9    -I/usr/include -I/usr/include -L/usr/lib/x86_64-linux-gnu -L/usr/lib -o CMakeFiles/cmTryCompileExec3247332432.dir/src.cxx.o -c /home/apc16/apc_2016/mario_catkin_workspace/stowing/build/CMakeFiles/CMakeTmp/src.cxx
+Linking CXX executable cmTryCompileExec3247332432
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec3247332432.dir/link.txt --verbose=1
+/usr/bin/c++    -DOR_OMPL_HAS_PPSEROPTS -L/usr/local/lib    CMakeFiles/cmTryCompileExec3247332432.dir/src.cxx.o  -o cmTryCompileExec3247332432 -rdynamic -lboost_chrono -lboost_system -lopenrave0.9 -lopenrave0.9-core -lboost_thread -llog4cxx -lopenrave0.9 -lopenrave0.9-core -lboost_thread -llog4cxx 
+make[1]: Leaving directory `/home/apc16/apc_2016/mario_catkin_workspace/stowing/build/CMakeFiles/CMakeTmp'
+
+Source file was:
+#include <openrave/openrave.h>
+    class P: OpenRAVE::PlannerBase::PlannerParameters
+    {void f(){bool (P::*x)(std::ostream&,int) const = &P::serialize;}};
+    int main(){}
+Performing C++ SOURCE FILE Test OR_OMPL_HAS_BOOSTSMARTPTRS succeded with the following output:
+Change Dir: /home/apc16/apc_2016/mario_catkin_workspace/stowing/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/make "cmTryCompileExec334073973/fast"
+/usr/bin/make -f CMakeFiles/cmTryCompileExec334073973.dir/build.make CMakeFiles/cmTryCompileExec334073973.dir/build
+make[1]: Entering directory `/home/apc16/apc_2016/mario_catkin_workspace/stowing/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /home/apc16/apc_2016/mario_catkin_workspace/stowing/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building CXX object CMakeFiles/cmTryCompileExec334073973.dir/src.cxx.o
+/usr/bin/c++    -DOR_OMPL_HAS_BOOSTSMARTPTRS -I/opt/ros/indigo/include    -o CMakeFiles/cmTryCompileExec334073973.dir/src.cxx.o -c /home/apc16/apc_2016/mario_catkin_workspace/stowing/build/CMakeFiles/CMakeTmp/src.cxx
+Linking CXX executable cmTryCompileExec334073973
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec334073973.dir/link.txt --verbose=1
+/usr/bin/c++    -DOR_OMPL_HAS_BOOSTSMARTPTRS    CMakeFiles/cmTryCompileExec334073973.dir/src.cxx.o  -o cmTryCompileExec334073973 -rdynamic 
+make[1]: Leaving directory `/home/apc16/apc_2016/mario_catkin_workspace/stowing/build/CMakeFiles/CMakeTmp'
+
+Source file was:
+#include <ompl/base/StateSpace.h>
+    int main(){ ompl::base::StateSpacePtr s = boost::shared_ptr<ompl::base::StateSpace>(); }

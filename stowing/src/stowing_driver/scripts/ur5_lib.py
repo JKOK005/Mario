@@ -33,6 +33,7 @@ class Ur5_motion_planner:
 	def __init__(self):
 		self.joint_name 		= ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint', 'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
 		self.kin 				= Kinematics("ur5")
+		self.single_sol 		= False
 
 	def __unicode__(self):
 		return """UR5 custom motion planning library"""
@@ -64,48 +65,78 @@ class Ur5_motion_planner:
 
 		return
 
-	def __get_ik_from_matrix(self, h_matrix):
-		# Gets all possible IK solutions from homogeneous matrix that satisfies joint limits defined
-		ik_sols								= self.kin.inverse_all(x=h_matrix)
-		ik_sols_cleaned						= self.__assert_joint_limits(ik_sols)
-
-		assert ik_sols_cleaned is not None
-		return ik_sols_cleaned
-
-	def __cartesian_to_ik(self, cartesian):
+	def cartesian_to_ik(self, cartesian, single_sol=False):
 		# Cartesian coordinates of [roll,pitch,yaw,X,Y,Z] to ik solutions
+		# Returns all possible IK solutions within joint limits if single is False
+		# Returns best IK solution within joint limit if single is True
+		self.single_sol						= single_sol
 		roll,pitch,yaw,X,Y,Z 				= cartesian
 
 		matrix_from_euler					= TF.euler_matrix(roll,pitch,yaw)
-		matrix_from_translation				= TF.translation_matrix(trans_vector) - TF.identity_matrix()
+		matrix_from_translation				= TF.translation_matrix([X,Y,Z]) - TF.identity_matrix()
 		matrix_from_cartesian 				= matrix_from_euler + matrix_from_translation 
 
 		return self.__get_ik_from_matrix(matrix_from_cartesian)
+
+	def __get_ik_from_matrix(self, h_matrix):
+		# Gets all possible IK solutions from homogeneous matrix that satisfies joint limits defined
+		# If no possible IK solutions for given point, throws AssertionError
+		ik_sols								= self.kin.inverse_all(x=h_matrix)
+		ik_sols_cleaned						= self.__assert_joint_limits(ik_sols)
+
+		assert len(ik_sols_cleaned) is not 0
+
+		if(self.single_sol):
+			ik_sols_cleaned					= self.__get_best_ik_solution(ik_sols_cleaned)
+
+		return ik_sols_cleaned
 
 	def __assert_joint_limits(self, ik_sols):
 		# Asserts that the given joint space coordinate falls within the allowable joint limits or throw AssertionError
 		ik_sols_cleaned 					= []
 
 		for each_ik_sol in ik_sols:
-			if __solution_within_joint_limits(each_ik_sol):
+			if self.__solution_within_joint_limits(each_ik_sol):
 				ik_sols_cleaned  			+= each_ik_sol
 
 		return ik_sols_cleaned
 	
+	def __get_best_ik_solution(self, ik_sols_cleaned, weights=6*[1.0]):
+		q_guess 							= np.zeros(6)
+
+		import ipdb
+		ipdb.set_trace()
+
+		best_sol_ind 						= np.argmin(np.sum((weights*(ik_sols_cleaned - np.array(q_guess)))**2,1))
+		best_sol 							= ik_sols_cleaned[best_sol_ind]
+		
+		return best_sol
+
 	def __solution_within_joint_limits(self, each_ik_sol):
+		# If not within joint limit, reject each_ik_sol
 		length 								= len(each_ik_sol)
 
 		for i in range(length):
 			# Check if joint limit has been exceed for each UR joint
-			if each_ik_sol[i] < joint_lim_low[i] or each_ik_sol[i] > joint_lim_high[i]:
+			if each_ik_sol[i] < self.joint_lim_low[i] or each_ik_sol[i] > self.joint_lim_high[i]:
 				return False
 		return True
 
-	def __get_cartesian_from_joint(self, joint_vals):
+	def cartesian_from_joint(self, joint_vals):
 		# Gets homogeneous matrix from joint values
-		fk_sol	 							= self.kin.forward(q=joint_vals)
+		# joint_vals either be a list of multiple joint sets or a single joint set
 
-		return self.__get_cartesian_from_matrix(fk_sol)
+		if(len(joint_vals) > 1):
+			lst 				= []
+
+			for each_joint_val in joint_vals:
+				fk_sol	 		= self.kin.forward(q=each_joint_val)
+				lst 			+= [self.__get_cartesian_from_matrix(fk_sol)]
+		else:
+			fk_sol	 			= self.kin.forward(q=joint_vals)
+			lst 				= self.__get_cartesian_from_matrix(fk_sol)
+
+		return lst
 
 	def __get_cartesian_from_matrix(self, h_matrix):
 		euler_from_matrix					= list(TF.euler_from_matrix(h_matrix))
@@ -119,17 +150,25 @@ class Ur5_motion_planner:
 		"""
 		# Goal cartesian is a list of [roll,pitch,yaw,X,Y,Z]
 		# Start with a linear planner that plans in cartesian space using SLERP interpolation
-		current_cartesian 					= self.__get_cartesian_from_joint(current_joint_val)
-		way_points 							= []
+		# Raises AssertinError when intermediate point has no solutions
+		current_cartesian 					= self.cartesian_from_joint(current_joint_val)
+		joint_way_points 					= []
 
-		# import ipdb
-		# ipdb.set_trace()
+		try:
+			for i in list(reversed(range(no_points))):
+				point 							= linear_pose_interp(current_cartesian, goal_cartesian, (i+1.0) /no_points)
+				print point
+				way_point 						= quat2euler(point['rot']) + point['lin']
 
-		for i in range(no_points):
-			point 			= linear_pose_interp(current_cartesian, goal_cartesian, (i+1.0) /no_points)
-			way_points 		+= [point['lin'] + quat2euler(point['rot'])]
+				import ipdb
+				ipdb.set_trace()	
 
-		return way_points
+				joint_way_points 				+= self.cartesian_to_ik(cartesian=way_point, single_sol=True)
+
+		except AssertionError:
+			raise AssertionError("No possible IK solutions found for coordinate: {0}".format(way_point))
+
+		return joint_way_points
 
 	def select_ompl_planner(self, name):
 		# Changes the planner from OMPL used to <name>
@@ -138,7 +177,7 @@ class Ur5_motion_planner:
 
 if __name__ == "__main__":
 	current_joint_val	= [-0.206423593026,-1.88930973546,1.93371669802,3.891687163,2.27589753846,-0.230542109703]
-	goal_cartesian 		= [-0.8139287376537965,-0.574451023319419, -2.465989452029603, 0.18783751718385825, -0.003253999496774948, 0.58640475380916413]
+	goal_cartesian 		= [-0.8139287376537965, -0.574451023319419, -2.465989452029603, 0.18783751718385825, -0.003253999496774948, 0.58640475380916413]
 
 	driver = Ur5_motion_planner()
 	points 	= driver.plan_to_cartesian(current_joint_val,goal_cartesian)

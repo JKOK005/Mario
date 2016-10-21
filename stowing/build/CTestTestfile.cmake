@@ -6,6 +6,8 @@
 # testing this directory and lists subdirectories to be tested as well.
 SUBDIRS(gtest)
 SUBDIRS(Boost.NumPy)
+SUBDIRS(openrave_catkin)
+SUBDIRS(or_ompl)
 SUBDIRS(universal_robot/universal_robot)
 SUBDIRS(universal_robot/ur_bringup)
 SUBDIRS(universal_robot/ur_description)

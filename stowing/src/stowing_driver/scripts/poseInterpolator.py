@@ -145,8 +145,6 @@ def linear_pose_interp(start_A, end_B, T):
     Input:
     Starting points start_A [roll,pitch,yaw,X,Y,Z] list
     Ending points end_B in [roll',pitch',yaw',X',Y',Z'] list
-        Yaw, Pitch, Roll calculated in radians within bounds [0, 2*pi]
-        Sequence of rotation: Roll - 1st, Pitch - 2nd, Yaw - 3rd
 
     T = fraction from 0 - 1, representing the fraction of completion from start to end
 
@@ -156,16 +154,14 @@ def linear_pose_interp(start_A, end_B, T):
 
     track['lin'] - Linear interpolation of interval T of starting positions from A -> B
     track['rot'] - Slerp interpolation of quaternion of interval T, arranged as a list in [w x y z]
-    # track['rot'] - Intermediate Yaw-Pitch-Roll poses of interval T, in sequence YPR
-
     '''
 
     track = {'lin': [], 'rot': []}
 
-    ra = start_A[1]; pa = start_A[2]; ya = start_A[3]  # Yaw/pitch/Roll for A and B
-    rb = end_B[1]; pb = end_B[2]; yb = end_B[3]
+    ra, pa, ya = start_A[:3]  # Roll/Pitch/Yaw for A and B
+    rb, pb, yb = end_B[:3]
 
-    A = array(start_A[3:]); B = array(end_B[3:])
+    A = array(start_A[3:]); B = array(end_B[3:]);
     [vxa, vya, vza, wa] = Rotation.RPY(ra, pa, ya).GetQuaternion()  # Quaternion representation of start and end points
     [vxb, vyb, vzb, wb] = Rotation.RPY(rb, pb, yb).GetQuaternion()
 
@@ -173,10 +169,13 @@ def linear_pose_interp(start_A, end_B, T):
     QB = quaternion(wb, vxb, vyb, vzb)
 
     track['lin'] = linear_translation(A, B, T).tolist()
-    q = interpolate(QA, QB, T)
-    track['rot'] = [q.s] + (q.v).tolist()[0]    # List of quaternion [w x y z]
 
-    # print("Quaternion: ", track['rot'], "Y-P-R: ", quat2euler(track['rot']))
+    if ra == rb and pa == pb and ya == yb:
+        q = QA
+    else:
+        q = interpolate(QA, QB, T)
+
+    track['rot'] = [q.s] + (q.v).tolist()[0]    # List of quaternion [w x y z]
     return track
 
 

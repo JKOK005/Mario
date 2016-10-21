@@ -17,6 +17,12 @@
 //Build shared libraries (DLLs).
 BUILD_SHARED_LIBS:BOOL=ON
 
+//Boost chrono library (debug)
+Boost_CHRONO_LIBRARY_DEBUG:FILEPATH=/usr/lib/x86_64-linux-gnu/libboost_chrono.so
+
+//Boost chrono library (release)
+Boost_CHRONO_LIBRARY_RELEASE:FILEPATH=/usr/lib/x86_64-linux-gnu/libboost_chrono.so
+
 //The directory containing a CMake configuration file for Boost.
 Boost_DIR:PATH=Boost_DIR-NOTFOUND
 
@@ -212,6 +218,9 @@ CMAKE_VERBOSE_MAKEFILE:BOOL=FALSE
 //Path to a program.
 DOXYGEN_EXECUTABLE:FILEPATH=DOXYGEN_EXECUTABLE-NOTFOUND
 
+//Path to a file.
+EIGEN_INCLUDE_DIR:PATH=/usr/include/eigen3
+
 //Path to a program.
 EMPY_EXECUTABLE:FILEPATH=/usr/bin/empy
 
@@ -241,6 +250,33 @@ LSB_RELEASE_EXECUTABLE:FILEPATH=/usr/bin/lsb_release
 
 //Path to a program.
 NOSETESTS:FILEPATH=/usr/bin/nosetests-2.7
+
+//Path to a library.
+OMPLAPP_LIBRARY:FILEPATH=OMPLAPP_LIBRARY-NOTFOUND
+
+//Path to a file.
+OMPL_CONFIG:FILEPATH=/opt/ros/indigo/include/ompl/config.h
+
+//The directory containing a CMake configuration file for OMPL.
+OMPL_DIR:PATH=/opt/ros/indigo/share/ompl
+
+//Path to a file.
+OMPL_INCLUDE_DIRS:PATH=/opt/ros/indigo/include/ompl/base
+
+//Path to OMPL library
+OMPL_LIBRARIES:FILEPATH=/opt/ros/indigo/lib/x86_64-linux-gnu/libompl.so
+
+//Path to a library.
+OMPL_LIBRARY:FILEPATH=/opt/ros/indigo/lib/x86_64-linux-gnu/libompl.so
+
+//The directory containing a CMake configuration file for OpenRAVE.
+OpenRAVE_DIR:PATH=/usr/local/lib/cmake/openrave-0.9
+
+//the suffix for the openrave libraries
+OpenRAVE_LIBRARY_SUFFIX:STRING=0.9
+
+//pkg-config executable
+PKG_CONFIG_EXECUTABLE:FILEPATH=/usr/bin/pkg-config
 
 //Path to a program.
 PYTHON_EXECUTABLE:FILEPATH=/usr/bin/python
@@ -272,6 +308,12 @@ RT_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/librt.so
 //Enable debian style python package layout
 SETUPTOOLS_DEB_LAYOUT:BOOL=ON
 
+//Path to a file.
+TinyXML_INCLUDE_DIR:PATH=/usr/include
+
+//Path to a library.
+TinyXML_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libtinyxml.so
+
 //LSB Distrib tag
 UBUNTU:BOOL=TRUE
 
@@ -283,6 +325,9 @@ _CATKIN_GTEST_INCLUDE:FILEPATH=/usr/include/gtest/gtest.h
 
 //Path to a file.
 _CATKIN_GTEST_SRC:FILEPATH=/usr/src/gtest/src/gtest.cc
+
+//Path to a file.
+_path_name:FILEPATH=/home/apc16/apc_2016/mario_catkin_workspace/stowing/src/or_ompl/tests/test_Planner.py
 
 //The directory containing a CMake configuration file for actionlib.
 actionlib_DIR:PATH=/opt/ros/indigo/share/actionlib/cmake
@@ -307,6 +352,9 @@ catkin_DIR:PATH=/opt/ros/indigo/share/catkin/cmake
 
 //The directory containing a CMake configuration file for class_loader.
 class_loader_DIR:PATH=/opt/ros/indigo/share/class_loader/cmake
+
+//The directory containing a CMake configuration file for cmake_modules.
+cmake_modules_DIR:PATH=/opt/ros/indigo/share/cmake_modules/cmake
 
 //The directory containing a CMake configuration file for cpp_common.
 cpp_common_DIR:PATH=/opt/ros/indigo/share/cpp_common/cmake
@@ -401,6 +449,30 @@ object_recognition_msgs_DIR:PATH=/opt/ros/indigo/share/object_recognition_msgs/c
 
 //The directory containing a CMake configuration file for octomap_msgs.
 octomap_msgs_DIR:PATH=/opt/ros/indigo/share/octomap_msgs/cmake
+
+//The directory containing a CMake configuration file for openrave.
+openrave_DIR:PATH=/usr/local/lib/cmake/openrave-0.9
+
+//Value Computed by CMake
+openrave_catkin_BINARY_DIR:STATIC=/home/apc16/apc_2016/mario_catkin_workspace/stowing/build/openrave_catkin
+
+//The directory containing a CMake configuration file for openrave_catkin.
+openrave_catkin_DIR:PATH=/home/apc16/apc_2016/mario_catkin_workspace/stowing/devel/share/openrave_catkin/cmake
+
+//Value Computed by CMake
+openrave_catkin_SOURCE_DIR:STATIC=/home/apc16/apc_2016/mario_catkin_workspace/stowing/src/openrave_catkin
+
+//Value Computed by CMake
+or_ompl_BINARY_DIR:STATIC=/home/apc16/apc_2016/mario_catkin_workspace/stowing/build/or_ompl
+
+//Dependencies for the target
+or_ompl_LIB_DEPENDS:STATIC=general;/usr/lib/x86_64-linux-gnu/libboost_chrono.so;general;/usr/lib/x86_64-linux-gnu/libboost_system.so;general;/opt/ros/indigo/lib/x86_64-linux-gnu/libompl.so;general;openrave0.9;general;/usr/lib/x86_64-linux-gnu/libtinyxml.so;
+
+//Value Computed by CMake
+or_ompl_SOURCE_DIR:STATIC=/home/apc16/apc_2016/mario_catkin_workspace/stowing/src/or_ompl
+
+//Dependencies for the target
+or_ompl_plugin_LIB_DEPENDS:STATIC=general;openrave0.9;general;or_ompl;general;/usr/lib/x86_64-linux-gnu/libboost_chrono.so;general;/usr/lib/x86_64-linux-gnu/libboost_system.so;
 
 //The directory containing a CMake configuration file for pluginlib.
 pluginlib_DIR:PATH=/opt/ros/indigo/share/pluginlib/cmake
@@ -590,6 +662,10 @@ xmlrpcpp_DIR:PATH=/opt/ros/indigo/share/xmlrpcpp/cmake
 # INTERNAL cache entries
 ########################
 
+//ADVANCED property for variable: Boost_CHRONO_LIBRARY_DEBUG
+Boost_CHRONO_LIBRARY_DEBUG-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Boost_CHRONO_LIBRARY_RELEASE
+Boost_CHRONO_LIBRARY_RELEASE-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: Boost_DIR
 Boost_DIR-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: Boost_INCLUDE_DIR
@@ -701,7 +777,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_LOCAL_GENERATORS:INTERNAL=15
+CMAKE_NUMBER_OF_LOCAL_GENERATORS:INTERNAL=17
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP
@@ -742,16 +818,26 @@ CMAKE_UNAME:INTERNAL=/bin/uname
 CMAKE_USE_RELATIVE_PATHS-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_VERBOSE_MAKEFILE
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: EIGEN_INCLUDE_DIR
+EIGEN_INCLUDE_DIR-ADVANCED:INTERNAL=1
+//Details about finding Eigen
+FIND_PACKAGE_MESSAGE_DETAILS_Eigen:INTERNAL=[/usr/include/eigen3][v()]
 //Details about finding NUMPY
 FIND_PACKAGE_MESSAGE_DETAILS_NUMPY:INTERNAL=/usr/lib/python2.7/dist-packages/numpy/core/include1.8.2
+//Details about finding OMPL
+FIND_PACKAGE_MESSAGE_DETAILS_OMPL:INTERNAL=[/opt/ros/indigo/lib/x86_64-linux-gnu/libompl.so][/opt/ros/indigo/include][v()]
 //Details about finding PYTHON
 FIND_PACKAGE_MESSAGE_DETAILS_PYTHON:INTERNAL=/usr/bin/python
+//Details about finding PkgConfig
+FIND_PACKAGE_MESSAGE_DETAILS_PkgConfig:INTERNAL=[/usr/bin/pkg-config][v0.26()]
 //Details about finding PythonInterp
 FIND_PACKAGE_MESSAGE_DETAILS_PythonInterp:INTERNAL=[/usr/bin/python][v2.7.6()]
 //Details about finding PythonLibs
 FIND_PACKAGE_MESSAGE_DETAILS_PythonLibs:INTERNAL=[/usr/lib/x86_64-linux-gnu/libpython2.7.so][/usr/include/python2.7;/usr/include/x86_64-linux-gnu/python3.4m][v2.7.6()]
 //Details about finding Threads
 FIND_PACKAGE_MESSAGE_DETAILS_Threads:INTERNAL=[TRUE][v()]
+//Details about finding TinyXML
+FIND_PACKAGE_MESSAGE_DETAILS_TinyXML:INTERNAL=[/usr/lib/x86_64-linux-gnu/libtinyxml.so][/usr/include][v()]
 GTEST_FROM_SOURCE_FOUND:INTERNAL=TRUE
 GTEST_FROM_SOURCE_INCLUDE_DIRS:INTERNAL=/usr/include
 GTEST_FROM_SOURCE_LIBRARIES:INTERNAL=gtest
@@ -767,6 +853,46 @@ GTEST_LIBRARY_DEBUG-ADVANCED:INTERNAL=1
 GTEST_MAIN_LIBRARY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: GTEST_MAIN_LIBRARY_DEBUG
 GTEST_MAIN_LIBRARY_DEBUG-ADVANCED:INTERNAL=1
+//Test OR_OMPL_HAS_BOOSTSMARTPTRS
+OR_OMPL_HAS_BOOSTSMARTPTRS:INTERNAL=1
+//Test OR_OMPL_HAS_PPSEROPTS
+OR_OMPL_HAS_PPSEROPTS:INTERNAL=1
+PC_EIGEN_CFLAGS:INTERNAL=-I/usr/include/eigen3
+PC_EIGEN_CFLAGS_I:INTERNAL=
+PC_EIGEN_CFLAGS_OTHER:INTERNAL=
+PC_EIGEN_FOUND:INTERNAL=1
+PC_EIGEN_INCLUDEDIR:INTERNAL=
+PC_EIGEN_INCLUDE_DIRS:INTERNAL=/usr/include/eigen3
+PC_EIGEN_LDFLAGS:INTERNAL=
+PC_EIGEN_LDFLAGS_OTHER:INTERNAL=
+PC_EIGEN_LIBDIR:INTERNAL=
+PC_EIGEN_LIBRARIES:INTERNAL=
+PC_EIGEN_LIBRARY_DIRS:INTERNAL=
+PC_EIGEN_LIBS:INTERNAL=
+PC_EIGEN_LIBS_L:INTERNAL=
+PC_EIGEN_LIBS_OTHER:INTERNAL=
+PC_EIGEN_LIBS_PATHS:INTERNAL=
+PC_EIGEN_PREFIX:INTERNAL=
+PC_EIGEN_STATIC_CFLAGS:INTERNAL=-I/usr/include/eigen3
+PC_EIGEN_STATIC_CFLAGS_I:INTERNAL=
+PC_EIGEN_STATIC_CFLAGS_OTHER:INTERNAL=
+PC_EIGEN_STATIC_INCLUDE_DIRS:INTERNAL=/usr/include/eigen3
+PC_EIGEN_STATIC_LDFLAGS:INTERNAL=
+PC_EIGEN_STATIC_LDFLAGS_OTHER:INTERNAL=
+PC_EIGEN_STATIC_LIBDIR:INTERNAL=
+PC_EIGEN_STATIC_LIBRARIES:INTERNAL=
+PC_EIGEN_STATIC_LIBRARY_DIRS:INTERNAL=
+PC_EIGEN_STATIC_LIBS:INTERNAL=
+PC_EIGEN_STATIC_LIBS_L:INTERNAL=
+PC_EIGEN_STATIC_LIBS_OTHER:INTERNAL=
+PC_EIGEN_STATIC_LIBS_PATHS:INTERNAL=
+PC_EIGEN_VERSION:INTERNAL=3.2.0
+PC_EIGEN_eigen3_INCLUDEDIR:INTERNAL=
+PC_EIGEN_eigen3_LIBDIR:INTERNAL=
+PC_EIGEN_eigen3_PREFIX:INTERNAL=
+PC_EIGEN_eigen3_VERSION:INTERNAL=
+//ADVANCED property for variable: PKG_CONFIG_EXECUTABLE
+PKG_CONFIG_EXECUTABLE-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: PYTHON_EXECUTABLE
 PYTHON_EXECUTABLE-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: PYTHON_INCLUDE_DIR
@@ -783,12 +909,17 @@ PYTHON_INSTALL_DIR:INTERNAL=lib/python2.7/dist-packages
 PYTHON_LIBRARY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: PYTHON_LIBRARY_DEBUG
 PYTHON_LIBRARY_DEBUG-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: TinyXML_INCLUDE_DIR
+TinyXML_INCLUDE_DIR-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: TinyXML_LIBRARY
+TinyXML_LIBRARY-ADVANCED:INTERNAL=1
 //Components requested for this build tree.
-_Boost_COMPONENTS_SEARCHED:INTERNAL=python;system
+_Boost_COMPONENTS_SEARCHED:INTERNAL=chrono;python;system
 //Last used Boost_INCLUDE_DIR value.
 _Boost_INCLUDE_DIR_LAST:INTERNAL=/usr/include
 //Last used Boost_LIBRARY_DIR value.
 _Boost_LIBRARY_DIR_LAST:INTERNAL=/usr/lib/x86_64-linux-gnu
 //Last used Boost_USE_MULTITHREADED value.
 _Boost_USE_MULTITHREADED_LAST:INTERNAL=TRUE
+__pkg_config_checked_PC_EIGEN:INTERNAL=1
 
