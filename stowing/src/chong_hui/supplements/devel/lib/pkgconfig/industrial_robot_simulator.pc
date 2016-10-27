@@ -1,0 +1,8 @@
+prefix=/home/conghui/NTU_Amazon_Picking_Challenge/demo_manipulation/src/supplements/devel
+
+Name: industrial_robot_simulator
+Description: Description of industrial_robot_simulator
+Version: 0.3.3
+Cflags: 
+Libs: -L/home/conghui/NTU_Amazon_Picking_Challenge/demo_manipulation/src/supplements/devel/lib 
+Requires: roscpp std_msgs sensor_msgs control_msgs trajectory_msgs industrial_robot_client

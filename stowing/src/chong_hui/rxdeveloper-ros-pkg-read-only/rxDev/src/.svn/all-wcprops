@@ -1,0 +1,215 @@
+K 25
+svn:wc:ra_dav:version-url
+V 33
+/svn/!svn/ver/132/trunk/rxDev/src
+END
+launchFileScene.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/2/trunk/rxDev/src/launchFileScene.cpp
+END
+nodeSelection.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/129/trunk/rxDev/src/nodeSelection.cpp
+END
+settings.ui
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/svn/!svn/ver/32/trunk/rxDev/src/settings.ui
+END
+rxdev.h
+K 25
+svn:wc:ra_dav:version-url
+V 41
+/svn/!svn/ver/132/trunk/rxDev/src/rxdev.h
+END
+launchFileReader.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/!svn/ver/127/trunk/rxDev/src/launchFileReader.cpp
+END
+settings.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/!svn/ver/32/trunk/rxDev/src/settings.cpp
+END
+specFileEdit.h
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/132/trunk/rxDev/src/specFileEdit.h
+END
+newEntry.ui
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/svn/!svn/ver/2/trunk/rxDev/src/newEntry.ui
+END
+launchFileWriter.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/!svn/ver/126/trunk/rxDev/src/launchFileWriter.cpp
+END
+launchFileView.h
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/122/trunk/rxDev/src/launchFileView.h
+END
+specFileParser.h
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/67/trunk/rxDev/src/specFileParser.h
+END
+icons.qrc
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/svn/!svn/ver/64/trunk/rxDev/src/icons.qrc
+END
+wikiDialog.ui
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/!svn/ver/64/trunk/rxDev/src/wikiDialog.ui
+END
+newEntry.h
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/svn/!svn/ver/56/trunk/rxDev/src/newEntry.h
+END
+mainwindow.h
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/svn/!svn/ver/2/trunk/rxDev/src/mainwindow.h
+END
+rxdev.ui
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/svn/!svn/ver/129/trunk/rxDev/src/rxdev.ui
+END
+main.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 41
+/svn/!svn/ver/64/trunk/rxDev/src/main.cpp
+END
+nodeSelection.ui
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/129/trunk/rxDev/src/nodeSelection.ui
+END
+rxdev.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/svn/!svn/ver/132/trunk/rxDev/src/rxdev.cpp
+END
+wikiDialog.h
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/!svn/ver/64/trunk/rxDev/src/wikiDialog.h
+END
+specFileEdit.ui
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/132/trunk/rxDev/src/specFileEdit.ui
+END
+CMakeLists.txt
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/129/trunk/rxDev/src/CMakeLists.txt
+END
+c_connector.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/122/trunk/rxDev/src/c_connector.cpp
+END
+launchFileScene.h
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/2/trunk/rxDev/src/launchFileScene.h
+END
+specFileEdit.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/132/trunk/rxDev/src/specFileEdit.cpp
+END
+nodeSelection.h
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/129/trunk/rxDev/src/nodeSelection.h
+END
+c_creator.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/129/trunk/rxDev/src/c_creator.cpp
+END
+launchFileReader.h
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/2/trunk/rxDev/src/launchFileReader.h
+END
+settings.h
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/svn/!svn/ver/32/trunk/rxDev/src/settings.h
+END
+launchFileView.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/122/trunk/rxDev/src/launchFileView.cpp
+END
+specFileParser.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/67/trunk/rxDev/src/specFileParser.cpp
+END
+newEntry.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/svn/!svn/ver/2/trunk/rxDev/src/newEntry.cpp
+END
+launchFileWriter.h
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/122/trunk/rxDev/src/launchFileWriter.h
+END
+mainwindow.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/!svn/ver/2/trunk/rxDev/src/mainwindow.cpp
+END
+wikiDialog.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/64/trunk/rxDev/src/wikiDialog.cpp
+END

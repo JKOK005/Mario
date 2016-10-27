@@ -1,0 +1,7 @@
+set(_CATKIN_CURRENT_PACKAGE "ur_gazebo")
+set(ur_gazebo_MAINTAINER "Shaun Edwards <sedwards@swri.org>")
+set(ur_gazebo_DEPRECATED "")
+set(ur_gazebo_VERSION "1.0.0")
+set(ur_gazebo_BUILD_DEPENDS "ur_description")
+set(ur_gazebo_RUN_DEPENDS "ur_description")
+set(ur_gazebo_BUILDTOOL_DEPENDS "catkin")

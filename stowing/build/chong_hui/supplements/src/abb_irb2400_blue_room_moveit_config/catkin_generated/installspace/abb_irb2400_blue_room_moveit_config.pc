@@ -1,0 +1,8 @@
+prefix=/home/apc16/apc_2016/mario_catkin_workspace/stowing/install
+
+Name: abb_irb2400_blue_room_moveit_config
+Description: Description of abb_irb2400_blue_room_moveit_config
+Version: 0.2.0
+Cflags: 
+Libs: -L/home/apc16/apc_2016/mario_catkin_workspace/stowing/install/lib 
+Requires: 

@@ -1,0 +1,7 @@
+set(_CATKIN_CURRENT_PACKAGE "ur_msgs")
+set(ur_msgs_MAINTAINER "Wouter Caarls <w.caarls@tudelft.nl>")
+set(ur_msgs_DEPRECATED "")
+set(ur_msgs_VERSION "1.0.0")
+set(ur_msgs_BUILD_DEPENDS "message_generation")
+set(ur_msgs_RUN_DEPENDS "message_runtime")
+set(ur_msgs_BUILDTOOL_DEPENDS "catkin")

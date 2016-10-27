@@ -1,0 +1,2 @@
+set(ur_msgs_MESSAGE_FILES "/home/conghui/NTU_Amazon_Picking_Challenge/demo_manipulation/src/supplements/src/universal_robot/ur_msgs/msg/IOState.msg;/home/conghui/NTU_Amazon_Picking_Challenge/demo_manipulation/src/supplements/src/universal_robot/ur_msgs/msg/IOStates.msg")
+set(ur_msgs_SERVICE_FILES "/home/conghui/NTU_Amazon_Picking_Challenge/demo_manipulation/src/supplements/src/universal_robot/ur_msgs/srv/SetIOState.srv")

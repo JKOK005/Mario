@@ -1,0 +1,1 @@
+/usr/bin/c++  -fPIC    -shared -Wl,-soname,libur10_kin.so -o /home/conghui/NTU_Amazon_Picking_Challenge/demo_manipulation/src/supplements/devel/lib/libur10_kin.so CMakeFiles/ur10_kin.dir/src/ur_kin.cpp.o 

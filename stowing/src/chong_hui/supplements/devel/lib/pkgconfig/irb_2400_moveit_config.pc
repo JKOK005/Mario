@@ -1,0 +1,8 @@
+prefix=/home/conghui/NTU_Amazon_Picking_Challenge/demo_manipulation/src/supplements/devel
+
+Name: irb_2400_moveit_config
+Description: Description of irb_2400_moveit_config
+Version: 0.2.0
+Cflags: 
+Libs: -L/home/conghui/NTU_Amazon_Picking_Challenge/demo_manipulation/src/supplements/devel/lib 
+Requires: 

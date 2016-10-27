@@ -1,0 +1,7 @@
+set(_CATKIN_CURRENT_PACKAGE "abb_common")
+set(abb_common_MAINTAINER "Shaun Edwards <sedwards@swri.org>")
+set(abb_common_DEPRECATED "")
+set(abb_common_VERSION "1.0.0")
+set(abb_common_BUILD_DEPENDS "industrial_robot_client" "simple_message")
+set(abb_common_RUN_DEPENDS "industrial_robot_client" "simple_message" "xacro")
+set(abb_common_BUILDTOOL_DEPENDS "catkin")

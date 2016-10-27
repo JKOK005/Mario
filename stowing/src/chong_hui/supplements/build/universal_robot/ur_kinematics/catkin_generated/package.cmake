@@ -1,0 +1,7 @@
+set(_CATKIN_CURRENT_PACKAGE "ur_kinematics")
+set(ur_kinematics_MAINTAINER "Kelsey Hawkins <kphawkins@gatech.edu>")
+set(ur_kinematics_DEPRECATED "")
+set(ur_kinematics_VERSION "0.1.0")
+set(ur_kinematics_BUILD_DEPENDS )
+set(ur_kinematics_RUN_DEPENDS )
+set(ur_kinematics_BUILDTOOL_DEPENDS "catkin")

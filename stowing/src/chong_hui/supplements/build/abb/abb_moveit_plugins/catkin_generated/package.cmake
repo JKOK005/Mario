@@ -1,0 +1,7 @@
+set(_CATKIN_CURRENT_PACKAGE "abb_moveit_plugins")
+set(abb_moveit_plugins_MAINTAINER "Jeremy Zoss <jzoss@swri.org>")
+set(abb_moveit_plugins_DEPRECATED "")
+set(abb_moveit_plugins_VERSION "1.0.0")
+set(abb_moveit_plugins_BUILD_DEPENDS "moveit_core" "roscpp")
+set(abb_moveit_plugins_RUN_DEPENDS "moveit_core" "roscpp")
+set(abb_moveit_plugins_BUILDTOOL_DEPENDS "catkin")

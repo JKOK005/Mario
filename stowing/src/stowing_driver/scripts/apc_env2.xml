@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- All units are in m  -->
+
+<Environment>
+	<robot name="ur5_with_base">
+		<robot file="ur5.dae">
+			<offsetfrom> base </offsetfrom>
+			<Translation>1 0 1.54</Translation>
+			<quat>1.000000 0.000000 0.000000 0.000000</quat>
+		</robot>
+	</robot>
+
+	<KinBody name="base_ur5">
+		<Body type="static">
+			<Translation>1 0 0.76</Translation>
+			<quat>1.000000 1.000000 0.000000 0.000000</quat>
+			<Geom type="cylinder" render="true">
+				<radius>0.06</radius>
+         		<height>1.54</height>
+         		<diffuseColor>0.9 0.9 0</diffuseColor>
+			</Geom>
+		</Body>
+	</KinBody>
+	
+	<KinBody name="kiva_pods">
+		<Body type="static">
+      		<Translation>1 1.2 0</Translation>
+        	<quat>1.000000 1.000000 0.000000 0.000000</quat>
+	      	<Geom type="trimesh" render="true">
+				<data>pod_lowres.stl</data>
+			</Geom>
+    	</Body>
+	</KinBody>
+
+	<KinBody name="base">
+	    <translation>0 0 0</translation>
+	    <quat>1.000000 0.000000 0.000000 0.000000</quat>
+	    <Body type="static">
+	      <Geom type="box">
+	        <extents>5 5 0.1</extents>
+	        <diffuseColor>0 .1 .1</diffuseColor>
+	      </Geom>
+	    </Body>
+	</KinBody>
+
+</Environment>

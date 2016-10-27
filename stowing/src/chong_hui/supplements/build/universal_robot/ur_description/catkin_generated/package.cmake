@@ -1,0 +1,7 @@
+set(_CATKIN_CURRENT_PACKAGE "ur_description")
+set(ur_description_MAINTAINER "Kelsey Hawkins <kphawkins@gatech.edu>")
+set(ur_description_DEPRECATED "")
+set(ur_description_VERSION "0.0.0")
+set(ur_description_BUILD_DEPENDS "urdf")
+set(ur_description_RUN_DEPENDS "urdf")
+set(ur_description_BUILDTOOL_DEPENDS "catkin")

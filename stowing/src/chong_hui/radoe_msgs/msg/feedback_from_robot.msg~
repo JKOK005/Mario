@@ -1,0 +1,2 @@
+Header header #this is just an example
+int8 planned # if planned==0, not planned, if planned==1, is planned

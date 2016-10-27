@@ -1,0 +1,7 @@
+set(_CATKIN_CURRENT_PACKAGE "industrial_robot_simulator")
+set(industrial_robot_simulator_MAINTAINER "Shaun Edwards <sedwards@swri.org>")
+set(industrial_robot_simulator_DEPRECATED "")
+set(industrial_robot_simulator_VERSION "0.3.3")
+set(industrial_robot_simulator_BUILD_DEPENDS "roscpp" "std_msgs" "sensor_msgs" "control_msgs" "trajectory_msgs" "industrial_robot_client")
+set(industrial_robot_simulator_RUN_DEPENDS "roscpp" "std_msgs" "sensor_msgs" "control_msgs" "trajectory_msgs" "industrial_robot_client")
+set(industrial_robot_simulator_BUILDTOOL_DEPENDS "catkin")
