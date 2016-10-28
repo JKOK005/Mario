@@ -275,7 +275,7 @@ class OR_motion_planning:
 		    "type" : "cart_vel",
 		    "name" : "cart_vel",
 		    "params" : {
-		        "max_displacement" : 1,
+		        "max_displacement" : 0.1,
 		        "first_step" : 0,
 		        "last_step" : n_steps-1, #inclusive
 		        "link" : "link6"
@@ -320,7 +320,7 @@ class OR_motion_planning:
 
 		for each_traj in trajectory:
 			self.robot.SetDOFValues(each_traj, self.get_manip().GetArmIndices())
-			flag = self.env.CheckCollision(kin.GetLinks()[3], kin.GetLinks()[6])		# Checks for collisions between 2 cylinder arms of the robot
+			flag = self.env.CheckCollision(kin.GetLinks()[3], kin.GetLinks()[6])		
 
 			if flag == True:
 				return False		# That means that collision happened
@@ -345,7 +345,7 @@ class OR_motion_planning:
 
 
 if __name__ == "__main__":	
-	joint_start 		= [1,2.2,2.45,-1.5,0,0]
+	joint_start 		= [-1.8,0.1,-1.3,2.75,1.5,0]
 	bin1 				= [-1,0,1,1.5,2,0]
 	bin2 				= [-0.66,0,1,1.5,2,0]
 	bin3 				= [-0.30,0,1,2.6,1.2,0]
@@ -367,15 +367,25 @@ if __name__ == "__main__":
 							"collision_options":[op.CollisionOptions.Contacts]}
 
 	IPython.embed()
-	import sys
-	# sys.exit()
-
 	for itr in range(12):
-		planner.init_planning_setup(robot_path[itr], collision_struct)
+		planner.init_planning_setup(robot_path[itr +1], collision_struct)
 
 		# final_trajectory 	=	planner.optimize_ompl_trajopt(joint_target=joint_target, algorithm="RRTstar")
-		final_trajectory 	=	planner.optimize_trajopt(joint_target=robot_path[itr +1])
+		final_trajectory 	=	planner.optimize_trajopt(joint_target=robot_path[0])
 		planner.simulate(trajectory=final_trajectory)
 		raw_input("Press enter to continue: ")
 
+	# import random
+	# prev_itr 				= 0
+	# itr 					= prev_itr
 
+	# while(raw_input("Press enter to continue or q to quit: ") != 'q'):
+	# 	while(prev_itr == itr):
+	# 		itr 				= random.randint(0, len(robot_path) -1)
+
+	# 	planner.init_planning_setup(robot_path[0], collision_struct)
+
+	# 	final_trajectory 	=	planner.optimize_trajopt(joint_target=robot_path[itr])
+	# 	planner.simulate(trajectory=final_trajectory)
+		
+	# 	prev_itr 			= itr

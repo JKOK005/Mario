@@ -44,4 +44,29 @@
 	    </Body>
 	</KinBody>
 
+	<KinBody name="unit_square">
+		<!-- Unit square 1m in Y dimension to give perspective of the setup -->
+		<offsetfrom> base_ur5 </offsetfrom>
+	    <translation>2 0.5 0.1</translation>
+	    <quat>1.000000 0.000000 0.000000 0.000000</quat>
+	    <Body type="static">
+	      <Geom type="box" render="true">
+	        <extents>0.05 0.5 0.05</extents>
+	        <diffuseColor>0.2 0.2 1</diffuseColor>
+	      </Geom>
+	    </Body>
+	</KinBody>
+
+	<KinBody name="tote">
+		<offsetfrom> base_ur5 </offsetfrom>
+	    <translation>0.35 0.305 1.0</translation>
+	    <quat>1.000000 0.000000 0.000000 0.000000</quat>
+	    <Body type="static">
+	      <Geom type="box">
+	        <extents>0.19 0.305 0.10</extents>
+	        <diffuseColor>1 0 0</diffuseColor>
+	      </Geom>
+	    </Body>
+	</KinBody>
+
 </Environment>
