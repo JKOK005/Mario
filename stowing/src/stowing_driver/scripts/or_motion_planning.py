@@ -361,19 +361,19 @@ if __name__ == "__main__":
 
 	robot_path 			= [joint_start] + [bin1] + [bin2] + [bin3] + [bin4] + [bin5] + [bin6] + [bin7] + [bin8] + [bin9] + [bin10] + [bin11] + [bin12]  
 
-	planner 			= OR_motion_planning('apc_env2.xml')
+	planner 			= OR_motion_planning('apc_env.xml')
 
 	collision_struct 	= {"checker":'pqp', 
 							"collision_options":[op.CollisionOptions.Contacts]}
 
 	IPython.embed()
-	for itr in range(12):
-		planner.init_planning_setup(robot_path[itr +1], collision_struct)
+	# for itr in range(12):
+	# 	planner.init_planning_setup(robot_path[itr +1], collision_struct)
 
-		# final_trajectory 	=	planner.optimize_ompl_trajopt(joint_target=joint_target, algorithm="RRTstar")
-		final_trajectory 	=	planner.optimize_trajopt(joint_target=robot_path[0])
-		planner.simulate(trajectory=final_trajectory)
-		raw_input("Press enter to continue: ")
+	# 	# final_trajectory 	=	planner.optimize_ompl_trajopt(joint_target=joint_target, algorithm="RRTstar")
+	# 	final_trajectory 	=	planner.optimize_trajopt(joint_target=robot_path[0])
+	# 	planner.simulate(trajectory=final_trajectory)
+	# 	raw_input("Press enter to continue: ")
 
 	# import random
 	# prev_itr 				= 0
