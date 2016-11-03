@@ -1,5 +1,0 @@
-<launch>
-
-<node pkg="moveit_emp" name="moveMulPos" type="moveMulPos" output="screen"/>
-
-</launch>

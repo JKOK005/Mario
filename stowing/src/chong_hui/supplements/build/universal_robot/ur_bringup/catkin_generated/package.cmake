@@ -1,7 +1,0 @@
-set(_CATKIN_CURRENT_PACKAGE "ur_bringup")
-set(ur_bringup_MAINTAINER "Shaun Edwards <sedwards@swri.org>")
-set(ur_bringup_DEPRECATED "")
-set(ur_bringup_VERSION "0.0.0")
-set(ur_bringup_BUILD_DEPENDS "tf2_ros" "ur_description" "ur_driver")
-set(ur_bringup_RUN_DEPENDS "tf2_ros" "ur_description" "ur_driver")
-set(ur_bringup_BUILDTOOL_DEPENDS "catkin")

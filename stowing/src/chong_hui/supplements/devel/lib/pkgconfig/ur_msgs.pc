@@ -1,8 +1,0 @@
-prefix=/home/conghui/NTU_Amazon_Picking_Challenge/demo_manipulation/src/supplements/devel
-
-Name: ur_msgs
-Description: Description of ur_msgs
-Version: 1.0.0
-Cflags: -I/home/conghui/NTU_Amazon_Picking_Challenge/demo_manipulation/src/supplements/devel/include
-Libs: -L/home/conghui/NTU_Amazon_Picking_Challenge/demo_manipulation/src/supplements/devel/lib 
-Requires: 

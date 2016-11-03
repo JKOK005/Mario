@@ -1,7 +1,0 @@
-set(_CATKIN_CURRENT_PACKAGE "object_manipulation_msgs")
-set(object_manipulation_msgs_MAINTAINER "jnicho <jnicho@swri.org>")
-set(object_manipulation_msgs_DEPRECATED "")
-set(object_manipulation_msgs_VERSION "0.0.0")
-set(object_manipulation_msgs_BUILD_DEPENDS "roscpp" "actionlib_msgs" "std_msgs" "geometry_msgs" "sensor_msgs" "trajectory_msgs" "sensor_msgs" "household_objects_database_msgs" "shape_msgs" "manipulation_msgs")
-set(object_manipulation_msgs_RUN_DEPENDS "actionlib_msgs" "std_msgs" "geometry_msgs" "sensor_msgs" "trajectory_msgs" "household_objects_database_msgs" "shape_msgs" "manipulation_msgs" "message_runtime")
-set(object_manipulation_msgs_BUILDTOOL_DEPENDS "catkin")

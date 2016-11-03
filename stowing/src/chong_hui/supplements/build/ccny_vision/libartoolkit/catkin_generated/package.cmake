@@ -1,7 +1,0 @@
-set(_CATKIN_CURRENT_PACKAGE "libartoolkit")
-set(libartoolkit_MAINTAINER "Miquel Massot <miquel.massot@uib.cat>, Pep Lluis Negre <pl.negre@uib.cat>")
-set(libartoolkit_DEPRECATED "")
-set(libartoolkit_VERSION "0.0.1")
-set(libartoolkit_BUILD_DEPENDS "eigen")
-set(libartoolkit_RUN_DEPENDS "catkin" "eigen")
-set(libartoolkit_BUILDTOOL_DEPENDS "catkin")

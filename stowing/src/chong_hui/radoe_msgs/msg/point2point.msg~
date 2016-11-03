@@ -1,7 +1,0 @@
-Header header
-int32 no_of_points #test
-float32[] x
-float32[] y
-float32[] z
-int32 plan
-int32 execute

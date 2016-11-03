@@ -1,7 +1,0 @@
-set(_CATKIN_CURRENT_PACKAGE "irb_2400_moveit_config")
-set(irb_2400_moveit_config_MAINTAINER "MoveIt Setup Assistant <assistant@moveit.ros.org>")
-set(irb_2400_moveit_config_DEPRECATED "")
-set(irb_2400_moveit_config_VERSION "0.2.0")
-set(irb_2400_moveit_config_BUILD_DEPENDS "abb_common")
-set(irb_2400_moveit_config_RUN_DEPENDS "moveit_ros_move_group" "abb_common" "moveit_simple_controller_manager" "industrial_robot_simulator")
-set(irb_2400_moveit_config_BUILDTOOL_DEPENDS "catkin")

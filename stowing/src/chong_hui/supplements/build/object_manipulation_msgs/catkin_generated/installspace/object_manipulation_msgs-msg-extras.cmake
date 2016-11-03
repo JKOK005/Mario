@@ -1,2 +1,0 @@
-set(object_manipulation_msgs_MESSAGE_FILES "msg/ManipulationResult.msg;msg/GraspHandPostureExecutionAction.msg;msg/GraspHandPostureExecutionActionGoal.msg;msg/GraspHandPostureExecutionActionResult.msg;msg/GraspHandPostureExecutionActionFeedback.msg;msg/GraspHandPostureExecutionGoal.msg;msg/GraspHandPostureExecutionResult.msg;msg/GraspHandPostureExecutionFeedback.msg")
-set(object_manipulation_msgs_SERVICE_FILES "")

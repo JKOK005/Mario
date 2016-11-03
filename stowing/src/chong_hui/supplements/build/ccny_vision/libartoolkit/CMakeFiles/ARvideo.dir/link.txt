@@ -1,1 +1,0 @@
-/usr/bin/gcc  -fPIC    -shared -Wl,-soname,libARvideo.so -o /home/conghui/NTU_Amazon_Picking_Challenge/demo_manipulation/src/supplements/devel/lib/libARvideo.so CMakeFiles/ARvideo.dir/src/VideoLinuxV4L/ccvt_c.c.o CMakeFiles/ARvideo.dir/src/VideoLinuxV4L/video.c.o 

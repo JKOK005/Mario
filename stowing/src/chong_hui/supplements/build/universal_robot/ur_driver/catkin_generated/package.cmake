@@ -1,7 +1,0 @@
-set(_CATKIN_CURRENT_PACKAGE "ur_driver")
-set(ur_driver_MAINTAINER "Shaun Edwards <sedwards@swri.org>")
-set(ur_driver_DEPRECATED "")
-set(ur_driver_VERSION "1.0.0")
-set(ur_driver_BUILD_DEPENDS "actionlib" "control_msgs" "rospy" "sensor_msgs" "trajectory_msgs" "ur_msgs")
-set(ur_driver_RUN_DEPENDS "actionlib" "control_msgs" "rospy" "sensor_msgs" "trajectory_msgs" "python-beautifulsoup" "ur_msgs")
-set(ur_driver_BUILDTOOL_DEPENDS "catkin")

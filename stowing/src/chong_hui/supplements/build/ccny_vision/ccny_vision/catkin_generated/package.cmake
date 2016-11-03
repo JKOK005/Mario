@@ -1,7 +1,0 @@
-set(_CATKIN_CURRENT_PACKAGE "ccny_vision")
-set(ccny_vision_MAINTAINER "Miquel Massot <miquel.massot@uib.cat>")
-set(ccny_vision_DEPRECATED "")
-set(ccny_vision_VERSION "0.0.1")
-set(ccny_vision_BUILD_DEPENDS )
-set(ccny_vision_RUN_DEPENDS "ar_pose" "libartoolkit")
-set(ccny_vision_BUILDTOOL_DEPENDS "catkin")

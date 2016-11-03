@@ -1,8 +1,0 @@
-prefix=/home/conghui/NTU_Amazon_Picking_Challenge/demo_manipulation/src/supplements/devel
-
-Name: ur_kinematics
-Description: Description of ur_kinematics
-Version: 0.1.0
-Cflags: -I/home/conghui/NTU_Amazon_Picking_Challenge/demo_manipulation/src/supplements/src/universal_robot/ur_kinematics/include
-Libs: -L/home/conghui/NTU_Amazon_Picking_Challenge/demo_manipulation/src/supplements/devel/lib -lur10_kin -lur5_kin
-Requires: 

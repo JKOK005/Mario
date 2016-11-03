@@ -1,1 +1,0 @@
-/usr/bin/gcc  -fPIC    -shared -Wl,-soname,libARgsub_lite.so -o /home/conghui/NTU_Amazon_Picking_Challenge/demo_manipulation/src/supplements/devel/lib/libARgsub_lite.so CMakeFiles/ARgsub_lite.dir/src/Gl/gsub_lite.c.o 

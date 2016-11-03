@@ -1,1 +1,0 @@
-/usr/bin/gcc  -fPIC    -shared -Wl,-soname,libARMulti.so -o /home/conghui/NTU_Amazon_Picking_Challenge/demo_manipulation/src/supplements/devel/lib/libARMulti.so CMakeFiles/ARMulti.dir/src/ARMulti/arMultiActivate.c.o CMakeFiles/ARMulti.dir/src/ARMulti/arMultiGetTransMat.c.o CMakeFiles/ARMulti.dir/src/ARMulti/arMultiReadConfigFile.c.o 

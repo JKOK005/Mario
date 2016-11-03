@@ -29,11 +29,17 @@ from poseInterpolator import *
 class Ur5_motion_planner:
 	joint_lim_low 				= [-1,-0.5,-0.5,-np.pi,-np.pi,-np.pi]			# Default joint limits.
 	joint_lim_high 				= [-i for i in joint_lim_low]
+	joint_names 				= ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint', 'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
 
 	def __init__(self):
-		self.joint_name 		= ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint', 'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
-		self.kin 				= Kinematics("ur5")
-		self.single_sol 		= False
+		rospy.init_node('ur5_gazebo_publisher', anonymous=True)
+		self.ros_rate 				= rospy.Rate(1)
+		self.move_arm_pub 			= rospy.Publisher('arm_controller/command', JointTrajectory, 
+									queue_size=10, latch=True)
+
+		self.joint_name 			= ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint', 'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
+		self.kin 					= Kinematics("ur5")
+		self.single_sol 			= False
 
 	def __unicode__(self):
 		return """UR5 custom motion planning library"""
@@ -174,6 +180,35 @@ class Ur5_motion_planner:
 		# Changes the planner from OMPL used to <name>
 		# To be implemented in future
 		pass
+
+	def _frame_message(self, joint_space):
+		interpolation_time 				= 2 	# seconds
+
+		joint_traj_msg 					= JointTrajectory()
+		sensor_msg_header 				= Header()
+		JointTrajectoryPoint_points 	= JointTrajectoryPoint()
+
+		sensor_msg_header.seq 			= 1
+		sensor_msg_header.stamp 		= rospy.get_rostime()
+		sensor_msg_header.frame_id 		= "10"
+
+		JointTrajectoryPoint_points.positions			= [i for i in joint_space]
+		JointTrajectoryPoint_points.velocities			= []
+		JointTrajectoryPoint_points.accelerations 		= []
+		JointTrajectoryPoint_points.effort 				= []
+		JointTrajectoryPoint_points.time_from_start 	= rospy.Duration(interpolation_time)
+
+		joint_traj_msg.header 			= sensor_msg_header
+		joint_traj_msg.joint_names 		= self.joint_names
+		joint_traj_msg.points 			= [JointTrajectoryPoint_points]
+
+		return joint_traj_msg
+
+	def move_arm(self, joint_space):
+		joint_traj_msg			= self._frame_message(joint_space)
+		self.move_arm_pub.publish(joint_traj_msg)	
+		self.ros_rate.sleep()
+
 
 if __name__ == "__main__":
 	current_joint_val	= [-0.206423593026,-1.88930973546,1.93371669802,3.891687163,2.27589753846,-0.230542109703]

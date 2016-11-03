@@ -1,7 +1,0 @@
-set(_CATKIN_CURRENT_PACKAGE "ar_pose")
-set(ar_pose_MAINTAINER "Ivan Dryanovski <a@a.com>, William Morris <a@a.com>, Gautier Dumonteil et al. <a@a.com>")
-set(ar_pose_DEPRECATED "")
-set(ar_pose_VERSION "0.0.1")
-set(ar_pose_BUILD_DEPENDS "libartoolkit" "geometry_msgs" "tf" "resource_retriever" "image_transport" "cv_bridge" "message_generation")
-set(ar_pose_RUN_DEPENDS "libartoolkit" "geometry_msgs" "tf" "resource_retriever" "image_transport" "cv_bridge" "message_runtime")
-set(ar_pose_BUILDTOOL_DEPENDS "catkin")
