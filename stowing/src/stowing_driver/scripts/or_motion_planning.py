@@ -345,19 +345,19 @@ class OR_motion_planning:
 
 
 if __name__ == "__main__":	
-	joint_start 		= [-1.8,0.1,-1.3,2.75,1.5,0]
-	bin1 				= [-1,0,1,1.5,2,0]
-	bin2 				= [-0.66,0,1,1.5,2,0]
-	bin3 				= [-0.30,0,1,2.6,1.2,0]
-	bin4 				= [-1,-0.4,1,2.5,1.7,0]
-	bin5 				= [-0.63,-0.5,1.2,2.4,1.7,0]
-	bin6 				= [-0.28,-0.5,1.2,2.4,1.1,0]
-	bin7 				= [-1,-0.8,1.2,2.7,1.8,0]
-	bin8 				= [-0.66,-0.85,1.3,2.5,1.4,0]
-	bin9 				= [-0.26,-0.94,1.4,2.6,1.3,0]
-	bin10 				= [-0.95,-0.9,0.9,3,1.6,0]
-	bin11 				= [-0.66,-0.95,0.9,3,1.6,0]
-	bin12 				= [-0.25,-0.9,0.7,3.2,1.3,0]
+	joint_start 		= [-0.97,0.2,-1.4,2.75,1.5,0]
+	bin1 				= [-0.3,0,1,2.2,1.8,0]
+	bin2 				= [0.1,0.6,-0.3,2.6,1.8,0]
+	bin3 				= [0.5,0.4,0.1,2.3,1.1,0]
+	bin4 				= [-0.37,-0.5,1.25,2.4,1.5,0]
+	bin5 				= [0.07,-0.5,1.25,2.4,1.5,0]
+	bin6 				= [0.47,-0.4,0.95,2.3,1.1,0]
+	bin7 				= [-0.25,-0.8,1.25,2.4,1.5,0]
+	bin8 				= [0.15,-0.8,1.10,2.9,1.3,1.2]
+	bin9 				= [0.85,-0.8,1.10,2.9,1.3,1.2]
+	bin10 				= [-0.25,-1.0,1.60,3.1,2.0,1.2]
+	bin11 				= [0.25,-1.3,1.60,2.9,1.3,1.2]
+	bin12 				= [0.75,-1.3,1.60,2.9,1.3,1.2]
 
 	robot_path 			= [joint_start] + [bin1] + [bin2] + [bin3] + [bin4] + [bin5] + [bin6] + [bin7] + [bin8] + [bin9] + [bin10] + [bin11] + [bin12]  
 
@@ -367,12 +367,20 @@ if __name__ == "__main__":
 							"collision_options":[op.CollisionOptions.Contacts]}
 
 	IPython.embed()
+	import rospy
+	driver 	= Ur5_motion_planner()
+
 	for itr in range(12):
 	 	planner.init_planning_setup(robot_path[itr +1], collision_struct)
 
 	 	#final_trajectory 	=	planner.optimize_ompl_trajopt(joint_target=joint_target, algorithm="RRTstar")
 	 	final_trajectory 	=	planner.optimize_trajopt(joint_target=robot_path[0])
 	 	planner.simulate(trajectory=final_trajectory)
+
+	 	for each_traj in final_trajectory:
+		 	driver.move_arm(each_traj)
+		 	rospy.sleep(0.05)
+
 	 	raw_input("Press enter to continue: ")
 
 	# import random

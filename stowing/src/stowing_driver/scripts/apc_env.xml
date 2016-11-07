@@ -7,7 +7,7 @@
 		<robot file="ur5.dae">
 			<offsetfrom> base </offsetfrom>
 			<Translation>1 0 1.54</Translation>
-			<quat>1.000000 0.000000 0.000000 0.000000</quat>
+			<quat>1.000000 0.000000 0.000000 0.3927000</quat>
 		</robot>
 	</robot>
 

@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="ur5_full" >
+  <!-- common stuff -->
+  <xacro:include filename="$(find ur_description)/urdf/common.gazebo.xacro" />
+
+  <!-- ur5 -->
+  <xacro:include filename="$(find ur_description)/urdf/ur5.urdf.xacro" />
+
+  <!-- arm -->
+  <xacro:ur5_robot prefix="" joint_limited="false"/>
+
+  <!-- ur5 robot with base -->
+  <xacro:ur5_with_base height="0.77" length="1.54" radius="0.06"/>
+
+  <xacro:macro name="ur5_with_base" params="height length radius">
+    <link name="world" />
+
+    <link name="cylinder_base">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="100.0" />
+        <inertia  ixx="1.0" ixy="0.0"  ixz="0.0"  iyy="1.0"  iyz="0.0"  izz="1.0" />
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+           <cylinder length="${length}" radius="${radius}"/>
+        </geometry>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+           <cylinder length="${length}" radius="${radius}"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="world_joint" type="fixed">
+      <parent link="world" />
+      <child link = "cylinder_base" />
+      <origin xyz="0.0 0.0 ${height}" rpy="0.0 0.0 0.0" />
+    </joint>
+
+    <joint name="ur5_to_cylinder" type="fixed">
+      <parent link="cylinder_base" />
+      <child link="base_link" />
+      <origin xyz="0.0 0.0 ${height}" rpy="0.0 0.0 0.0" />
+    </joint>
+  </xacro:macro>
+</robot>

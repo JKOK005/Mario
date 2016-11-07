@@ -182,7 +182,7 @@ class Ur5_motion_planner:
 		pass
 
 	def _frame_message(self, joint_space):
-		interpolation_time 				= 2 	# seconds
+		interpolation_time 				= 0.5 	# seconds
 
 		joint_traj_msg 					= JointTrajectory()
 		sensor_msg_header 				= Header()
@@ -192,7 +192,7 @@ class Ur5_motion_planner:
 		sensor_msg_header.stamp 		= rospy.get_rostime()
 		sensor_msg_header.frame_id 		= "10"
 
-		JointTrajectoryPoint_points.positions			= [i for i in joint_space]
+		JointTrajectoryPoint_points.positions			= [-i for i in joint_space]
 		JointTrajectoryPoint_points.velocities			= []
 		JointTrajectoryPoint_points.accelerations 		= []
 		JointTrajectoryPoint_points.effort 				= []
@@ -211,9 +211,13 @@ class Ur5_motion_planner:
 
 
 if __name__ == "__main__":
+	test_joint 			= [0,0,0,0,0,0]
+	joint_start 		= [-0.97,0.2,-1.4,2.75,1.5,0]
+	bin1 				= [-0.3,0,1,2.2,1.8,0]
 	current_joint_val	= [-0.206423593026,-1.88930973546,1.93371669802,3.891687163,2.27589753846,-0.230542109703]
 	goal_cartesian 		= [-0.8139287376537965, -0.574451023319419, -2.465989452029603, 0.18783751718385825, -0.003253999496774948, 0.58640475380916413]
 
-	driver = Ur5_motion_planner()
-	points 	= driver.plan_to_cartesian(current_joint_val,goal_cartesian)
-	print points
+	driver 	= Ur5_motion_planner()
+	# points 	= driver.plan_to_cartesian(current_joint_val,goal_cartesian)
+	driver.move_arm(joint_start)
+	# print points
