@@ -30,6 +30,7 @@ import json
 import time
 import IPython
 import numpy as np
+import rospy
 from ur5_lib import Ur5_motion_planner
 from trajoptpy.check_traj import traj_is_safe
 
@@ -117,6 +118,7 @@ class OR_motion_planning:
 		# 	pass
 		# else:
 		# 	raise Exception('No path is safe')
+	 	#final_trajectory 	=	planner.optimize_ompl_trajopt(joint_target=joint_target, algorithm="RRTstar")
 		return result.GetTraj().tolist()
 
 	def __init_traj(self, joint_target, algorithm):
@@ -226,6 +228,21 @@ class OR_motion_planning:
 		}
 		return
 
+	def __get_n_val(self, starting_cartesian, target_cartesian, steps_per_meter):
+		start 					= np.array(starting_cartesian)
+		end 					= np.array(target_cartesian)
+		dist 					= np.linalg.norm(end -start)
+		n_steps 				= np.ceil(dist *steps_per_meter)
+
+		return int(n_steps)
+
+	def __get_n_steps_from_dist(self, starting_DOF, joint_target):
+		starting_cartesian 		= self.ur_kin.cartesian_from_joint(starting_DOF)[3:]
+		target_cartesian 		= self.ur_kin.cartesian_from_joint(joint_target)[3:]
+		steps_per_meter			= 350 		# 100 steps per meter
+
+		return self.__get_n_val(starting_cartesian, target_cartesian, steps_per_meter)
+
 	def optimize_trajopt(self, joint_target):
 
 		def __construct_problem(request):
@@ -235,7 +252,8 @@ class OR_motion_planning:
 
 		starting_DOF 		= self.get_manip_DOF()
 
-		n_steps = 200
+		n_steps = self.__get_n_steps_from_dist(starting_DOF, joint_target)
+
 		request = {
 		  "basic_info" : {
 		    "n_steps" : n_steps,
@@ -300,6 +318,7 @@ class OR_motion_planning:
 			request["init_info"]		= {"type" : "stationary"}
 			result 						= __construct_problem(request)
 
+		rospy.loginfo("No of points -> {0}".format(n_steps))
 		return result.GetTraj()
 
 	def simulate(self, trajectory):
@@ -367,19 +386,23 @@ if __name__ == "__main__":
 							"collision_options":[op.CollisionOptions.Contacts]}
 
 	IPython.embed()
-	import rospy
-	driver 	= Ur5_motion_planner()
+	driver 		= Ur5_motion_planner()
+	driver.move_arm(joint_start)
+	rospy.sleep(1)
+
 
 	for itr in range(12):
-	 	planner.init_planning_setup(robot_path[itr +1], collision_struct)
+		#  Move from bin to tote
+	 	planner.init_planning_setup(robot_path[0], collision_struct)
+	 	final_trajectory 	=	planner.optimize_trajopt(joint_target=robot_path[itr +1])
+	 	planner.simulate(trajectory=final_trajectory)
+		driver.move_arm(final_trajectory)
 
-	 	#final_trajectory 	=	planner.optimize_ompl_trajopt(joint_target=joint_target, algorithm="RRTstar")
+	 	# Move from tote to bin
+	 	planner.init_planning_setup(robot_path[itr +1], collision_struct)
 	 	final_trajectory 	=	planner.optimize_trajopt(joint_target=robot_path[0])
 	 	planner.simulate(trajectory=final_trajectory)
-
-	 	for each_traj in final_trajectory:
-		 	driver.move_arm(each_traj)
-		 	rospy.sleep(0.05)
+	 	driver.move_arm(final_trajectory)
 
 	 	raw_input("Press enter to continue: ")
 
