@@ -2,7 +2,7 @@
 
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="spawn_acp_shelf">  
   <!-- Adds the apc shelf -->
-  <xacro:apc_shelf X="3.0" Y="0.0" Z="0.0" roll="1.571" pitch="0.0" yaw="1.571"/>
+  <xacro:apc_shelf X="1.2" Y="0.0" Z="0.0" roll="1.571" pitch="0.0" yaw="1.571"/>
 
   <xacro:macro name="apc_shelf" params="X Y Z roll pitch yaw">
     <link name="world" />

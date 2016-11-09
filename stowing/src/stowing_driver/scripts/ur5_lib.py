@@ -30,15 +30,15 @@ class Ur5_motion_planner:
 	joint_lim_low 				= [-1,-0.5,-0.5,-np.pi,-np.pi,-np.pi]			# Default joint limits.
 	joint_lim_high 				= [-i for i in joint_lim_low]
 	joint_names 				= ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint', 'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
-	freq 						= 15	 	# Hz
-	max_time_step 				= 0.5 		# m/s
-	min_time_step 				= 0.1
+	freq 						= 30	 		# Hz
+	max_angular_vel 			= 0.5 			# rad /s
+	min_angular_vel 			= 0.1
 
 	def __init__(self):
 		rospy.init_node('ur5_gazebo_publisher', anonymous=True)
 		self.ros_rate 				= rospy.Rate(self.freq)
 		self.move_arm_pub 			= rospy.Publisher('arm_controller/command', JointTrajectory, 
-									queue_size=10, latch=True)
+									queue_size=20, latch=True)
 
 		self.joint_name 			= ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint', 'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
 		self.kin 					= Kinematics("ur5")
@@ -209,46 +209,56 @@ class Ur5_motion_planner:
 
 		return joint_traj_msg
 
-	def __publish_joint_msg(self, single_joint_space, time_interp=0.1):
+	def __publish_joint_msg(self, single_joint_space, time_interp=2):
 			joint_traj_msg			= self._frame_message(single_joint_space, time_interp)
 			self.move_arm_pub.publish(joint_traj_msg)	
 			self.ros_rate.sleep()
 
-	def __get_timing_ramp(self, no_of_points):
-		time_lst 			= []
+	def __move_arm_single(self, joint_space):
+		self.__publish_joint_msg(single_joint_space=joint_space)
 
-		for i in range(no_of_points):
-			if i <= no_points:
-				time_lst 	+= (self.min_time_step - self.max_time_step)*float(i/no_of_points) + self.max_time_step
-			else:
-				time_lst 	+= (self.max_time_step - self.min_time_step)*float(i/no_of_points) + self.min_time_step
+	def __get_velocity_ramp(self, itr, max_no_points):
 
+		if itr <= max_no_points /3:
+			vel 		= (3 *float(itr) /max_no_points) *(self.max_angular_vel -self.min_angular_vel) + self.min_angular_vel
+
+		elif itr >= max_no_points *2/3:
+			vel 		= self.max_angular_vel -(3 *float(itr) /max_no_points -2) * (self.max_angular_vel -self.min_angular_vel)
+
+		else:
+			vel 		= self.max_angular_vel
+
+		return vel
+
+	def __generate_ramp_trajectory(self, joint_space):
+		max_no_points			= len(joint_space)
+
+		for itr in range(max_no_points -1):
+			start 				= joint_space[itr]
+			target 				= joint_space[itr +1]
+			
+			max_angle_change 	= max(abs(target -start))
+			velocity 			= self.__get_velocity_ramp(itr, max_no_points)
+			time_interp 		= float(max_angle_change / velocity)
+
+			# print(time_interp)
+
+			self.__publish_joint_msg(single_joint_space=target, time_interp=time_interp)
 
 	def __move_arm_trajectory(self, joint_space, v_profile):
 		# Moves the arm according to a list of joint trajectories
-		no_of_points 				= len(joint_space)
 
-		if v_profile == "None":
-			rospy.logerr("Move arm trajectory -> v_profile must not be None")
-			raise Exception()
-
-		elif v_profile == "ramp":
+		if v_profile == "ramp":
 			# Ramp velocity specified
-
+			self.__generate_ramp_trajectory(joint_space)
 
 		else:
 			rospy.logerr("Move arm trajectory -> Invalid v_profile selected")
 			raise Exception()
 
-		for each_traj in joint_space:
-			self.__publish_joint_msg(single_joint_space=each_traj)
-
-	def __move_arm_single(self, joint_space):
-		self.__publish_joint_msg(single_joint_space=joint_space)
-
 	def move_arm(self, joint_space, v_profile=None):
 
-		if(all(isinstance(i, list) for i in joint_space)):
+		if(v_profile != None):
 			self.__move_arm_trajectory(joint_space, v_profile)
 		else:
 			self.__move_arm_single(joint_space)
@@ -263,5 +273,5 @@ if __name__ == "__main__":
 
 	driver 	= Ur5_motion_planner()
 	# points 	= driver.plan_to_cartesian(current_joint_val,goal_cartesian)
-	driver.move_arm(test_joint)
+	driver.move_arm(bin1)
 	# print points

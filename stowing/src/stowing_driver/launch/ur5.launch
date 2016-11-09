@@ -19,10 +19,6 @@
   <!-- push robot_description to factory and spawn robot in gazebo -->
   <node name="spawn_gazebo_model" pkg="gazebo_ros" type="spawn_model" args="-urdf -param robot_description -model robot" respawn="false" output="screen" />
 
-
-  <param name="apc_shelf" command="$(find xacro)/xacro.py '$(find stowing_driver)/urdf/apc_shelf.urdf.xacro'" />
-  <node name="spawn_apc_shelf" pkg="gazebo_ros" type="spawn_model" args="-urdf -param apc_shelf -model apc_shelf" respawn="false" output="screen" />
-
   <include file="$(find ur_gazebo)/launch/controller_utils.launch"/>
 
   <rosparam file="$(find ur_gazebo)/controller/arm_controller_ur5.yaml" command="load"/>
@@ -32,3 +28,6 @@
 
 
   <!-- node name="spawn_apc_shelf" pkg="gazebo_ros" type="spawn_model" args="-file $(find stowing_driver)/urdf/apc_shelf.urdf -urdf -model apc_shelf" / -->
+
+  <!-- param name="apc_shelf" command="$(find xacro)/xacro.py '$(find stowing_driver)/urdf/apc_shelf.urdf.xacro'" / -->
+  <!-- node name="spawn_apc_shelf" pkg="gazebo_ros" type="spawn_model" args="-urdf -param apc_shelf -model apc_shelf" respawn="false" output="screen" / -->

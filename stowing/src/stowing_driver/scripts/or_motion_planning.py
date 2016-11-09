@@ -366,8 +366,8 @@ class OR_motion_planning:
 if __name__ == "__main__":	
 	joint_start 		= [-0.97,0.2,-1.4,2.75,1.5,0]
 	bin1 				= [-0.3,0,1,2.2,1.8,0]
-	bin2 				= [0.1,0.6,-0.3,2.6,1.8,0]
-	bin3 				= [0.5,0.4,0.1,2.3,1.1,0]
+	bin2 				= [0.1,-0.1,1.2,1.9,1.8,0]
+	bin3 				= [0.5,-0.2,1.5,1.9,0.9,0]
 	bin4 				= [-0.37,-0.5,1.25,2.4,1.5,0]
 	bin5 				= [0.07,-0.5,1.25,2.4,1.5,0]
 	bin6 				= [0.47,-0.4,0.95,2.3,1.1,0]
@@ -388,21 +388,22 @@ if __name__ == "__main__":
 	IPython.embed()
 	driver 		= Ur5_motion_planner()
 	driver.move_arm(joint_start)
-	rospy.sleep(1)
-
+ 	raw_input("Press enter to continue: ")
 
 	for itr in range(12):
 		#  Move from bin to tote
 	 	planner.init_planning_setup(robot_path[0], collision_struct)
 	 	final_trajectory 	=	planner.optimize_trajopt(joint_target=robot_path[itr +1])
 	 	planner.simulate(trajectory=final_trajectory)
-		driver.move_arm(final_trajectory)
+		driver.move_arm(joint_space=final_trajectory, v_profile="ramp")
+
+	 	raw_input("Press enter to continue: ")
 
 	 	# Move from tote to bin
 	 	planner.init_planning_setup(robot_path[itr +1], collision_struct)
 	 	final_trajectory 	=	planner.optimize_trajopt(joint_target=robot_path[0])
 	 	planner.simulate(trajectory=final_trajectory)
-	 	driver.move_arm(final_trajectory)
+	 	driver.move_arm(joint_space=final_trajectory, v_profile="ramp")
 
 	 	raw_input("Press enter to continue: ")
 
