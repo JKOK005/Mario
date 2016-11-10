@@ -364,10 +364,10 @@ class OR_motion_planning:
 
 
 if __name__ == "__main__":	
-	joint_start 		= [-0.97,0.2,-1.4,2.75,1.5,0]
+	joint_start 		= [-1.0,0.65,-1.7,2.75,1.5,0]
 	bin1 				= [-0.3,0,1,2.2,1.8,0]
-	bin2 				= [0.1,-0.1,1.2,1.9,1.8,0]
-	bin3 				= [0.5,-0.2,1.5,1.9,0.9,0]
+	bin2 				= [0,-0.2,1.5,1.9,1.8,0]
+	bin3 				= [0.6,-0.4,1.8,1.9,1.1,-1]
 	bin4 				= [-0.37,-0.5,1.25,2.4,1.5,0]
 	bin5 				= [0.07,-0.5,1.25,2.4,1.5,0]
 	bin6 				= [0.47,-0.4,0.95,2.3,1.1,0]
@@ -380,7 +380,7 @@ if __name__ == "__main__":
 
 	robot_path 			= [joint_start] + [bin1] + [bin2] + [bin3] + [bin4] + [bin5] + [bin6] + [bin7] + [bin8] + [bin9] + [bin10] + [bin11] + [bin12]  
 
-	planner 			= OR_motion_planning('apc_env.xml')
+	planner 			= OR_motion_planning('apc_env2.xml')
 
 	collision_struct 	= {"checker":'pqp', 
 							"collision_options":[op.CollisionOptions.Contacts]}

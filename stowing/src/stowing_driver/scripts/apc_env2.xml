@@ -3,14 +3,67 @@
 <!-- All units are in m  -->
 
 <Environment>
-	<robot file="ur5.dae">
-  		<Translation>1 0 1.54</Translation>
-  		<quat>1.000000 0.000000 0.000000 0.000000</quat>
+	<robot name="ur5_with_base">
+		<robot file="ur5.dae">
+			<offsetfrom> base </offsetfrom>
+			<Translation>1 0 1.54</Translation>
+			<quat>1.000000 0.000000 0.000000 0.3927000</quat>
+		</robot>
+
+		<KinBody>
+			<body name="gripper" type="dynamic">
+				<offsetfrom> link6 </offsetfrom>
+			    <translation>0.04 0.0 0</translation>
+			    <quat>-1.000000 0.000000 0.000000 1.000000</quat>
+			    <Body type="dynamic" scalegeometry="0.001">
+			      	<Geom type="trimesh" render="true">
+						<data>gripper.dae</data>
+						<diffuseColor>0.8 0 0</diffuseColor>
+					</Geom>
+			    </Body>
+			</body>
+
+			<joint name="gripper_to_ur5" type="hinge" circular="true">
+				<body> link6 </body>
+				<body> gripper </body>
+				<limitsdeg>-180 180</limitsdeg>
+			</joint>
+
+			<body name="camera" type="static">
+				<offsetfrom> link6 </offsetfrom>
+			    <translation>0.07 0.12 0.1</translation>
+			    <quat>1.0000 1.00000 1.00000 1.00000</quat>
+			    <Body type="dynamic" scalegeometry="0.002">
+			      	<Geom type="trimesh" render="true">
+						<data>realsense200.dae</data>
+						<diffuseColor>0 1 0</diffuseColor>
+					</Geom>
+			    </Body>
+			</body>
+
+			<joint name="camera_to_ur5" type="hinge">
+				<body> link6 </body>
+				<body> camera </body>
+			</joint>
+
+		</KinBody> 
 	</robot>
+
+	<KinBody name="base_ur5">
+		<Body type="static">
+			<Translation>1 0 0.76</Translation>
+			<quat>1.000000 1.000000 0.000000 0.000000</quat>
+			<Geom type="cylinder" render="true">
+				<radius>0.06</radius>
+         		<height>1.54</height>
+         		<diffuseColor>0.9 0.9 0</diffuseColor>
+			</Geom>
+		</Body>
+	</KinBody>
 	
 	<KinBody name="kiva_pods">
 		<Body type="static">
-      		<Translation>1 1.1 0</Translation>
+      		<Translation>1 1.5 0</Translation>
         	<quat>1.000000 1.000000 0.000000 0.000000</quat>
 	      	<Geom type="trimesh" render="true">
 				<data>pod_lowres.stl</data>
@@ -29,17 +82,28 @@
 	    </Body>
 	</KinBody>
 
-	<KinBody name="base_ur5">
-		<Body type="static">
-			<Translation>1 0 0.77</Translation>
-			<quat>1.000000 1.000000 0.000000 0.000000</quat>
-			<Geom type="cylinder" render="true">
-				<radius>0.08</radius>
-         		<height>1.54</height>
-         		<diffuseColor>0.05 0.05 0.05</diffuseColor>
-			</Geom>
-		</Body>
+	<KinBody name="unit_square">
+		<!-- Unit square 1m in Y dimension to give perspective of the setup -->
+		<offsetfrom> base_ur5 </offsetfrom>
+	    <translation>2 0.5 0.1</translation>
+	    <quat>1.000000 0.000000 0.000000 0.000000</quat>
+	    <Body type="static">
+	      <Geom type="box" render="true">
+	        <extents>0.05 0.5 0.05</extents>
+	        <diffuseColor>0.2 0.2 1</diffuseColor>
+	      </Geom>
+	    </Body>
 	</KinBody>
 
+	<KinBody name="tote">
+		<offsetfrom> base_ur5 </offsetfrom>
+	    <translation>0.35 0.305 1.0</translation>
+	    <quat>1.000000 0.000000 0.000000 0.000000</quat>
+	    <Body type="static">
+	      <Geom type="box">
+	        <extents>0.19 0.305 0.10</extents>
+	        <diffuseColor>1 0 0</diffuseColor>
+	      </Geom>
+	    </Body>
+	</KinBody> 
 </Environment>
-
