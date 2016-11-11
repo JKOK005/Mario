@@ -23,11 +23,11 @@
 
   <rosparam file="$(find ur_gazebo)/controller/arm_controller_ur5.yaml" command="load"/>
   <node name="arm_controller_spawner" pkg="controller_manager" type="controller_manager" args="spawn arm_controller" respawn="false" output="screen"/>
+
+  <!-- Load APC shelf -->
+  <param name="apc_shelf" command="$(find xacro)/xacro.py '$(find stowing_driver)/urdf/apc_shelf.urdf.xacro'" />
+  <node name="spawn_apc_shelf" pkg="gazebo_ros" type="spawn_model" args="-urdf -param apc_shelf -model apc_shelf" respawn="false" output="screen" />
+
 </launch>
 
-
-
   <!-- node name="spawn_apc_shelf" pkg="gazebo_ros" type="spawn_model" args="-file $(find stowing_driver)/urdf/apc_shelf.urdf -urdf -model apc_shelf" / -->
-
-  <!-- param name="apc_shelf" command="$(find xacro)/xacro.py '$(find stowing_driver)/urdf/apc_shelf.urdf.xacro'" / -->
-  <!-- node name="spawn_apc_shelf" pkg="gazebo_ros" type="spawn_model" args="-urdf -param apc_shelf -model apc_shelf" respawn="false" output="screen" / -->

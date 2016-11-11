@@ -13,6 +13,10 @@
   <!-- ur5 robot with base -->
   <xacro:ur5_with_base height="0.77" length="1.54" radius="0.06"/>
 
+  <!-- Gripper -->
+  <xacro:include filename="$(find stowing_driver)/urdf/gripper.urdf.xacro" />
+  <xacro:gripper_with_camera />
+
   <xacro:macro name="ur5_with_base" params="height length radius">
     <link name="world" />
 

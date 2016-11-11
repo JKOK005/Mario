@@ -24,7 +24,6 @@ from std_msgs.msg import *
 from trajectory_msgs.msg import *
 from ur_kin_py.kin import Kinematics 
 from tf import transformations as TF
-from poseInterpolator import *
 
 class Ur5_motion_planner:
 	joint_lim_low 				= [-1,-0.5,-0.5,-np.pi,-np.pi,-np.pi]			# Default joint limits.
@@ -213,6 +212,7 @@ class Ur5_motion_planner:
 			joint_traj_msg			= self._frame_message(single_joint_space, time_interp)
 			self.move_arm_pub.publish(joint_traj_msg)	
 			self.ros_rate.sleep()
+			# rospy.sleep(1)
 
 	def __move_arm_single(self, joint_space):
 		self.__publish_joint_msg(single_joint_space=joint_space)
@@ -273,5 +273,5 @@ if __name__ == "__main__":
 
 	driver 	= Ur5_motion_planner()
 	# points 	= driver.plan_to_cartesian(current_joint_val,goal_cartesian)
-	driver.move_arm(bin1)
+	driver.move_arm(joint_start)
 	# print points
