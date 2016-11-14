@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="spawn_tote_1">
+	<xacro:tote_1 X="0.4" Y="0.4" Z="0.5" roll="1.571" pitch="0.0" yaw="0.0"/>
+
+	<xacro:macro name="tote_1" params="X Y Z roll pitch yaw">
+		<link name="world" />
+
+		<link name="tote">
+			<inertial>
+		        <origin xyz="${X} ${Y} ${Z}" rpy="${roll} ${pitch} ${yaw}"/>
+		        <mass value="1" />
+		        <inertia  ixx="1.0" ixy="0.0"  ixz="0.0"  iyy="1.0"  iyz="0.0"  izz="1.0" />
+	      	</inertial>
+
+			<visual>
+				<origin xyz="${X} ${Y} ${Z}" rpy="${roll} ${pitch} ${yaw}"/>
+		        <geometry>
+		        	<mesh filename="package://stowing_driver/meshes/Tote.STL" scale="0.001 0.001 0.001" />
+		        </geometry>
+	  		</visual>
+
+	    	<collision>
+		    	<origin xyz="${X} ${Y} ${Z}" rpy="${roll} ${pitch} ${yaw}"/>
+	    		<geometry>
+	          		<mesh filename="package://stowing_driver/meshes/Tote.STL" scale="0.001 0.001 0.001" />
+	        	</geometry>
+	      	</collision>
+		</link>
+
+		<joint name="world_joint" type="fixed">
+      		<parent link="world" />
+      		<child link="tote" />
+      		<origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+    	</joint>
+
+	    <gazebo reference="tote">
+	      	<material>Gazebo/Green</material>
+	    </gazebo>
+	</xacro:macro>
+</robot>

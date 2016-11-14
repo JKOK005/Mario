@@ -16,13 +16,14 @@
       <visual>
         <origin xyz="${X} ${Y} ${Z}" rpy="${roll} ${pitch} ${yaw}"/>
         <geometry>
-           <mesh filename="package://stowing_driver/scripts/pod_lowres.stl" />
+           <mesh filename="package://stowing_driver/meshes/pod_lowres.stl" />
         </geometry>
       </visual>
+      
       <collision>
         <origin xyz="${X} ${Y} ${Z}" rpy="${roll} ${pitch} ${yaw}"/>
         <geometry>
-           <mesh filename="package://stowing_driver/scripts/pod_lowres.stl" />
+           <mesh filename="package://stowing_driver/meshes/pod_lowres.stl" />
         </geometry>
       </collision>
     </link>

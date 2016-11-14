@@ -31,6 +31,7 @@ import time
 import IPython
 import numpy as np
 import rospy
+import os
 from ur5_lib import Ur5_motion_planner
 from trajoptpy.check_traj import traj_is_safe
 
@@ -135,7 +136,7 @@ class OR_motion_planning:
 		params.SetRobotActiveJoints(self.robot)
 		params.SetGoalConfig(joint_target)
 
-		extraParams 			= ('<_nmaxiterations>{:d}</_nmaxiterations>'.format(10000))
+		extraParams 			= ('<_nmaxiterations>{:d}</_nmaxiterations>'.format(20000))
 
 		params.SetExtraParameters(extraParams)
 
@@ -239,7 +240,7 @@ class OR_motion_planning:
 	def __get_n_steps_from_dist(self, starting_DOF, joint_target):
 		starting_cartesian 		= self.ur_kin.cartesian_from_joint(starting_DOF)[3:]
 		target_cartesian 		= self.ur_kin.cartesian_from_joint(joint_target)[3:]
-		steps_per_meter			= 350 		# 100 steps per meter
+		steps_per_meter			= 1000 		# 100 steps per meter
 
 		return self.__get_n_val(starting_cartesian, target_cartesian, steps_per_meter)
 
@@ -263,14 +264,14 @@ class OR_motion_planning:
 		  "costs" : [
 		  {
 			"type" : "joint_vel", 			# joint-space velocity cost
-			"params": {"coeffs" : [1]} 	# list of length 1 is will be expanded to all DOF 
+			"params": {"coeffs" : [10]} 	# list of length 1 is will be expanded to all DOF 
 		  },
 		  {
 		  	# Self collision checker
 			"type" : "collision",
 			"params" : {
-			  "coeffs" : [100], 
-			  "dist_pen" : [0.01], 			# robot-obstacle distance that penalty kicks in. expands to length n_timesteps
+			  "coeffs" : [1000], 
+			  "dist_pen" : [0.03], 			# robot-obstacle distance that penalty kicks in. expands to length n_timesteps
 			  "continuous" : True
 			}
 		  },
@@ -278,8 +279,8 @@ class OR_motion_planning:
 		  {
 			"type" : "collision",
 			"params" : {
-			  "coeffs" : [100], # penalty coefficients. list of length one is automatically expanded to a list of length n_timesteps
-			  "dist_pen" : [0.01], # robot-obstacle distance that penalty kicks in. expands to length n_timesteps
+			  "coeffs" : [1000], # penalty coefficients. list of length one is automatically expanded to a list of length n_timesteps
+			  "dist_pen" : [0.03], # robot-obstacle distance that penalty kicks in. expands to length n_timesteps
 			  "continuous" : False
 			}
 		  }    
@@ -293,7 +294,7 @@ class OR_motion_planning:
 		    "type" : "cart_vel",
 		    "name" : "cart_vel",
 		    "params" : {
-		        "max_displacement" : 0.1,
+		        "max_displacement" : 0.05,
 		        "first_step" : 0,
 		        "last_step" : n_steps-1, #inclusive
 		        "link" : "link6"
@@ -364,21 +365,21 @@ class OR_motion_planning:
 
 
 if __name__ == "__main__":	
-	joint_start 		= [-1.0,0.65,-1.7,2.75,1.5,0]
-	bin1 				= [-0.3,0,1,2.2,1.8,0]
-	bin2 				= [0,-0.2,1.5,1.9,1.8,0]
-	bin3 				= [0.6,-0.4,1.8,1.9,1.1,-1]
-	bin4 				= [-0.37,-0.5,1.25,2.4,1.5,0]
-	bin5 				= [0.07,-0.5,1.25,2.4,1.5,0]
-	bin6 				= [0.47,-0.3,0.95,2.3,1.1,0]
-	bin7 				= [-0.25,-0.8,1.25,2.4,1.5,0]
-	bin8 				= [0.15,-0.8,1.10,2.9,1.3,1.2]
-	bin9 				= [0.85,-0.8,1.10,2.9,1.3,1.2]
-	bin10 				= [-0.25,-1.0,1.60,3.1,2.0,1.2]
-	bin11 				= [0.25,-1.3,1.60,2.9,1.3,1.2]
-	bin12 				= [0.75,-1.3,1.60,2.9,1.3,1.2]
+	joint_start 		= [-0.25,0.95,-2.175,2.75,1.5,-1.571]
+	bin1 				= [-0.28,-0.08,1.0,2.2,1.8,-1.571]
+	bin2 				= [0.08,-0.45,1.9,1.571,1.571,-1.571]
+	bin3 				= [0.7,-0.4,1.6,1.8,1.0,-1.571]
+	bin4 				= [-0.17,-0.85,1.55,2.4,1.6,-1.571]
+	bin5 				= [0.10,-0.85,1.55,2.4,1.4,-1.571]
+	bin6 				= [0.60,-0.9,1.70,2.3,1.0,-1.571]
+	bin7 				= [-0.18,-1.1,1.55,2.4,1.5,-1.571]
+	bin8 				= [0.15,-1.2,1.40,2.9,1.3,-1.571]
+	bin9 				= [0.75,-1.2,1.5,2.9,0.8,-1.55]
+	bin10 				= [-0.35,-1.2,1.00,3.2,1.9,-1.571]
+	bin11 				= [0.25,-1.25,1.1,3.2,1.1,-1.571]
+	bin12 				= [0.75,-1.25,1.1,3.1,0.8,-1.7]
 
-	robot_path 			= [joint_start] + [bin1] + [bin2] + [bin3] + [bin4] + [bin5] + [bin6] + [bin7] + [bin8] + [bin9] + [bin10] + [bin11] + [bin12]  
+	robot_path 			= [joint_start] + [bin5] + [bin2] + [bin3] + [bin4] + [bin5] + [bin6] + [bin7] + [bin8] + [bin9] + [bin10] + [bin11] + [bin12]  
 
 	planner 			= OR_motion_planning('apc_env.xml')
 

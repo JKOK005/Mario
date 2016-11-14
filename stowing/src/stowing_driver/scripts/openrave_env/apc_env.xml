@@ -4,7 +4,7 @@
 
 <Environment>
 	<robot name="ur5_with_base">
-		<robot file="../meshes/ur5.dae">
+		<robot file="ur5.dae">
 			<offsetfrom> base </offsetfrom>
 			<Translation>1 0 1.54</Translation>
 			<quat>1.000000 0.000000 0.000000 0.3927000</quat>
@@ -31,11 +31,11 @@
 
 			<body name="camera" type="static">
 				<offsetfrom> link6 </offsetfrom>
-			    <translation>0.07 0.06 0.12</translation>
+			    <translation>0.105 0.05 0.12</translation>
 			    <quat>1.0000 1.00000 1.00000 1.00000</quat>
 			    <Body type="dynamic" scalegeometry="0.001">
 			      	<Geom type="trimesh" render="true">
-						<data>../meshes/realsense200.dae</data>
+						<data>realsense200.dae</data>
 						<diffuseColor>0 1 0</diffuseColor>
 					</Geom>
 			    </Body>
@@ -66,7 +66,7 @@
       		<Translation>1 1.5 0</Translation>
         	<quat>1.000000 1.000000 0.000000 0.000000</quat>
 	      	<Geom type="trimesh" render="true">
-				<data>../meshes/pod_lowres.stl</data>
+				<data>pod_lowres.stl</data>
 			</Geom>
     	</Body>
 	</KinBody>
@@ -95,26 +95,14 @@
 	    </Body>
 	</KinBody>
 
-	<KinBody name="tote_1">
+	<KinBody name="tote">
 		<offsetfrom> base_ur5 </offsetfrom>
-	    <translation>0.75 0.4 0.5</translation>
+	    <translation>0.35 0.305 1.0</translation>
 	    <quat>1.000000 0.000000 0.000000 0.000000</quat>
 	    <Body type="static">
 	      <Geom type="box">
 	        <extents>0.19 0.305 0.10</extents>
-	        <diffuseColor>0 1 0</diffuseColor>
-	      </Geom>
-	    </Body>
-	</KinBody> 
-
-	<KinBody name="tote_amnesty">
-		<offsetfrom> base_ur5 </offsetfrom>
-	    <translation>1.15 0.4 0.5</translation>
-	    <quat>1.000000 0.000000 0.000000 0.000000</quat>
-	    <Body type="static">
-	      <Geom type="box">
-	        <extents>0.19 0.305 0.10</extents>
-	        <diffuseColor>1 1 0</diffuseColor>
+	        <diffuseColor>1 0 0</diffuseColor>
 	      </Geom>
 	    </Body>
 	</KinBody> 

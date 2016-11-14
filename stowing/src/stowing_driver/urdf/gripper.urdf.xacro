@@ -10,13 +10,13 @@
 
 			<visual>
 		        <geometry>
-		        	<mesh filename="package://stowing_driver/scripts/gripper.dae" scale="0.001 0.001 0.001" />
+		        	<mesh filename="package://stowing_driver/meshes/gripper.dae" scale="0.001 0.001 0.001" />
 		        </geometry>
 	  		</visual>
 
 	    	<collision>
 	    		<geometry>
-	          		<mesh filename="package://stowing_driver/scripts/gripper.dae" scale="0.001 0.001 0.001" />
+	          		<mesh filename="package://stowing_driver/meshes/gripper.dae" scale="0.001 0.001 0.001" />
 	        	</geometry>
 	      	</collision>
 		</link>
@@ -37,13 +37,13 @@
 
 			<visual>
 		        <geometry>
-		        	<mesh filename="package://stowing_driver/scripts/realsense200.dae" scale="0.001 0.001 0.001" />
+		        	<mesh filename="package://stowing_driver/meshes/realsense200.dae" scale="0.001 0.001 0.001" />
 		        </geometry>
 	  		</visual>
 
 	    	<collision>
 	    		<geometry>
-	          		<mesh filename="package://stowing_driver/scripts/realsense200.dae" scale="0.001 0.001 0.001" />
+	          		<mesh filename="package://stowing_driver/meshes/realsense200.dae" scale="0.001 0.001 0.001" />
 	        	</geometry>
 	      	</collision>
 		</link>

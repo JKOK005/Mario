@@ -28,6 +28,14 @@
   <param name="apc_shelf" command="$(find xacro)/xacro.py '$(find stowing_driver)/urdf/apc_shelf.urdf.xacro'" />
   <node name="spawn_apc_shelf" pkg="gazebo_ros" type="spawn_model" args="-urdf -param apc_shelf -model apc_shelf" respawn="false" output="screen" />
 
+  <!-- Load Tote -->
+  <param name="tote_1" command="$(find xacro)/xacro.py '$(find stowing_driver)/urdf/tote_1.urdf.xacro'" />
+  <node name="spawn_tote_1" pkg="gazebo_ros" type="spawn_model" args="-urdf -param tote_1 -model tote_1" respawn="false" output="screen" />
+
+  <!-- Load Amnesty Tote -->
+  <param name="tote_amnesty" command="$(find xacro)/xacro.py '$(find stowing_driver)/urdf/tote_amnesty.urdf.xacro'" />
+  <node name="spawn_tote_amnesty" pkg="gazebo_ros" type="spawn_model" args="-urdf -param tote_amnesty -model tote_amnesty" respawn="false" output="screen" />
+
 </launch>
 
   <!-- node name="spawn_apc_shelf" pkg="gazebo_ros" type="spawn_model" args="-file $(find stowing_driver)/urdf/apc_shelf.urdf -urdf -model apc_shelf" / -->
