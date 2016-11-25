@@ -61,7 +61,7 @@
 		</Body>
 	</KinBody>
 	
-	<KinBody name="kiva_pods">
+<!-- 	<KinBody name="kiva_pods">
 		<Body type="static">
       		<Translation>1 1.5 0</Translation>
         	<quat>1.000000 1.000000 0.000000 0.000000</quat>
@@ -69,13 +69,25 @@
 				<data>../meshes/pod_lowres.stl</data>
 			</Geom>
     	</Body>
+	</KinBody> -->
+
+	<KinBody name="shelf_9_bin">
+		<Body type="static">
+      		<Translation>0.35 1.35 0</Translation>
+        	<quat>1.000000 1.000000 0.000000 0.000000</quat>
+        	<Body type="dynamic" scalegeometry="0.001">
+		      	<Geom type="trimesh" render="true">
+					<data>../meshes/shelf_9_bin.dae</data>
+				</Geom>
+			</Body>
+    	</Body>
 	</KinBody>
 
 	<KinBody name="base">
 	    <translation>0 0 0</translation>
 	    <quat>1.000000 0.000000 0.000000 0.000000</quat>
 	    <Body type="static">
-	      <Geom type="box">
+	      <Geom type="box" render="true">
 	        <extents>5 5 0.1</extents>
 	        <diffuseColor>0 .1 .1</diffuseColor>
 	      </Geom>
@@ -88,7 +100,7 @@
 	    <translation>2 0.5 0.1</translation>
 	    <quat>1.000000 0.000000 0.000000 0.000000</quat>
 	    <Body type="static">
-	      <Geom type="box" render="true">
+	      <Geom type="box" render="false">
 	        <extents>0.05 0.5 0.05</extents>
 	        <diffuseColor>0.2 0.2 1</diffuseColor>
 	      </Geom>

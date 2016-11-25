@@ -133,13 +133,27 @@ class Pre_stow_position_stowing(smach.State):
 		return 'goto_Select_bin_stowing'
 
 class Select_bin_stowing(smach.State):
+	# Performs item identification. If identified, go to bin. If not, go to amnesty tote
 	# Selects which bin to stow given item 
 	def __init__(self):
-		smach.State.__init__(self, outcomes=['goto_Move_to_bin_stowing'], input_keys=['input'], output_keys=['output'])
+		smach.State.__init__(self, outcomes=['goto_Move_to_bin_stowing', 'goto_Amnesty_tote'], input_keys=['input'], output_keys=['output'])
 
 	def execute(self, userdata):
-		rospy.loginfo("Mario -> Choosing bin to stow target object")
-		return 'goto_Move_to_bin_stowing'
+		rospy.loginfo("Mario -> Item identification and bin selection")
+
+		if(True):
+			return 'goto_Move_to_bin_stowing'
+		else:
+			return 'goto_Amnesty_tote'
+
+class Move_to_amnesty_tote(smach.State):
+	# Motion plan to pre-stowing position for amnesty tote
+	def __init__(self):
+		smach.State.__init__(self, outcomes=['goto_Execute_stowing'], input_keys=['input'], output_keys=['output'])
+
+	def execute(self, userdata):
+		rospy.loginfo("Mario -> Moving to amnesty tote")
+		return 'goto_Amnesty_tote'
 
 class Move_to_bin_stowing(smach.State):
 	# Motion plan to pre-stowing position for bin and move robot
@@ -298,7 +312,8 @@ if __name__ == "__main__":
 
 			smach.StateMachine.add('Select_bin_stowing', Select_bin_stowing(),
 									transitions	= {
-													'goto_Move_to_bin_stowing' : 'Move_to_bin_stowing'
+													'goto_Move_to_bin_stowing' 	: 'Move_to_bin_stowing',
+													'goto_Amnesty_tote' 		: 'Move_to_amnesty_tote'
 													},
 									remapping	= {
 													'input'			: 'counter',
@@ -309,6 +324,15 @@ if __name__ == "__main__":
 									transitions	= {
 													'goto_Execute_stowing' 					: 'Execute_stowing',
 													'goto_Update_bin_and_repeat_stowing' 	: 'Update_bin_and_repeat_stowing'
+													},
+									remapping	= {
+													'input'			: 'counter',
+													'output' 		: 'cout',
+													})
+
+			smach.StateMachine.add('Move_to_amnesty_tote', Move_to_amnesty_tote(),
+									transitions	= {
+													'goto_Execute_stowing' 					: 'Execute_stowing',
 													},
 									remapping	= {
 													'input'			: 'counter',
