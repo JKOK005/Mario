@@ -188,14 +188,14 @@ class OR_motion_planning:
 		return result.GetTraj()
 
 	def move_linear(self, joint_target):
-		linear_trajectory 		= []
 		starting_DOF_array 		= self.get_manip_DOF()
 		joint_target_array		= np.array(joint_target)
-		no_of_points 			= 10
+		no_of_points 			= 100
 
+		linear_trajectory		= starting_DOF_array
 		for i in range(no_of_points):
 			path 				= starting_DOF_array + (i +1.0)/no_of_points *(joint_target_array -starting_DOF_array)
-			linear_trajectory 	+=  [path.tolist()]
+			linear_trajectory 	= np.vstack((linear_trajectory, path))
 		
 		return linear_trajectory
 
@@ -296,33 +296,29 @@ if __name__ == "__main__":
 		#  Move from bin to tote
 	 	planner.init_planning_setup(robot_path[itr][0], collision_struct)
 	 	final_trajectory 	=	planner.optimize_trajopt(joint_target=robot_path[itr][1])
-	 	planner.simulate(trajectory=final_trajectory)
+	 	# planner.simulate(trajectory=final_trajectory)
+	 	final_traj_dict 	= {'trajectory': final_trajectory,
+	 							'length': len(final_trajectory),}
+	 	driver.move_arm(joint_space=final_traj_dict, v_profile="ramp")
+	 	rospy.sleep(2)
+
 	 	planner.init_planning_setup(robot_path[itr][1], collision_struct)
 	 	linear_trajectory 	= 	planner.move_linear(joint_target=robot_path[itr][2])
-	 	planner.simulate(trajectory=linear_trajectory)
-		# driver.move_arm(joint_space=final_trajectory, v_profile="ramp")
-	 	rospy.sleep(1)
+	 	# planner.simulate(trajectory=linear_trajectory)
+	 	linear_traj_dict 	= {'trajectory': linear_trajectory,
+	 							'length': len(linear_trajectory),}
+	 	driver.move_arm(joint_space=linear_traj_dict, v_profile="ramp")
+	 	rospy.sleep(2)
 
 	 	# Move from tote to bin
-	 	planner.simulate(trajectory=reversed(linear_trajectory))
-	 	planner.simulate(trajectory=reversed(final_trajectory))
-	 	rospy.sleep(1)
+	 	# planner.simulate(trajectory=reversed(linear_trajectory))
+	 	linear_traj_dict 	= {'trajectory': reversed(linear_trajectory),
+	 							'length': len(linear_trajectory),}
+	 	driver.move_arm(joint_space=linear_traj_dict, v_profile="ramp")
+		rospy.sleep(2)
 
-	 	# driver.move_arm(joint_space=final_trajectory, v_profile="ramp")
-
-	#  	raw_input("Press enter to continue: ")
-
-	# import random
-	# prev_itr 				= 0
-	# itr 					= prev_itr
-
-	# while(raw_input("Press enter to continue or q to quit: ") != 'q'):
-	# 	while(prev_itr == itr):
-	# 		itr 				= random.randint(0, len(robot_path) -1)
-
-	# 	planner.init_planning_setup(robot_path[0], collision_struct)
-
-	# 	final_trajectory 	=	planner.optimize_trajopt(joint_target=robot_path[itr])
-	# 	planner.simulate(trajectory=final_trajectory)
-		
-	# 	prev_itr 			= itr
+	 	# planner.simulate(trajectory=reversed(final_trajectory))
+	 	final_traj_dict 	= {'trajectory': reversed(final_trajectory),
+	 							'length': len(final_trajectory),}
+	 	driver.move_arm(joint_space=final_traj_dict, v_profile="ramp")
+	 	rospy.sleep(2)

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="spawn_tote_amnesty">
-	<xacro:tote_amnesty X="0.4" Y="0.0" Z="0.5" roll="1.571" pitch="0.0" yaw="0.0"/>
+	<xacro:tote_amnesty X="0.25" Y="0.0" Z="0.5" roll="1.571" pitch="0.0" yaw="0.0"/>
 
 	<xacro:macro name="tote_amnesty" params="X Y Z roll pitch yaw">
 		<link name="world" />

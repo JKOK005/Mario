@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="spawn_acp_shelf">  
+  <!-- Adds the new shelf design -->
+  <xacro:new_shelf X="1.35" Y="0.65" Z="0.0" roll="1.571" pitch="0.0" yaw="-1.571"/>
+
+  <xacro:macro name="new_shelf" params="X Y Z roll pitch yaw">
+    <link name="world" />
+
+    <link name="shelf_9_bin">
+      <inertial>
+        <origin xyz="${X} ${Y} ${Z}" rpy="${roll} ${pitch} ${yaw}"/>
+        <mass value="100.0" />
+        <inertia  ixx="1.0" ixy="0.0"  ixz="0.0"  iyy="1.0"  iyz="0.0"  izz="1.0" />
+      </inertial>
+      <visual>
+        <origin xyz="${X} ${Y} ${Z}" rpy="${roll} ${pitch} ${yaw}"/>
+        <geometry>
+           <mesh filename="package://stowing_driver/meshes/shelf_9_bin.dae" scale="0.001 0.001 0.001" />
+        </geometry>
+      </visual>
+      
+      <collision>
+        <origin xyz="${X} ${Y} ${Z}" rpy="${roll} ${pitch} ${yaw}"/>
+        <geometry>
+           <mesh filename="package://stowing_driver/meshes/shelf_9_bin.dae" scale="0.001 0.001 0.001" />
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="world_joint" type="fixed">
+      <parent link="world" />
+      <child link="shelf_9_bin" />
+      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+    </joint>
+
+    <gazebo reference="shelf_9_bin">
+      <material>Gazebo/Blue</material>
+    </gazebo>
+  </xacro:macro>
+</robot>
+
+

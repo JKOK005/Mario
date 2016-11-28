@@ -29,9 +29,9 @@ class Ur5_motion_planner:
 	joint_lim_low 				= [-1,-0.5,-0.5,-np.pi,-np.pi,-np.pi]			# Default joint limits.
 	joint_lim_high 				= [-i for i in joint_lim_low]
 	joint_names 				= ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint', 'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
-	freq 						= 30	 		# Hz
-	max_angular_vel 			= 0.5 			# rad /s
-	min_angular_vel 			= 0.1
+	freq 						= 275	 		# Hz
+	max_angular_vel 			= 2.5 			# rad /s
+	min_angular_vel 			= 1.5
 
 	def __init__(self):
 		rospy.init_node('ur5_gazebo_publisher', anonymous=True)
@@ -220,7 +220,8 @@ class Ur5_motion_planner:
 	def __move_arm_single(self, joint_space):
 		self.__publish_joint_msg(single_joint_space=joint_space)
 
-	def __get_velocity_ramp(self, itr, max_no_points):
+	def __get_velocity_ramp(self, itr):
+	 	max_no_points 		= self.max_no_points
 
 		if itr <= max_no_points /3:
 			vel 		= (3 *float(itr) /max_no_points) *(self.max_angular_vel -self.min_angular_vel) + self.min_angular_vel
@@ -234,22 +235,24 @@ class Ur5_motion_planner:
 		return vel
 
 	def __generate_ramp_trajectory(self, joint_space):
-		max_no_points			= len(joint_space)
+		itr 					= 0
+		self.max_no_points 			= joint_space['length']
 
-		for itr in range(max_no_points -1):
-			start 				= joint_space[itr]
-			target 				= joint_space[itr +1]
+		for each_trajectory in joint_space['trajectory']:
+			target 				= each_trajectory
 			
-			max_angle_change 	= max(abs(target -start))
-			velocity 			= self.__get_velocity_ramp(itr, max_no_points)
-			time_interp 		= float(max_angle_change / velocity)
+			if(itr):				
+				max_angle_change 	= max(abs(target -start))
+				velocity 			= self.__get_velocity_ramp(itr)
 
-			# print(time_interp)
+				time_interp 		= float(max_angle_change / velocity)
+				self.__publish_joint_msg(single_joint_space=target, time_interp=time_interp)
 
-			self.__publish_joint_msg(single_joint_space=target, time_interp=time_interp)
+			start 			= target
+			itr				+= 1
 
 	def __move_arm_trajectory(self, joint_space, v_profile):
-		# Moves the arm according to a list of joint trajectories
+		# Moves the arm according to an np.array of joint trajectories
 
 		if v_profile == "ramp":
 			# Ramp velocity specified
