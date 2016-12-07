@@ -20,12 +20,14 @@ Dependencies:
 
 import rospy 
 import numpy as np
+import actionlib
 from std_msgs.msg import *
 from trajectory_msgs.msg import *
+from control_msgs.msg import *
 from ur_kin_py.kin import Kinematics 
 from tf import transformations as TF
 
-class Ur5_motion_planner:
+class Ur5_motion_planner(object):
 	joint_lim_low 				= [-1,-0.5,-0.5,-np.pi,-np.pi,-np.pi]			# Default joint limits.
 	joint_lim_high 				= [-i for i in joint_lim_low]
 	joint_names 				= ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint', 'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
@@ -35,13 +37,16 @@ class Ur5_motion_planner:
 
 	def __init__(self):
 		rospy.init_node('ur5_gazebo_publisher', anonymous=True)
-		self.ros_rate 				= rospy.Rate(self.freq)
-		self.move_arm_pub 			= rospy.Publisher('arm_controller/command', JointTrajectory, 
-									queue_size=20, latch=True)
+		self.ros_rate 					= rospy.Rate(self.freq)
+		self.move_arm_action_server 	= actionlib.SimpleActionClient('follow_joint_trajectory/goal', FollowJointTrajectoryAction)
 
-		self.joint_name 			= ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint', 'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
-		self.kin 					= Kinematics("ur5")
-		self.single_sol 			= False
+		self.move_arm_pub_gazebo 		= rospy.Publisher('arm_controller/command', JointTrajectory, 
+									    queue_size=20, latch=True)
+
+		self.joint_name 				= ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint', 'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
+		self.kin 						= Kinematics("ur5")
+		self.single_sol 				= False
+		# super(Ur5_motion_planner, self).__init__(*args, **kwargs)
 
 	def __unicode__(self):
 		return """UR5 custom motion planning library"""
@@ -213,7 +218,7 @@ class Ur5_motion_planner:
 
 	def __publish_joint_msg(self, single_joint_space, time_interp=2):
 			joint_traj_msg			= self._frame_message(single_joint_space, time_interp)
-			self.move_arm_pub.publish(joint_traj_msg)	
+			self.move_arm_pub_gazebo.publish(joint_traj_msg)	
 			self.ros_rate.sleep()
 			# rospy.sleep(1)
 
