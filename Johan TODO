@@ -70,3 +70,55 @@ TODO:
 1) Consider changing poseinterpolator.py to tfx and use tfx quaternion slerp interpolation
 2) Check if quat2euler returns the sequence r,p,y!
 
+
+20/10/2016
+
+TODO:
+1) Develop the APC setup in OpenRave 
+2) Test motion planning using TrajOpt and OMPL planners
+
+21/10/2016
+
+TODO:
+1) Test openrave with TrajOpt and OMPL
+2) Make Openrave script a ROS action service
+3) Read up about TrajOpt and OMPL to understand how planning is done on those 2 systems
+
+
+24/10/2016
+
+Progress:
+1) If openRave reports self-collision, replan using TrajOpt and increase the distance penalty.
+2) OMPL simplifier increases the planning time by a lot
+3) FOR NOW, COMMENTED OUT SIMPLIFIER\
+4) Motion planning for ur5 in empty space seems to work
+
+TODO:
+1) Check if distance penalty is valid for self-collision in TrajOpt.
+2) Create APC environment. Check chong_hui -> ur_description for the APC setup
+3) Perform collision testing to see if OpenRave can detect collisions
+4) Create state to handle failed motion planning 
+
+
+25/10/2016
+Progress:
+1)Implemented TrajOpt for motion planning
+
+
+TODO:
+1) Refine motion planning path
+2) Test TrajOpt more 
+
+25/10/2016
+
+Progress:
+1) TrajOpt seems to be planning well. 8 Way points were given and motion execution appears to be fine.
+
+28/10/2016
+
+Progress:
+1) OpenRave checks for collision between ur5 and base and self collision between ur5 links
+2) Tote dimensions in meter: 0.61 x 0.38 x 0.20
+3) Motion planning for OpenRave with TrajOpt settings 90% completed. Demonstrated planning to and fro from tote to each bin 
+
+

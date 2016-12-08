@@ -12,10 +12,6 @@ Dependencies:
 3) rospy
 4) ros tf library 
 5) numpy 
-6) OMPL
-7) poseinterpolator.py  (in directory)
-8) Q_Slerp 				- Transformation library with Quaternion Slerp 
-
 """
 
 import rospy 
@@ -27,26 +23,139 @@ from control_msgs.msg import *
 from ur_kin_py.kin import Kinematics 
 from tf import transformations as TF
 
+class VelocityProfile(object):
+	def __init__(self, *args, **kwargs):
+		self.max_angular_vel	= 2.5
+		self.min_angular_vel	= 1.5
+		super(VelocityProfile, self).__init__(*args, **kwargs)
+
+	def __get_velocity_ramp(self, itr, no_of_points):
+		if itr <= no_of_pointss /3:
+			vel 		= (3 *float(itr) /no_of_points) *(self.max_angular_vel -self.min_angular_vel) + self.min_angular_vel
+		elif itr >= no_of_points *2/3:
+			vel 		= self.max_angular_vel -(3 *float(itr) /no_of_points -2) * (self.max_angular_vel -self.min_angular_vel)
+		else:
+			vel 		= self.max_angular_vel
+		return vel
+
+	def get_time_ramp_trajectory(self, del_theta, itr, no_of_points):
+		velocity 			= self.__get_velocity_ramp(itr, no_of_points)
+		time_interp 		= float(del_theta / velocity)
+		return time_interp
+
+
+class SubscribeToActionServer(object):
+	def __init__(self, *args,**kwargs):
+		if(is_simulation):
+			# For gazebo
+			self.server_client 		= actionlib.SimpleActionClient('arm_controller/follow_joint_trajectory/', FollowJointTrajectoryAction)	
+		else:
+			# Actual robot
+			self.server_client 		= actionlib.SimpleActionClient('follow_joint_trajectory/', FollowJointTrajectoryAction)					
+		super(SubscribeToActionServer, self).__init__(*args, **kwargs)
+
+	def __frame_header_message(self):
+		header 					= Header()
+		header.seq 				= 1
+		header.stamp			= rospy.Time.now()
+		header.frame_id 		= "10"
+		return header
+
+	def __frame_points_list(self, joint_space):
+		point_list 				= []
+		time_cumulated 			= 0
+		no_of_points 			= len(joint_space) -1
+
+		for itr in range(no_of_points):
+			start 					= joint_space[itr]
+			end 					= joint_space[itr +1]
+
+			point 					= JointTrajectoryPoint()
+			points.positions 		= end.tolist()
+			points.velocities 		= [0.1,0.1,0.1,0.1,0.1,0.1]
+			points.accelerations 	= []
+			points.time_from_start 	= rospy.Duration(time_cumulated) 		# time from start must be in increasing order based on way point sequence
+
+			del_theta 				= max(abs(end -start))
+			time_cumulated			+= self.get_time_ramp_trajectory(del_theta=del_theta, itr=itr, no_of_points=no_of_points)
+			point_list 				+= [point]
+		return point_list
+
+	def __frame_trajectory_message(self, joint_space):
+		trajectory 				= JointTrajectory()
+		trajectory.header 		= self.__frame_header_message()
+		trajectory.joint_names 	= self.joint_names
+		trajectory.points 		= self._frame_points_list(joint_space)
+		return trajectory
+
+	def __frame_path_tolerance_message(self):
+		path_tolerance 			= JointTolerance()
+		path_tolerance.name 			= "path_tolerance"
+		path_tolerance.position 		= 0
+		path_tolerance.velocity 		= 0
+		path_tolerance.acceleration 	= 0
+		return path_tolerance
+
+	def __frame_goal_tolerance_message(self):
+		goal_tolerance 					= JointTolerance()
+		goal_tolerance.name 			= "goal_tolerance"
+		goal_tolerance.position 		= 0
+		goal_tolerance.velocity 		= 0
+		goal_tolerance.acceleration 	= 0
+		return goal_tolerance
+
+	def __frame_goal_message(self, joint_space):
+		goal 						= FollowJointTrajectoryGoal()
+
+		trajectory 					= self.__frame_trajectory_message(joint_space=joint_space)
+		path_tolerance 				= self.__frame_path_tolerance_message()
+		goal_tolerance 				= self.__frame_goal_tolerance_message()
+
+		goal.trajectory 			= trajectory
+		goal.path_tolerance			= path_tolerance
+		goal.goal_tolerance			= goal_tolerance
+		goal.goal_time_tolerance 	= rospy.Duration(5,0)
+		return goal_message
+
+	def __establish_server_connection(self):
+		is_conn_success 		= False
+		if(self.server_client.wait_for_server(rospy.Duration(10)))
+			rospy.loginfo("SubscribeToActionServer -> Connected to action server")
+			is_conn_success 	= True
+		else:
+			rospy.logerr("SubscribeToActionServer -> Unable to connect to action server")
+		return is_conn_success
+
+	def action_server_move_arm(self, joint_space):
+		# Handles framing of message with timing given by the velocity profile and publishing to action server
+		if(not self.__establish_server_connection):
+			rospy.logerr("SubscribeToActionServer -> Terminating connection with action server")
+
+		goal_message 			= self.__frame_goal_message(joint_space)
+		self.server_client.send_goal(goal_message)
+		rospy.loginfo("SubscribeToActionServer -> Sending motion planning points to server")
+
+		if(not self.server_client.wait_for_result(rospy.Duration.from_sec(10.0))):
+			rospy.logerr("SubscribeToActionServer -> Server took too long to respond.")
+		else:
+			rospy.loginfo("SubscribeToActionServer -> Movement of arm complete")
+		return
+
 class Ur5_motion_planner(object):
 	joint_lim_low 				= [-1,-0.5,-0.5,-np.pi,-np.pi,-np.pi]			# Default joint limits.
 	joint_lim_high 				= [-i for i in joint_lim_low]
-	joint_names 				= ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint', 'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
-	freq 						= 275	 		# Hz
-	max_angular_vel 			= 2.5 			# rad /s
-	min_angular_vel 			= 1.5
+	is_simulation				= True
 
 	def __init__(self):
-		rospy.init_node('ur5_gazebo_publisher', anonymous=True)
+		rospy.init_node('UR5_motion_planner', anonymous=True)
 		self.ros_rate 					= rospy.Rate(self.freq)
-		self.move_arm_action_server 	= actionlib.SimpleActionClient('follow_joint_trajectory/goal', FollowJointTrajectoryAction)
-
 		self.move_arm_pub_gazebo 		= rospy.Publisher('arm_controller/command', JointTrajectory, 
 									    queue_size=20, latch=True)
 
-		self.joint_name 				= ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint', 'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
+		self.joint_names 				= ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint', 'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
 		self.kin 						= Kinematics("ur5")
 		self.single_sol 				= False
-		# super(Ur5_motion_planner, self).__init__(*args, **kwargs)
+		# super(Ur5_motion_planner, self).__init__(*args, **kwar	gs)
 
 	def __unicode__(self):
 		return """UR5 custom motion planning library"""
@@ -184,96 +293,6 @@ class Ur5_motion_planner(object):
 			raise AssertionError("No possible IK solutions found for coordinate: {0}".format(way_point))
 
 		return joint_way_points
-
-	def select_ompl_planner(self, name):
-		# Changes the planner from OMPL used to <name>
-		# To be implemented in future
-		pass
-
-	def _frame_message(self, joint_space, time_interp):
-		interpolation_time 				= time_interp			# seconds
-
-		joint_traj_msg 					= JointTrajectory()
-		sensor_msg_header 				= Header()
-		JointTrajectoryPoint_points 	= JointTrajectoryPoint()
-
-		sensor_msg_header.seq 			= 1
-		sensor_msg_header.stamp 		= rospy.get_rostime()
-		sensor_msg_header.frame_id 		= "10"
-
-		positions 						= [-i for i in joint_space]
-		positions[5] 					*= -1 					# Some hacks to make Gazebo model the same as OpenRave
-
-		JointTrajectoryPoint_points.positions			= positions
-		JointTrajectoryPoint_points.velocities			= []
-		JointTrajectoryPoint_points.accelerations 		= []
-		JointTrajectoryPoint_points.effort 				= []
-		JointTrajectoryPoint_points.time_from_start 	= rospy.Duration(interpolation_time)
-
-		joint_traj_msg.header 			= sensor_msg_header
-		joint_traj_msg.joint_names 		= self.joint_names
-		joint_traj_msg.points 			= [JointTrajectoryPoint_points]
-
-		return joint_traj_msg
-
-	def __publish_joint_msg(self, single_joint_space, time_interp=2):
-			joint_traj_msg			= self._frame_message(single_joint_space, time_interp)
-			self.move_arm_pub_gazebo.publish(joint_traj_msg)	
-			self.ros_rate.sleep()
-			# rospy.sleep(1)
-
-	def __move_arm_single(self, joint_space):
-		self.__publish_joint_msg(single_joint_space=joint_space)
-
-	def __get_velocity_ramp(self, itr):
-	 	max_no_points 		= self.max_no_points
-
-		if itr <= max_no_points /3:
-			vel 		= (3 *float(itr) /max_no_points) *(self.max_angular_vel -self.min_angular_vel) + self.min_angular_vel
-
-		elif itr >= max_no_points *2/3:
-			vel 		= self.max_angular_vel -(3 *float(itr) /max_no_points -2) * (self.max_angular_vel -self.min_angular_vel)
-
-		else:
-			vel 		= self.max_angular_vel
-
-		return vel
-
-	def __generate_ramp_trajectory(self, joint_space):
-		itr 					= 0
-		self.max_no_points 			= joint_space['length']
-
-		for each_trajectory in joint_space['trajectory']:
-			target 				= each_trajectory
-			
-			if(itr):				
-				max_angle_change 	= max(abs(target -start))
-				velocity 			= self.__get_velocity_ramp(itr)
-
-				time_interp 		= float(max_angle_change / velocity)
-				self.__publish_joint_msg(single_joint_space=target, time_interp=time_interp)
-
-			start 			= target
-			itr				+= 1
-
-	def __move_arm_trajectory(self, joint_space, v_profile):
-		# Moves the arm according to an np.array of joint trajectories
-
-		if v_profile == "ramp":
-			# Ramp velocity specified
-			self.__generate_ramp_trajectory(joint_space)
-
-		else:
-			rospy.logerr("Move arm trajectory -> Invalid v_profile selected")
-			raise Exception()
-
-	def move_arm(self, joint_space, v_profile=None):
-
-		if(v_profile != None):
-			self.__move_arm_trajectory(joint_space, v_profile)
-		else:
-			self.__move_arm_single(joint_space)
-
 
 if __name__ == "__main__":
 	test_joint 			= [0,0,0,0,0,0]

@@ -16,4 +16,4 @@ class Ur5SocketConnection(object):
 		return self.port
 
 	def get_connection(self):
-		
+		pass
