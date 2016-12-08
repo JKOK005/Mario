@@ -22,8 +22,6 @@ Dependencies:
 5) UR5.dae
 6) apc_env.xml
 """
-
-
 import openravepy as op
 import trajoptpy
 import json
@@ -32,11 +30,10 @@ import IPython
 import numpy as np
 import rospy
 import os
-from ur5_lib import Ur5_motion_planner
+from ur5_lib import UrMotionPlanner
 from trajoptpy.check_traj import traj_is_safe
 
-
-class OR_motion_planning:
+class ORMotionPlanning(object):
 	def __init__(self, env_file):
 		"""
 		Constructor to initialize the environment and the UR5 robot in APC 2016 settings
@@ -49,7 +46,7 @@ class OR_motion_planning:
 		self.robot 			= self.env.GetRobots()[0]
 		self.mario_arm 		= self.robot.GetManipulator('arm')
 
-		self.ur_kin 		= Ur5_motion_planner()
+		self.ur_kin 		= UrMotionPlanner()
 
 	def load_environment_context(self, env_file):
 		try:
@@ -282,43 +279,34 @@ if __name__ == "__main__":
 	robot_path 			= [sequence_1] + [sequence_2] + [sequence_3] + [sequence_4] + [sequence_5] + [sequence_6] + \
 							[sequence_7] + [sequence_8] + [sequence_9]
 
-	planner 			= OR_motion_planning('apc_env.xml')
+	planner 			= ORMotionPlanning('apc_env.xml')
 
 	collision_struct 	= {"checker":'pqp', 
 							"collision_options":[op.CollisionOptions.Contacts]}
 
+	driver 		= UrMotionPlanner()
+	driver.action_server_move_arm([np.array(joint_start)], total_points=1)
 	IPython.embed()
-	driver 		= Ur5_motion_planner()
-	driver.move_arm(joint_start)
- 	raw_input("Press enter to continue: ")
 
 	for itr in range(9):
 		#  Move from bin to tote
 	 	planner.init_planning_setup(robot_path[itr][0], collision_struct)
 	 	final_trajectory 	=	planner.optimize_trajopt(joint_target=robot_path[itr][1])
 	 	# planner.simulate(trajectory=final_trajectory)
-	 	final_traj_dict 	= {'trajectory': final_trajectory,
-	 							'length': len(final_trajectory),}
-	 	driver.move_arm(joint_space=final_traj_dict, v_profile="ramp")
+	 	driver.action_server_move_arm(joint_space=final_trajectory, total_points=len(final_trajectory))
 	 	rospy.sleep(2)
 
 	 	planner.init_planning_setup(robot_path[itr][1], collision_struct)
 	 	linear_trajectory 	= 	planner.move_linear(joint_target=robot_path[itr][2])
 	 	# planner.simulate(trajectory=linear_trajectory)
-	 	linear_traj_dict 	= {'trajectory': linear_trajectory,
-	 							'length': len(linear_trajectory),}
-	 	driver.move_arm(joint_space=linear_traj_dict, v_profile="ramp")
+	 	driver.action_server_move_arm(joint_space=linear_trajectory, total_points=len(linear_trajectory))
 	 	rospy.sleep(2)
 
 	 	# Move from tote to bin
 	 	# planner.simulate(trajectory=reversed(linear_trajectory))
-	 	linear_traj_dict 	= {'trajectory': reversed(linear_trajectory),
-	 							'length': len(linear_trajectory),}
-	 	driver.move_arm(joint_space=linear_traj_dict, v_profile="ramp")
+	 	driver.action_server_move_arm(joint_space=reversed(linear_trajectory), total_points=len(linear_trajectory))
 		rospy.sleep(2)
 
 	 	# planner.simulate(trajectory=reversed(final_trajectory))
-	 	final_traj_dict 	= {'trajectory': reversed(final_trajectory),
-	 							'length': len(final_trajectory),}
-	 	driver.move_arm(joint_space=final_traj_dict, v_profile="ramp")
+	 	driver.action_server_move_arm(joint_space=reversed(final_trajectory), total_points=len(final_trajectory))
 	 	rospy.sleep(2)
