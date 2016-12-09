@@ -26,8 +26,8 @@ from copy import copy
 
 class VelocityProfile(object):
 	def __init__(self, *args, **kwargs):
-		self.max_angular_vel	= 2
-		self.min_angular_vel	= 0.5
+		self.max_angular_vel	= 1
+		self.min_angular_vel	= 0.1
 		super(VelocityProfile, self).__init__(*args, **kwargs)
 
 	def __get_velocity_ramp(self, itr, total_points):
@@ -54,6 +54,15 @@ class SubscribeToActionServer(VelocityProfile):
 			self.server_client 		= actionlib.SimpleActionClient('follow_joint_trajectory', FollowJointTrajectoryAction)					
 		super(SubscribeToActionServer, self).__init__(*args, **kwargs)
 
+	def ___single_point_numpy_array_wrapper(self, raw_joint_space):
+		# Function to convert a single  goal point of type list into numpy array for sending to action server
+		if(isinstance(raw_joint_space[0], (float, int))):
+			joint_space 		= [np.array(raw_joint_space)]		
+		else:
+			joint_space 		= raw_joint_space
+
+		return joint_space
+
 	def __frame_header_message(self):
 		header 					= Header()
 		header.seq 				= 1
@@ -63,6 +72,8 @@ class SubscribeToActionServer(VelocityProfile):
 
 	def __frame_single_point(self, joint_space):
 		# Only 1 point to move to in joint space
+		joint_space 			= self.___single_point_numpy_array_wrapper(joint_space)
+
 		for instance in joint_space:
 			single_point 			= instance
 			single_point[0:5] 		*= -1 						# Some hacks to align Gazebo coordinate system with OpenRave
@@ -78,27 +89,33 @@ class SubscribeToActionServer(VelocityProfile):
 		point_list 				= []
 		time_cumulated 			= 0.01
 		no_of_points 			= total_points -1
+		start 					= None
+		end 					= None
+		itr 					= 0
 
 		if(total_points == 1):
 			point_list  		+= self.__frame_single_point(joint_space)
 		else:
-			import ipdb
-			# ipdb.set_trace()
-			for itr in range(no_of_points):								# TODO: Cannot handle reversed list iterator <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-				start 					= joint_space[itr]
-				end 					= joint_space[itr +1]
-				end_modified 			= copy(end)
-				end_modified[0:5] 		= end_modified[0:5] *-1 		# Some hacks to align Gazebo coordinate system with OpenRave
+			for each_joint in joint_space:								
+				if(end == None):
+					end 	= each_joint
+				else:
+					start 					= end
+					end 					= each_joint
+					itr 					+= 1
 
-				point 					= JointTrajectoryPoint()
-				point.positions 		= end_modified.tolist()
-				point.velocities 		= [0.1,0.1,0.1,0.1,0.1,0.1]
-				point.accelerations 	= []
-				point.time_from_start 	= rospy.Duration(time_cumulated) 		# time from start must be in increasing order based on way point sequence
+					end_modified 			= copy(end)
+					end_modified[0:5] 		= end_modified[0:5] *-1 		# Some hacks to align Gazebo coordinate system with OpenRave
 
-				del_theta 				= max(abs(end -start))
-				time_cumulated			+= self.get_time_ramp_trajectory(del_theta=del_theta, itr=itr, total_points=no_of_points)
-				point_list 				+= [point]
+					point 					= JointTrajectoryPoint()
+					point.positions 		= end_modified.tolist()
+					point.velocities 		= [0.1,0.1,0.1,0.1,0.1,0.1]
+					point.accelerations 	= []
+					point.time_from_start 	= rospy.Duration(time_cumulated) 		# time from start must be in increasing order based on way point sequence
+
+					del_theta 				= max(abs(end -start))
+					time_cumulated			+= self.get_time_ramp_trajectory(del_theta=del_theta, itr=itr, total_points=no_of_points)
+					point_list 				+= [point]
 		return point_list
 
 	def __frame_trajectory_message(self, joint_space, total_points):
