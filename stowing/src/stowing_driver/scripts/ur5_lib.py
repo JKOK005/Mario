@@ -26,7 +26,7 @@ from copy import copy
 
 class VelocityProfile(object):
 	def __init__(self, *args, **kwargs):
-		self.max_angular_vel	= 1
+		self.max_angular_vel	= 0.2
 		self.min_angular_vel	= 0.1
 		super(VelocityProfile, self).__init__(*args, **kwargs)
 
@@ -48,10 +48,16 @@ class SubscribeToActionServer(VelocityProfile):
 	def __init__(self, *args,**kwargs):
 		if(self.is_simulation):
 			# For gazebo
+			rospy.loginfo("SubscribeToActionServer -> Running simulation in Gazebo")
 			self.server_client 		= actionlib.SimpleActionClient('arm_controller/follow_joint_trajectory', FollowJointTrajectoryAction)	
 		else:
 			# Actual robot
-			self.server_client 		= actionlib.SimpleActionClient('follow_joint_trajectory', FollowJointTrajectoryAction)					
+			rospy.loginfo("SubscribeToActionServer -> Running on actual UR5")
+			self.server_client 		= actionlib.SimpleActionClient('follow_joint_trajectory', FollowJointTrajectoryAction)
+
+		if(not self.__establish_server_connection()):
+			rospy.logerr("SubscribeToActionServer -> Unable to establish connection with ur5.")
+
 		super(SubscribeToActionServer, self).__init__(*args, **kwargs)
 
 	def ___single_point_numpy_array_wrapper(self, raw_joint_space):
@@ -82,7 +88,7 @@ class SubscribeToActionServer(VelocityProfile):
 			point.positions 		= single_point.tolist()
 			point.velocities 		= [0.1,0.1,0.1,0.1,0.1,0.1]
 			point.accelerations 	= []
-			point.time_from_start 	= rospy.Duration(2) 		# time from start must be in increasing order based on way point sequence
+			point.time_from_start 	= rospy.Duration(5) 		# time from start must be in increasing order based on way point sequence
 		return [point]
 
 	def __frame_points_list(self, joint_space, total_points):
@@ -109,7 +115,7 @@ class SubscribeToActionServer(VelocityProfile):
 
 					point 					= JointTrajectoryPoint()
 					point.positions 		= end_modified.tolist()
-					point.velocities 		= [0.1,0.1,0.1,0.1,0.1,0.1]
+					point.velocities 		= [0.05,0.05,0.05,0.05,0.05,0.05]
 					point.accelerations 	= []
 					point.time_from_start 	= rospy.Duration(time_cumulated) 		# time from start must be in increasing order based on way point sequence
 
@@ -128,16 +134,16 @@ class SubscribeToActionServer(VelocityProfile):
 	def __frame_path_tolerance_message(self):
 		path_tolerance 					= JointTolerance()
 		path_tolerance.name 			= "path_tolerance"
-		path_tolerance.position 		= 0
-		path_tolerance.velocity 		= 0
+		path_tolerance.position 		= 0.1
+		path_tolerance.velocity 		= 0.1
 		path_tolerance.acceleration 	= 0
 		return [path_tolerance]
 
 	def __frame_goal_tolerance_message(self):
 		goal_tolerance 					= JointTolerance()
 		goal_tolerance.name 			= "goal_tolerance"
-		goal_tolerance.position 		= 0
-		goal_tolerance.velocity 		= 0
+		goal_tolerance.position 		= 0.1
+		goal_tolerance.velocity 		= 0.1
 		goal_tolerance.acceleration 	= 0
 		return [goal_tolerance]
 
@@ -170,23 +176,20 @@ class SubscribeToActionServer(VelocityProfile):
 			rospy.logerr("SubscribeToActionServer -> No joint space coords detected.")
 			return 
 
-		if(not self.__establish_server_connection()):
-			rospy.logerr("SubscribeToActionServer -> Terminating connection with action server")
-		else:
-			goal_message 			= self.__frame_goal_message(joint_space, total_points)
-			self.server_client.send_goal(goal_message)
-			rospy.loginfo("SubscribeToActionServer -> Sending motion planning points to server")
+		goal_message 			= self.__frame_goal_message(joint_space, total_points)
+		self.server_client.send_goal(goal_message)
+		rospy.loginfo("SubscribeToActionServer -> Sending motion planning points to server")
 
-			if(not self.server_client.wait_for_result(rospy.Duration(15,0))):
-				rospy.logerr("SubscribeToActionServer -> Server took too long to respond with result.")
-			else:
-				rospy.loginfo("SubscribeToActionServer -> Movement of arm complete")
+		if(not self.server_client.wait_for_result(rospy.Duration(20,0))):
+			rospy.logerr("SubscribeToActionServer -> Server took too long to respond with result.")
+			self.server_client.cancel_goal()
+		else:
+			rospy.loginfo("SubscribeToActionServer -> Movement of arm complete")
 		return
 
-class UrMotionPlanner(SubscribeToActionServer):
+class UrMotionPlanner(object):
 	joint_lim_low 				= [-1,-0.5,-0.5,-np.pi,-np.pi,-np.pi]			# Default joint limits.
 	joint_lim_high 				= [-i for i in joint_lim_low]
-	is_simulation				= True
 
 	def __init__(self, *args, **kwargs):
 		rospy.init_node('UR5_motion_planner', anonymous=True)
