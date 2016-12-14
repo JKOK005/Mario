@@ -187,7 +187,7 @@ class SubscribeToActionServer(VelocityProfile):
 			rospy.loginfo("SubscribeToActionServer -> Movement of arm complete")
 		return
 
-class UrMotionPlanner(object):
+class MarioKinematics(object):
 	joint_lim_low 				= [-1,-0.5,-0.5,-np.pi,-np.pi,-np.pi]			# Default joint limits.
 	joint_lim_high 				= [-i for i in joint_lim_low]
 
@@ -199,7 +199,7 @@ class UrMotionPlanner(object):
 		self.joint_names 				= ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint', 'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
 		self.kin 						= Kinematics("ur5")
 		self.single_sol 				= False
-		super(UrMotionPlanner, self).__init__(*args, **kwargs)
+		super(MarioKinematics, self).__init__(*args, **kwargs)
 
 	def __unicode__(self):
 		return """UR5 custom motion planning library"""
@@ -341,5 +341,5 @@ if __name__ == "__main__":
 	current_joint_val	= [-0.206423593026,-1.88930973546,1.93371669802,3.891687163,2.27589753846,-0.230542109703]
 	goal_cartesian 		= [-0.8139287376537965, -0.574451023319419, -2.465989452029603, 0.18783751718385825, -0.003253999496774948, 0.58640475380916413]
 
-	driver 	= UrMotionPlanner()
+	driver 	= MarioKinematics()
 	# points 	= driver.plan_to_cartesian(current_joint_val,goal_cartesian)

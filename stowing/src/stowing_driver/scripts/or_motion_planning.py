@@ -30,7 +30,7 @@ import IPython
 import numpy as np
 import rospy
 import os
-from ur5_lib import UrMotionPlanner
+from ur5_lib import MarioKinematics
 from trajoptpy.check_traj import traj_is_safe
 
 class ORMotionPlanning(object):
@@ -46,7 +46,7 @@ class ORMotionPlanning(object):
 		self.robot 			= self.env.GetRobots()[0]
 		self.mario_arm 		= self.robot.GetManipulator('arm')
 
-		self.ur_kin 		= UrMotionPlanner()
+		self.ur_kin 		= MarioKinematics()
 
 	def load_environment_context(self, env_file):
 		try:
@@ -284,29 +284,30 @@ if __name__ == "__main__":
 	collision_struct 	= {"checker":'pqp', 
 							"collision_options":[op.CollisionOptions.Contacts]}
 
-	driver 		= UrMotionPlanner()
-	driver.action_server_move_arm([np.array(joint_start)], total_points=1)
-	IPython.embed()
+	# DEPRECATED CODE
+	# driver 				= MarioKinematics()
+	# driver.action_server_move_arm([np.array(joint_start)], total_points=1)
+	# IPython.embed()
 
-	for itr in range(9):
-		#  Move from bin to tote
-	 	planner.init_planning_setup(robot_path[itr][0], collision_struct)
-	 	final_trajectory 	=	planner.optimize_trajopt(joint_target=robot_path[itr][1])
-	 	# planner.simulate(trajectory=final_trajectory)
-	 	driver.action_server_move_arm(joint_space=final_trajectory, total_points=len(final_trajectory))
-	 	rospy.sleep(2)
+	# for itr in range(9):
+	# 	#  Move from bin to tote
+	#  	planner.init_planning_setup(robot_path[itr][0], collision_struct)
+	#  	final_trajectory 	=	planner.optimize_trajopt(joint_target=robot_path[itr][1])
+	#  	# planner.simulate(trajectory=final_trajectory)
+	#  	driver.action_server_move_arm(joint_space=final_trajectory, total_points=len(final_trajectory))
+	#  	rospy.sleep(2)
 
-	 	planner.init_planning_setup(robot_path[itr][1], collision_struct)
-	 	linear_trajectory 	= 	planner.move_linear(joint_target=robot_path[itr][2])
-	 	# planner.simulate(trajectory=linear_trajectory)
-	 	driver.action_server_move_arm(joint_space=linear_trajectory, total_points=len(linear_trajectory))
-	 	rospy.sleep(2)
+	#  	planner.init_planning_setup(robot_path[itr][1], collision_struct)
+	#  	linear_trajectory 	= 	planner.move_linear(joint_target=robot_path[itr][2])
+	#  	# planner.simulate(trajectory=linear_trajectory)
+	#  	driver.action_server_move_arm(joint_space=linear_trajectory, total_points=len(linear_trajectory))
+	#  	rospy.sleep(2)
 
-	 	# Move from tote to bin
-	 	# planner.simulate(trajectory=reversed(linear_trajectory))
-	 	driver.action_server_move_arm(joint_space=reversed(linear_trajectory), total_points=len(linear_trajectory))
-		rospy.sleep(2)
+	#  	# Move from tote to bin
+	#  	# planner.simulate(trajectory=reversed(linear_trajectory))
+	#  	driver.action_server_move_arm(joint_space=reversed(linear_trajectory), total_points=len(linear_trajectory))
+	# 	rospy.sleep(2)
 
-	 	# planner.simulate(trajectory=reversed(final_trajectory))
-	 	driver.action_server_move_arm(joint_space=reversed(final_trajectory), total_points=len(final_trajectory))
-	 	rospy.sleep(2)
+	#  	# planner.simulate(trajectory=reversed(final_trajectory))
+	#  	driver.action_server_move_arm(joint_space=reversed(final_trajectory), total_points=len(final_trajectory))
+	#  	rospy.sleep(2)
