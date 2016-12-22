@@ -1,3 +1,6 @@
+import roslib
+roslib.load_manifest('stowing_driver')
+
 from ur5_lib import *
 import numpy as np
 from or_motion_planning import ORMotionPlanning

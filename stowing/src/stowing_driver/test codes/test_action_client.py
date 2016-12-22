@@ -1,3 +1,6 @@
+import roslib
+roslib.load_manifest('stowing_driver')
+
 import rospy 
 import numpy as np
 import actionlib

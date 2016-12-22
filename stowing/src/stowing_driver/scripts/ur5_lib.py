@@ -193,17 +193,22 @@ class MarioKinematics(object):
 
 	def __init__(self, *args, **kwargs):
 		rospy.init_node('UR5_motion_planner', anonymous=True)
-		self.move_arm_pub_gazebo 		= rospy.Publisher('arm_controller/command', JointTrajectory, 
-									    queue_size=20, latch=True)
 
 		self.joint_names 				= ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint', 'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
 		self.kin 						= Kinematics("ur5")
 		self.single_sol 				= False
+		self.__robot_joint_state 		= []
+		rospy.Subscriber("__topic__", "__msg_type__", self.__robot_joint_state_callback)
+
 		super(MarioKinematics, self).__init__(*args, **kwargs)
 
 	def __unicode__(self):
 		return """UR5 custom motion planning library"""
 		
+	def __robot_joint_state_callback(self, data):
+		self.__robot_joint_state  		= data.data
+		return
+
 	@classmethod
 	def change_joint_limits(cls,lim_low,lim_high):
 		try:
@@ -243,6 +248,10 @@ class MarioKinematics(object):
 		matrix_from_cartesian 				= matrix_from_euler + matrix_from_translation 
 
 		return self.__get_ik_from_matrix(matrix_from_cartesian)
+
+	def get_robot_joint_state(self):
+		# Current joint state of Mario
+		return self.__robot_joint_state
 
 	def __get_ik_from_matrix(self, h_matrix):
 		# Gets all possible IK solutions from homogeneous matrix that satisfies joint limits defined
