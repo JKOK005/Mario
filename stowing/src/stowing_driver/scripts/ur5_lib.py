@@ -45,8 +45,8 @@ class VelocityProfile(object):
 		return time_interp
 
 class SubscribeToActionServer(VelocityProfile):
-	def __init__(self, *args,**kwargs):
-		if(self.is_simulation):
+	def __init__(self, is_simulation, *args,**kwargs):
+		if(is_simulation):
 			# For gazebo
 			rospy.loginfo("SubscribeToActionServer -> Running simulation in Gazebo")
 			self.server_client 		= actionlib.SimpleActionClient('arm_controller/follow_joint_trajectory', FollowJointTrajectoryAction)	
@@ -188,17 +188,21 @@ class SubscribeToActionServer(VelocityProfile):
 		return
 
 class MarioKinematics(object):
-	joint_lim_low 				= [-1,-0.5,-0.5,-np.pi,-np.pi,-np.pi]			# Default joint limits.
+	joint_lim_low 				= [-2,-2,-2,-np.pi,-np.pi,-np.pi]			# Default joint limits.
 	joint_lim_high 				= [-i for i in joint_lim_low]
 
-	def __init__(self, *args, **kwargs):
+	def __init__(self, is_simulation, *args, **kwargs):
 		rospy.init_node('UR5_motion_planner', anonymous=True)
 
 		self.joint_names 				= ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint', 'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
 		self.kin 						= Kinematics("ur5")
 		self.single_sol 				= False
 		self.__robot_joint_state 		= []
-		rospy.Subscriber("__topic__", "__msg_type__", self.__robot_joint_state_callback)
+
+		if(is_simulation):
+			rospy.Subscriber('/arm_controller/state', JointTrajectoryControllerState, self.__robot_joint_state_callback)
+		else:
+			rospy.Subscriber("/state", JointTrajectoryControllerState, self.__robot_joint_state_callback)
 
 		super(MarioKinematics, self).__init__(*args, **kwargs)
 
@@ -206,7 +210,8 @@ class MarioKinematics(object):
 		return """UR5 custom motion planning library"""
 		
 	def __robot_joint_state_callback(self, data):
-		self.__robot_joint_state  		= data.data
+		actual_joint_state_msg_frame 	= data.actual
+		self.__robot_joint_state  		= actual_joint_state_msg_frame.positions
 		return
 
 	@classmethod
@@ -235,6 +240,22 @@ class MarioKinematics(object):
 				raise Exception('Please sort your high and low limits')
 
 		return
+
+	def cartesian_from_joint(self, joint_vals):
+		# Gets homogeneous matrix from joint values
+		# joint_vals either be a list of multiple joint sets or a single joint set
+
+		if(all(isinstance(i, list) for i in joint_vals)):
+			lst 				= []
+
+			for each_joint_val in joint_vals:
+				fk_sol	 		= self.kin.forward(q=each_joint_val)
+				lst 			+= [self.__get_cartesian_from_matrix(fk_sol)]
+		else:
+			fk_sol	 			= self.kin.forward(q=joint_vals)
+			lst 				= self.__get_cartesian_from_matrix(fk_sol)
+
+		return lst
 
 	def cartesian_to_ik(self, cartesian, single_sol=False):
 		# Cartesian coordinates of [roll,pitch,yaw,X,Y,Z] to ik solutions
@@ -272,15 +293,12 @@ class MarioKinematics(object):
 
 		for each_ik_sol in ik_sols:
 			if self.__solution_within_joint_limits(each_ik_sol):
-				ik_sols_cleaned  			+= each_ik_sol
+				ik_sols_cleaned.append(each_ik_sol)
 
 		return ik_sols_cleaned
 	
 	def __get_best_ik_solution(self, ik_sols_cleaned, weights=6*[1.0]):
 		q_guess 							= np.zeros(6)
-
-		import ipdb
-		ipdb.set_trace()
 
 		best_sol_ind 						= np.argmin(np.sum((weights*(ik_sols_cleaned - np.array(q_guess)))**2,1))
 		best_sol 							= ik_sols_cleaned[best_sol_ind]
@@ -296,22 +314,6 @@ class MarioKinematics(object):
 			if each_ik_sol[i] < self.joint_lim_low[i] or each_ik_sol[i] > self.joint_lim_high[i]:
 				return False
 		return True
-
-	def cartesian_from_joint(self, joint_vals):
-		# Gets homogeneous matrix from joint values
-		# joint_vals either be a list of multiple joint sets or a single joint set
-
-		if(all(isinstance(i, list) for i in joint_vals)):
-			lst 				= []
-
-			for each_joint_val in joint_vals:
-				fk_sol	 		= self.kin.forward(q=each_joint_val)
-				lst 			+= [self.__get_cartesian_from_matrix(fk_sol)]
-		else:
-			fk_sol	 			= self.kin.forward(q=joint_vals)
-			lst 				= self.__get_cartesian_from_matrix(fk_sol)
-
-		return lst
 
 	def __get_cartesian_from_matrix(self, h_matrix):
 		# Returns a list of [roll, pitch, yaw, X, Y, Z]
@@ -344,11 +346,10 @@ class MarioKinematics(object):
 		return joint_way_points
 
 if __name__ == "__main__":
-	test_joint 			= [0,0,0,0,0,0]
-	joint_start 		= [-0.97,0.2,-1.4,2.75,1.5,-2.071]
-	bin1 				= [-0.3,0,1,2.2,1.8,0]
-	current_joint_val	= [-0.206423593026,-1.88930973546,1.93371669802,3.891687163,2.27589753846,-0.230542109703]
-	goal_cartesian 		= [-0.8139287376537965, -0.574451023319419, -2.465989452029603, 0.18783751718385825, -0.003253999496774948, 0.58640475380916413]
-
-	driver 	= MarioKinematics()
-	# points 	= driver.plan_to_cartesian(current_joint_val,goal_cartesian)
+	driver 			= MarioKinematics(is_simulation=True)
+	rospy.sleep(1)
+	joint_space 	= driver.get_robot_joint_state()
+	cartesian 		= driver.cartesian_from_joint(joint_space)
+	joint 			= driver.cartesian_to_ik(cartesian, single_sol=False)
+	print("Mario: {0}").format(joint_space)
+	print("Cartesian: {0}".format(cartesian))

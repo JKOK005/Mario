@@ -45,7 +45,7 @@ class ORMotionPlanning(object):
 		self.robot 			= self.env.GetRobots()[0]
 		self.mario_arm 		= self.robot.GetManipulator('arm')
 
-		self.ur_kin 		= MarioKinematics()
+		self.ur_kin 		= MarioKinematics(is_simulation=True)
 
 	def load_environment_context(self, env_file):
 		try:
