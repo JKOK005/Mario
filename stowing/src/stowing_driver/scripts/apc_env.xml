@@ -51,7 +51,7 @@
 
 	<KinBody name="base_ur5">
 		<Body type="static">
-			<Translation>1 0 0.76</Translation>
+			<Translation>1 0 0.66</Translation>
 			<quat>1.000000 1.000000 0.000000 0.000000</quat>
 			<Geom type="cylinder" render="true">
 				<radius>0.06</radius>
@@ -73,7 +73,7 @@
 
 	<KinBody name="shelf_9_bin">
 		<Body type="static">
-      		<Translation>0.35 1.35 0</Translation>
+      		<Translation>0.35 1.20 0</Translation>
         	<quat>1.000000 1.000000 0.000000 0.000000</quat>
         	<Body type="dynamic" scalegeometry="0.001">
 		      	<Geom type="trimesh" render="true">

@@ -188,7 +188,7 @@ class SubscribeToActionServer(VelocityProfile):
 		return
 
 class MarioKinematics(object):
-	joint_lim_low 				= [-2,-2,-2,-np.pi,-np.pi,-np.pi]			# Default joint limits.
+	joint_lim_low 				= [-2*np.pi,-2*np.pi,-2*np.pi,-2*np.pi,-2*np.pi,-2*np.pi]			# Default joint limits.
 	joint_lim_high 				= [-i for i in joint_lim_low]
 
 	def __init__(self, is_simulation, *args, **kwargs):
@@ -278,6 +278,7 @@ class MarioKinematics(object):
 		# Gets all possible IK solutions from homogeneous matrix that satisfies joint limits defined
 		# If no possible IK solutions for given point, throws AssertionError
 		ik_sols								= self.kin.inverse_all(x=h_matrix)
+		print(ik_sols)
 		ik_sols_cleaned						= self.__assert_joint_limits(ik_sols)
 
 		assert len(ik_sols_cleaned) is not 0
@@ -290,7 +291,7 @@ class MarioKinematics(object):
 	def __assert_joint_limits(self, ik_sols):
 		# Asserts that the given joint space coordinate falls within the allowable joint limits or throw AssertionError
 		ik_sols_cleaned 					= []
-
+		
 		for each_ik_sol in ik_sols:
 			if self.__solution_within_joint_limits(each_ik_sol):
 				ik_sols_cleaned.append(each_ik_sol)
