@@ -20,6 +20,7 @@ import actionlib
 from std_msgs.msg import *
 from trajectory_msgs.msg import *
 from control_msgs.msg import *
+from mario_transformations import *
 from ur_kin_py.kin import Kinematics 
 from tf import transformations as TF
 from copy import copy
@@ -175,11 +176,9 @@ class SubscribeToActionServer(VelocityProfile):
 		if(total_points == 0):
 			rospy.logerr("SubscribeToActionServer -> No joint space coords detected.")
 			return 
-
 		goal_message 			= self.__frame_goal_message(joint_space, total_points)
 		self.server_client.send_goal(goal_message)
 		rospy.loginfo("SubscribeToActionServer -> Sending motion planning points to server")
-
 		if(not self.server_client.wait_for_result(rospy.Duration(20,0))):
 			rospy.logerr("SubscribeToActionServer -> Server took too long to respond with result.")
 			self.server_client.cancel_goal()
@@ -193,17 +192,14 @@ class MarioKinematics(object):
 
 	def __init__(self, is_simulation, *args, **kwargs):
 		rospy.init_node('UR5_motion_planner', anonymous=True)
-
 		self.joint_names 				= ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint', 'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
 		self.kin 						= Kinematics("ur5")
 		self.single_sol 				= False
 		self.__robot_joint_state 		= []
-
 		if(is_simulation):
 			rospy.Subscriber('/arm_controller/state', JointTrajectoryControllerState, self.__robot_joint_state_callback)
 		else:
-			rospy.Subscriber("/state", JointTrajectoryControllerState, self.__robot_joint_state_callback)
-
+			rospy.Subscriber('/state', JointTrajectoryControllerState, self.__robot_joint_state_callback)
 		super(MarioKinematics, self).__init__(*args, **kwargs)
 
 	def __unicode__(self):
@@ -220,109 +216,89 @@ class MarioKinematics(object):
 			cls.__verify_joint_input(lim_low,lim_high)
 			cls.joint_lim_low			= lim_low
 			cls.joint_lim_high			= lim_high
-		
 		except AssertionError as e:
 			print "Wrong input length or type for limits"
-
 		except Exception as e:
 			# Do not interrupt programme flow by breaking code
-			print e
-		
+			print e	
 		return
 
-	@staticmethod
+	@classmethod
 	def __verify_joint_input(lim_low,lim_high):	
 		assert type(lim_low) is list and len(lim_low) == 6
 		assert type(lim_high) is list and len(lim_high) == 6
-
 		for i in range(6):
 			if lim_low[i] > lim_high[i]:
 				raise Exception('Please sort your high and low limits')
-
 		return
 
 	def cartesian_from_joint(self, joint_vals):
 		# Gets homogeneous matrix from joint values
 		# joint_vals either be a list of multiple joint sets or a single joint set
-
 		if(all(isinstance(i, list) for i in joint_vals)):
 			lst 				= []
-
 			for each_joint_val in joint_vals:
 				fk_sol	 		= self.kin.forward(q=each_joint_val)
 				lst 			+= [self.__get_cartesian_from_matrix(fk_sol)]
 		else:
 			fk_sol	 			= self.kin.forward(q=joint_vals)
 			lst 				= self.__get_cartesian_from_matrix(fk_sol)
-
 		return lst
 
-	def cartesian_to_ik(self, cartesian, single_sol=False):
+	def __get_cartesian_from_matrix(self, h_matrix):
+		# Returns a list of [roll, pitch, yaw, X, Y, Z]
+		euler_from_matrix					= list(TF.euler_from_matrix(h_matrix))
+		translation_from_matrix				= list(TF.translation_from_matrix(h_matrix))
+		return euler_from_matrix + translation_from_matrix
+
+	def get_joint_sols_from_bin_grasping(self, obj_label, grasp_results):
+		# obj_label is the identifier for bin or tote location
+		roll, pitch, yaw, item_coord_X, item_coord_Y, item_coord_Z 	= grasp_results
+		base_coord_X, base_coord_Y, base_coord_Z, _		= RobotToNewShelfTransformation.get_item_coord_from_obj_to_robot(obj_label, item_coord_X, item_coord_Y, item_coord_Z)
+		cartesian		= [roll, pitch, yaw, base_coord_X, base_coord_Y, base_coord_Z]
+		return self.cartesian_to_ik(cartesian=cartesian)
+
+	def get_joint_sols_from_tote_grasping(self, obj_label, grasp_results):
+		# obj_label is the identifier for bin or tote location
+		roll, pitch, yaw, item_coord_X, item_coord_Y, item_coord_Z 	= grasp_results
+		base_coord_X, base_coord_Y, base_coord_Z, _		= RobotToToteTransformation.get_item_coord_from_obj_to_robot(obj_label, item_coord_X, item_coord_Y, item_coord_Z)
+		cartesian		= [roll, pitch, yaw, base_coord_X, base_coord_Y, base_coord_Z]
+		return self.cartesian_to_ik(cartesian=cartesian)
+
+	def cartesian_to_ik(self, cartesian):
 		# Cartesian coordinates of [roll,pitch,yaw,X,Y,Z] to ik solutions
 		# Returns all possible IK solutions within joint limits if single is False
 		# Returns best IK solution within joint limit if single is True
-		self.single_sol						= single_sol
 		roll,pitch,yaw,X,Y,Z 				= cartesian
-
 		matrix_from_euler					= TF.euler_matrix(roll,pitch,yaw)
-		matrix_from_translation				= TF.translation_matrix([X,Y,Z]) - TF.identity_matrix()
-		matrix_from_cartesian 				= matrix_from_euler + matrix_from_translation 
-
+		matrix_from_translation				= TF.translation_matrix([X,Y,Z])
+		matrix_from_cartesian 				= TF.concatenate_matrices(matrix_from_translation, matrix_from_euler)
 		return self.__get_ik_from_matrix(matrix_from_cartesian)
-
-	def get_robot_joint_state(self):
-		# Current joint state of Mario
-		return self.__robot_joint_state
 
 	def __get_ik_from_matrix(self, h_matrix):
 		# Gets all possible IK solutions from homogeneous matrix that satisfies joint limits defined
 		# If no possible IK solutions for given point, throws AssertionError
 		ik_sols								= self.kin.inverse_all(x=h_matrix)
-		print(ik_sols)
 		ik_sols_cleaned						= self.__assert_joint_limits(ik_sols)
-
 		assert len(ik_sols_cleaned) is not 0
-
-		if(self.single_sol):
-			ik_sols_cleaned					= self.__get_best_ik_solution(ik_sols_cleaned)
-
 		return ik_sols_cleaned
 
 	def __assert_joint_limits(self, ik_sols):
 		# Asserts that the given joint space coordinate falls within the allowable joint limits or throw AssertionError
 		ik_sols_cleaned 					= []
-		
 		for each_ik_sol in ik_sols:
 			if self.__solution_within_joint_limits(each_ik_sol):
 				ik_sols_cleaned.append(each_ik_sol)
-
 		return ik_sols_cleaned
-	
-	def __get_best_ik_solution(self, ik_sols_cleaned, weights=6*[1.0]):
-		q_guess 							= np.zeros(6)
-
-		best_sol_ind 						= np.argmin(np.sum((weights*(ik_sols_cleaned - np.array(q_guess)))**2,1))
-		best_sol 							= ik_sols_cleaned[best_sol_ind]
-		
-		return best_sol
 
 	def __solution_within_joint_limits(self, each_ik_sol):
 		# If not within joint limit, reject each_ik_sol
 		length 								= len(each_ik_sol)
-
 		for i in range(length):
 			# Check if joint limit has been exceed for each UR joint
 			if each_ik_sol[i] < self.joint_lim_low[i] or each_ik_sol[i] > self.joint_lim_high[i]:
 				return False
 		return True
-
-	def __get_cartesian_from_matrix(self, h_matrix):
-		# Returns a list of [roll, pitch, yaw, X, Y, Z]
-
-		euler_from_matrix					= list(TF.euler_from_matrix(h_matrix))
-		translation_from_matrix				= list(TF.translation_from_matrix(h_matrix))
-
-		return euler_from_matrix + translation_from_matrix
 
 	def plan_to_cartesian(self, current_joint_val, goal_cartesian, no_points=10):
 		"""
@@ -333,7 +309,6 @@ class MarioKinematics(object):
 		# Raises AssertinError when intermediate point has no solutions
 		current_cartesian 					= self.cartesian_from_joint(current_joint_val)
 		joint_way_points 					= []
-
 		try:
 			for i in list(reversed(range(no_points))):
 				point 							= linear_pose_interp(current_cartesian, goal_cartesian, (i+1.0) /no_points)
@@ -343,14 +318,20 @@ class MarioKinematics(object):
 
 		except AssertionError:
 			raise AssertionError("No possible IK solutions found for coordinate: {0}".format(way_point))
-
 		return joint_way_points
 
+	def get_robot_joint_state(self):
+		# Current joint state of Mario
+		return self.__robot_joint_state
+
 if __name__ == "__main__":
-	driver 			= MarioKinematics(is_simulation=True)
-	rospy.sleep(1)
-	joint_space 	= driver.get_robot_joint_state()
-	cartesian 		= driver.cartesian_from_joint(joint_space)
-	joint 			= driver.cartesian_to_ik(cartesian, single_sol=False)
-	print("Mario: {0}").format(joint_space)
-	print("Cartesian: {0}".format(cartesian))
+	mario 			= MarioKinematics(is_simulation=True)
+	tester 			= TestActionMethod()
+
+	grasp_result 	= [0,0,0,0,0,0]		# roll / pitch / yaw / X / Y / Z
+	obj_label 		= 'bin_a'
+
+	base_coord 		= mario.get_joint_sols_from_bin_grasping(obj_label, grasp_result)
+	base_coord[0:5] *= -1 				# Some hacks to translate to Gazebo frame of reference
+
+	tester.action_server_move_arm(joint_space=base_coord, total_points=1)

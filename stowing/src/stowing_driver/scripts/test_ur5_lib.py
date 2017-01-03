@@ -58,4 +58,3 @@ if __name__ == "__main__":
 		total_points		= len(final_traj)
 		tester.action_server_move_arm(joint_space=final_traj, total_points=total_points)
 		start 				= target
-
