@@ -10,6 +10,7 @@ and Z (blue) following the right hand rule.
 """
 
 import numpy as np
+from math import pi
 from tf import transformations as TF
 
 class GenericTransformationContainer(object):
@@ -69,7 +70,7 @@ class RobotToNewShelfTransformation(GenericTransformationContainer):
 		'bin_h' : [0.850 -delete_this_var, 0.200, -0.367],
 		'bin_i' : [0.850 -delete_this_var, -0.213, -0.367],
 	}
-	x_rot = 0; y_rot = 0; z_rot = 0 		# Rotation angles from bin to robot frame
+	x_rot = 0; y_rot = 0; z_rot = -pi/2 		# Rotation angles from bin to robot frame
 
 class RobotToToteTransformation(GenericTransformationContainer):
 	# Provide amnesty and stowing tote base displacement here

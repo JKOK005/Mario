@@ -17,6 +17,7 @@ Dependencies:
 import rospy 
 import numpy as np
 import actionlib
+from math import pi
 from std_msgs.msg import *
 from trajectory_msgs.msg import *
 from control_msgs.msg import *
@@ -61,7 +62,7 @@ class SubscribeToActionServer(VelocityProfile):
 
 		super(SubscribeToActionServer, self).__init__(*args, **kwargs)
 
-	def ___single_point_numpy_array_wrapper(self, raw_joint_space):
+	def __single_point_numpy_array_wrapper(self, raw_joint_space):
 		# Function to convert a single  goal point of type list into numpy array for sending to action server
 		if(isinstance(raw_joint_space[0], (float, int))):
 			joint_space 		= [np.array(raw_joint_space)]		
@@ -79,7 +80,7 @@ class SubscribeToActionServer(VelocityProfile):
 
 	def __frame_single_point(self, joint_space):
 		# Only 1 point to move to in joint space
-		joint_space 			= self.___single_point_numpy_array_wrapper(joint_space)
+		joint_space 			= self.__single_point_numpy_array_wrapper(joint_space)
 
 		for instance in joint_space:
 			single_point 			= instance
@@ -233,7 +234,7 @@ class MarioKinematics(object):
 		return
 
 	def cartesian_from_joint(self, joint_vals):
-		# Gets homogeneous matrix from joint values
+		# Returns a list of [roll, pitch, yaw, X, Y, Z] from joint values
 		# joint_vals either be a list of multiple joint sets or a single joint set
 		if(all(isinstance(i, list) for i in joint_vals)):
 			lst 				= []
@@ -300,21 +301,42 @@ class MarioKinematics(object):
 				return False
 		return True
 
+	def delta_move_by_robot_frame(self, axis, delta_dis):
+		def get_goal_cartesian_from_delta_dis(roll, pitch, yaw, axis, delta_dis):
+			matrix_from_euler			= TF.euler_matrix(roll,pitch,yaw)
+			axis_translation_list 		= self.get_axis_translation_list(axis=axis, delta_dis=delta_dis)
+			delta_matrix				= TF.translation_matrix(axis_translation_list)
+			# >>>>>>>>>>>>>> TODO finish relative frame translation <<<<<<<<<<<<<<<<
+
+		def get_axis_translation_list(axis, delta_dis):
+			# Only move along the axis of the robot frame
+			if axis == 'x':
+				axis_translation_list 	= [delta_dis, 0, 0]
+			elif axis == 'y':
+				axis_translation_list 	= [0, delta_dis, 0]
+			elif axis == 'z':
+				axis_translation_list 	= [0, 0, delta_dis]
+			else:
+				raise Exception('MarioKinematics -> get_axis_translation_list -> axis given is not x,y,z')
+			return axis_translation_list
+
+		# Moves the robot by an axis by a delta distance
+		current_joint_state 		= self.get_robot_joint_state()
+		current_cartesian 			= self.cartesian_from_joint(current_joint_state)
+		roll, pitch, yaw, _, _, _ 	= current_cartesian
+		goal_cartesian 				= self.get_goal_cartesian_from_delta_dis(roll, pitch, yaw, delta_dis)
+		plan_to_cartesian(current_cartesian, goal_cartesian)
+
 	def plan_to_cartesian(self, current_joint_val, goal_cartesian, no_points=10):
-		"""
-		Plans to given cartesian from current coordinate with intermediate way points.
-		"""
 		# Goal cartesian is a list of [roll,pitch,yaw,X,Y,Z]
 		# Start with a linear planner that plans in cartesian space using SLERP interpolation
 		# Raises AssertinError when intermediate point has no solutions
-		current_cartesian 					= self.cartesian_from_joint(current_joint_val)
-		joint_way_points 					= []
+		joint_way_points 			= []
 		try:
 			for i in list(reversed(range(no_points))):
-				point 							= linear_pose_interp(current_cartesian, goal_cartesian, (i+1.0) /no_points)
-				print point
-				way_point 						= quat2euler(point['rot']) + point['lin']
-				joint_way_points 				+= self.cartesian_to_ik(cartesian=way_point, single_sol=True)
+				point 					= linear_pose_interp(current_cartesian, goal_cartesian, (i+1.0) /no_points)
+				way_point 				= quat2euler(point['rot']) + point['lin']
+				joint_way_points 		+= self.cartesian_to_ik(cartesian=way_point, single_sol=True)
 
 		except AssertionError:
 			raise AssertionError("No possible IK solutions found for coordinate: {0}".format(way_point))
@@ -324,14 +346,22 @@ class MarioKinematics(object):
 		# Current joint state of Mario
 		return self.__robot_joint_state
 
+class TestActionMethod(SubscribeToActionServer):
+	def __init__(self, *args, **kwargs):
+		rospy.init_node('UR5_motion_planner', anonymous=True)
+		is_simulation 			= True
+		self.joint_names 		= ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint', 'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
+		super(TestActionMethod, self).__init__(is_simulation, *args, **kwargs)
+
 if __name__ == "__main__":
 	mario 			= MarioKinematics(is_simulation=True)
 	tester 			= TestActionMethod()
 
-	grasp_result 	= [0,0,0,0,0,0]		# roll / pitch / yaw / X / Y / Z
-	obj_label 		= 'bin_a'
+	grasp_result 	= [-pi/2,0,0,0.05,-0.1,0.1]		# roll / pitch / yaw / X / Y / Z
+	obj_label 		= 'bin_c'
 
-	base_coord 		= mario.get_joint_sols_from_bin_grasping(obj_label, grasp_result)
-	base_coord[0:5] *= -1 				# Some hacks to translate to Gazebo frame of reference
+	base_coord 					= mario.get_joint_sols_from_bin_grasping(obj_label, grasp_result)
+	selected_base_coord 		= base_coord[0]
+	selected_base_coord[0:5] 	*= -1 				# Some hacks to translate to Gazebo frame of reference
 
-	tester.action_server_move_arm(joint_space=base_coord, total_points=1)
+	tester.action_server_move_arm(joint_space=selected_base_coord, total_points=1)
