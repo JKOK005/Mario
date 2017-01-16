@@ -4,9 +4,10 @@ Created on 25 Dec 2016
 @author: Khoo Jie Xiong
 '''
 import math
-from math import atan2
+from math import atan, atan2, pi, sqrt
 
 def rotate(x,y,z,roll,pitch,yaw):  
+    #Rotation order: Yaw, Pitch, Roll
     #Note: All angles are in Radians, rotations are counter-clockwise by convention
     #Rotation matrix source: http://msl.cs.uiuc.edu/planning/node102.html
     
@@ -41,16 +42,15 @@ def obj (boundary, points):
                 value = points[i][1]    
     return value
 
-def find_Plane_and_Normal (p1, p2, p3):
+def find_Plane_and_Normal (strategyIDchosen, p1, p2, p3):
     # Source: http://www.had2know.com/academics/equation-plane-through-3-points.html
     """
     Input: 3 points, each being an array of 3 values, p1, p2, p3.
     Output: Array of 4: coefficients of equation of plane + Array of 3: Normal vector to plane
     """
-    p1 = [1,2,3]
-    p2 = [4,6,9]
-    p3 = [12,11,9]
-    
+#     p1 = [1,2,3]
+#     p2 = [4,6,9]
+#     p3 = [12,11,9]
     vector1 = [p3[0] - p1[0],
                p3[1] - p1[1],
                p3[2] - p1[2]]
@@ -72,11 +72,34 @@ def find_Plane_and_Normal (p1, p2, p3):
     c = cross_product[2]
     d = cross_product[0] * p1[0] + cross_product[1] * p1[1] + cross_product[2] * p1[2]
     
+    if (strategyIDchosen == 1 or strategyIDchosen == 6): #if top suction / gripper, z has to be -ve
+        if (c >= 0):
+            return [-a, -b, -c, -d], [-a, -b, -c]
+        else:
+            return [a, b, c, d], [a, b, c]
+            
+    elif (strategyIDchosen == 2): #if right suction, x has to be +ve
+        if (a <= 0):
+            return [-a, -b, -c, -d], [-a, -b, -c]
+        else: 
+            return [a, b, c, d], [a, b, c]
+    elif (strategyIDchosen == 3): #if left suction, x has to be -ve
+        if (a >= 0):
+            return [-a, -b, -c, -d], [-a, -b, -c]
+        else: return [a, b, c, d], [a, b, c]
+    elif (strategyIDchosen == 4 or strategyIDchosen == 5): #if front suction / gripper, y has to be +ve
+        if (b <= 0):
+            return [-a, -b, -c, -d], [-a, -b, -c]
+        else:
+            return [a, b, c, d], [a, b, c]
+    
+    else:
+    
 #     print ("Equation is ax + by + cz = d")
 #     print ("a = " + str(a) + ", b = " + str(b) + ", c = " + str(c) + ", d = " + str(d))
 #     print ("Normal vector: " + str([a, b, c]))
     
-    return [a, b, c, d], [a, b, c]
+        return [a, b, c, d], [a, b, c]
 
 def find_Max_4 (axis, points):
     """
@@ -120,18 +143,202 @@ def find_Min_4 (axis, points):
                 break
     return point, value
 
-def find_ee_RPY(ee_normal):
+def find_ee_YPR(ee_normal):
     """    
     Input: Normal vector of plane
     Output: RPY rotation of e-e to face that normal vector (from the original position 
     of facing [0,1,0], which is facing directly into the bin)
     """
-    x = ee_normal[0]
-    y = ee_normal[1]
-    z = ee_normal[2]
-
-    ee_roll = atan2(y,z) /math.pi*180
-    ee_pitch = 0.0
-    ee_yaw = atan2(-x, y) /math.pi*180
+    x = float(ee_normal[0])
+    y = float(ee_normal[1])
+    z = float(ee_normal[2])
     
-    return ee_roll, ee_pitch, ee_yaw
+#     ee_yaw_by_atan2 = atan2(-x,y) /pi*180
+    ee_pitch = 0.0
+
+    if(x>=0 and y>=0 and z>=0):     
+        if(y==0 and x==0): #if on z axis
+            ee_yaw = 0
+            ee_roll = pi/2
+        elif(z==0 and x==0): #if on y axis
+            ee_yaw = 0
+            ee_roll = 0
+        elif(z==0 and y==0): #if on x axis
+            ee_yaw = -pi/2
+            ee_roll = 0
+        elif(x==0): #if on yz plane
+            ee_yaw = 0
+            ee_roll = atan(z/y)
+        elif(y==0): #if on xz plane
+            ee_yaw = -atan(x/z)
+            ee_roll = pi/2
+        elif(z==0): #if on xy plane
+            ee_yaw = -atan(x/y)    
+            ee_roll = 0
+        else:
+            ee_yaw = -atan(x/y)
+            ee_roll = atan(z/y)
+        
+    elif(x<0 and y>=0 and z>=0):
+        if(y==0 and x==0): #if on z axis
+            ee_yaw = 0
+            ee_roll = pi/2
+        elif(z==0 and x==0): #if on y axis
+            ee_yaw = 0
+            ee_roll = 0
+        elif(z==0 and y==0): #if on x axis
+            ee_yaw = pi/2
+            ee_roll = 0
+        elif(x==0): #if on yz plane
+            ee_yaw = 0
+            ee_roll = atan(z/y)
+        elif(y==0): #if on xz plane
+            ee_yaw = atan(-x/z)
+            ee_roll = pi/2
+        elif(z==0): #if on xy plane
+            ee_yaw = atan(-x/y)    
+            ee_roll = 0
+        else:
+            ee_yaw = atan(-x/y)
+            ee_roll = atan(z/y)
+            
+    elif(x<0 and y<0 and z>=0):
+        if(y==0 and x==0): #if on z axis
+            ee_yaw = 0
+            ee_roll = pi/2
+        elif(z==0 and x==0): #if on y axis
+            ee_yaw = pi
+            ee_roll = 0
+        elif(z==0 and y==0): #if on x axis
+            ee_yaw = pi/2
+            ee_roll = 0
+        elif(x==0): #if on yz plane
+            ee_yaw = pi
+            ee_roll = -atan(z/y)
+        elif(y==0): #if on xz plane
+            ee_yaw = atan(-x/z)
+            ee_roll = pi/2
+        elif(z==0): #if on xy plane
+            ee_yaw = atan(-y/-x) + pi/2    
+            ee_roll = 0
+        else:
+            ee_yaw = atan(-y/-x) + pi/2
+            ee_roll = -atan(z/-y)
+         
+    elif(x<0 and y<0 and z<0):
+        if(y==0 and x==0): #if on z axis
+            ee_yaw = 0
+            ee_roll = -pi/2
+        elif(z==0 and x==0): #if on y axis
+            ee_yaw = pi
+            ee_roll = 0
+        elif(z==0 and y==0): #if on x axis
+            ee_yaw = pi/2
+            ee_roll = 0
+        elif(x==0): #if on yz plane
+            ee_yaw = pi
+            ee_roll = atan(-z/-y)
+        elif(y==0): #if on xz plane
+            ee_yaw = atan(-x/-z)
+            ee_roll = -pi/2
+        elif(z==0): #if on xy plane
+            ee_yaw = atan(-y/-x) + pi/2    
+            ee_roll = 0
+        else:
+            ee_yaw = atan(-y/-x) + pi/2
+            ee_roll = atan(-z/-y)
+     
+    elif(x>=0 and y<0 and z>=0):
+        if(y==0 and x==0): #if on z axis
+            ee_yaw = 0
+            ee_roll = pi/2
+        elif(z==0 and x==0): #if on y axis
+            ee_yaw = pi
+            ee_roll = 0
+        elif(z==0 and y==0): #if on x axis
+            ee_yaw = -pi/2
+            ee_roll = 0
+        elif(x==0): #if on yz plane
+            ee_yaw = pi
+            ee_roll = -atan(z/-y)
+        elif(y==0): #if on xz plane
+            ee_yaw = -atan(x/z)
+            ee_roll = pi/2
+        elif(z==0): #if on xy plane
+            ee_yaw = -atan(-y/x) - (pi/2)    
+            ee_roll = 0
+        else:
+            ee_yaw = -atan(-y/x) - (pi/2)
+            ee_roll = -atan(z/-y)
+                 
+    elif(x>=0 and y<0 and z<0):
+        if(y==0 and x==0): #if on z axis
+            ee_yaw = 0
+            ee_roll = -pi/2
+        elif(z==0 and x==0): #if on y axis
+            ee_yaw = pi
+            ee_roll = 0
+        elif(z==0 and y==0): #if on x axis
+            ee_yaw = -pi/2
+            ee_roll = 0
+        elif(x==0): #if on yz plane
+            ee_yaw = pi
+            ee_roll = atan(-z/-y)
+        elif(y==0): #if on xz plane
+            ee_yaw = -atan(x/-z)
+            ee_roll = -pi/2
+        elif(z==0): #if on xy plane
+            ee_yaw = -atan(-y/x) - (pi/2)    
+            ee_roll = 0
+        else:
+            ee_yaw = -atan(-y/x) - (pi/2)
+            ee_roll = atan(-z/-y)
+        
+    elif(x>=0 and y>=0 and z<0):
+        if(y==0 and x==0): #if on z axis
+            ee_yaw = 0
+            ee_roll = -pi/2
+        elif(z==0 and x==0): #if on y axis
+            ee_yaw = 0
+            ee_roll = 0
+        elif(z==0 and y==0): #if on x axis
+            ee_yaw = -pi/2
+            ee_roll = 0
+        elif(x==0): #if on yz plane
+            ee_yaw = 0
+            ee_roll = -atan(-z/y)
+        elif(y==0): #if on xz plane
+            ee_yaw = -atan(x/-z)
+            ee_roll = -pi/2
+        elif(z==0): #if on xy plane
+            ee_yaw = -atan(x/y)    
+            ee_roll = 0
+        else:
+            ee_yaw = -atan(x/y)
+            ee_roll = -atan(-z/y)
+    
+    elif(x<0 and y>=0 and z<0):
+        if(y==0 and x==0): #if on z axis
+            ee_yaw = 0
+            ee_roll = -pi/2
+        elif(z==0 and x==0): #if on y axis
+            ee_yaw = 0
+            ee_roll = 0
+        elif(z==0 and y==0): #if on x axis
+            ee_yaw = pi/2
+            ee_roll = 0
+        elif(x==0): #if on yz plane
+            ee_yaw = 0
+            ee_roll = -atan(-z/y)
+        elif(y==0): #if on xz plane
+            ee_yaw = atan(-x/-z)
+            ee_roll = -pi/2
+        elif(z==0): #if on xy plane
+            ee_yaw = atan(-x/y)    
+            ee_roll = 0
+        else:
+            ee_yaw = atan(-x/y)
+            ee_roll = -atan(-z/y)
+    
+    print "E_e Yaw, Pitch, Roll in degrees:" + str(ee_yaw /pi*180) + ", " + str(ee_pitch /pi*180) + ", " + str(ee_roll/pi*180)
+    return ee_yaw, ee_pitch, ee_roll

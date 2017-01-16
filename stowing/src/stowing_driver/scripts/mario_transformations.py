@@ -13,6 +13,7 @@ import numpy as np
 from math import pi
 from tf import transformations as TF
 
+# Bin / tote transformation class
 class GenericTransformationContainer(object):
 	# Transforms item coordinate from object coordinates to base coordinates
 	@classmethod
@@ -58,17 +59,24 @@ class GenericTransformationContainer(object):
 class RobotToNewShelfTransformation(GenericTransformationContainer):
 	# Shelf is now 0.85 m in front of robot
 	# Robot's base height decreases to 1.34m
-	delete_this_var 		= 0.4 		# Hard coded solution to make sure joint angles satisfy ur5 limits
 	base_displacement_to_obj = {
-		'bin_a' : [0.850 -delete_this_var, 0.613, 0.495],
-		'bin_b' : [0.850 -delete_this_var, 0.200, 0.495],
-		'bin_c' : [0.850 -delete_this_var, -0.213, 0.495],
-		'bin_d' : [0.850 -delete_this_var, 0.613, 0.080],
-		'bin_e' : [0.850 -delete_this_var, 0.200, 0.080],
-		'bin_f' : [0.850 -delete_this_var, -0.213, 0.080],
-		'bin_g' : [0.850 -delete_this_var, 0.613, -0.367],
-		'bin_h' : [0.850 -delete_this_var, 0.200, -0.367],
-		'bin_i' : [0.850 -delete_this_var, -0.213, -0.367],
+		'bin_a' : [0.850, 0.613, 0.552],
+		'bin_b' : [0.850, 0.200, 0.552],
+		'bin_c' : [0.850, -0.213, 0.552],
+		'bin_d' : [0.850, 0.613, 0.137],
+		'bin_e' : [0.850, 0.200, 0.137],
+		'bin_f' : [0.850, -0.213, 0.137],
+		'bin_g' : [0.850, 0.613, -0.310],
+		'bin_h' : [0.850, 0.200, -0.310],
+		'bin_i' : [0.850, -0.213, -0.310],
+	}
+	x_rot = 0; y_rot = 0; z_rot = -pi/2 		# Rotation angles from bin to robot frame
+
+class RobotToOldShelfTransformation(GenericTransformationContainer):
+	# Shelf is now 0.85 m in front of robot
+	# Robot's base height decreases to 1.283m
+	base_displacement_to_obj = {
+		'bin_middle' : [0.750, 0.125, 0.065]
 	}
 	x_rot = 0; y_rot = 0; z_rot = -pi/2 		# Rotation angles from bin to robot frame
 
@@ -79,3 +87,24 @@ class RobotToToteTransformation(GenericTransformationContainer):
 		'tote_stowing' : [0,0,0],
 	}
 	x_rot = 0; y_rot = 0; z_rot = 0 		# Rotation angles from tote to robot frame
+
+# Gripper transformation class
+class GripperToEndEffectorTransformation(object):
+	# Maps gripper end effector to Mario's end effector
+	@classmethod
+	def gripper_frame_to_end_effector_displacement(cls, roll, pitch, yaw):
+		gripper_displacement_as_array 				= np.array(cls.gripper_displacement_axis).reshape(3,1)
+		gripper_to_end_effector_transformation 		= TF.euler_matrix(roll,pitch,yaw)[:3,:3]
+		return np.dot(gripper_to_end_effector_transformation, gripper_displacement_as_array)
+
+class GripperFrontSuctionOffset(GripperToEndEffectorTransformation):
+	X_displacement  			= 0.350		# As measured from the end effector to the gripper end effector using Gazebo coordinate frame
+	Y_displacement 				= -0.0525
+	Z_displacement 				= 0
+	gripper_displacement_axis 	= [X_displacement, Y_displacement, Z_displacement] 	# Axis 
+
+class GripperSideSuctionOffset(GripperToEndEffectorTransformation):
+	X_displacement  			= 0.350		# As measured from the end effector to the gripper end effector using Gazebo coordinate frame
+	Y_displacement 				= -0.0525
+	Z_displacement 				= 0
+	gripper_displacement_axis 	= [X_displacement, Y_displacement, Z_displacement] 	# Axis 

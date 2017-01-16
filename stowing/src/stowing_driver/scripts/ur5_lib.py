@@ -192,8 +192,8 @@ class MarioKinematics(object):
 	joint_lim_high 				= [-i for i in joint_lim_low]
 
 	def __init__(self, is_simulation, *args, **kwargs):
-		rospy.init_node('UR5_motion_planner', anonymous=True)
-		self.joint_names 				= ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint', 'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
+		# rospy.init_node('UR5_motion_planner', anonymous=True)
+		# self.joint_names 				= ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint', 'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
 		self.kin 						= Kinematics("ur5")
 		self.single_sol 				= False
 		self.__robot_joint_state 		= []
@@ -201,7 +201,7 @@ class MarioKinematics(object):
 			rospy.Subscriber('/arm_controller/state', JointTrajectoryControllerState, self.__robot_joint_state_callback)
 		else:
 			rospy.Subscriber('/state', JointTrajectoryControllerState, self.__robot_joint_state_callback)
-		super(MarioKinematics, self).__init__(*args, **kwargs)
+		super(MarioKinematics, self).__init__(is_simulation, *args, **kwargs)
 
 	def __unicode__(self):
 		return """UR5 custom motion planning library"""
@@ -252,19 +252,40 @@ class MarioKinematics(object):
 		translation_from_matrix				= list(TF.translation_from_matrix(h_matrix))
 		return euler_from_matrix + translation_from_matrix
 
-	def get_joint_sols_from_bin_grasping(self, obj_label, grasp_results):
+	def get_joint_sols_from_bin_grasping(self, obj_label, grasp_results, grasp_type):
 		# obj_label is the identifier for bin or tote location
+		suction_method 												= self.__get_gripper_suction_method(grasp_type)
 		roll, pitch, yaw, item_coord_X, item_coord_Y, item_coord_Z 	= grasp_results
-		base_coord_X, base_coord_Y, base_coord_Z, _		= RobotToNewShelfTransformation.get_item_coord_from_obj_to_robot(obj_label, item_coord_X, item_coord_Y, item_coord_Z)
+		gripper_coord_X, gripper_coord_Y, gripper_coord_Z, _		= RobotToOldShelfTransformation.get_item_coord_from_obj_to_robot(obj_label, item_coord_X, item_coord_Y, item_coord_Z)
+		gripper_offset_X, gripper_offset_Y, gripper_offset_Z 		= suction_method.gripper_frame_to_end_effector_displacement(roll, pitch, yaw)
+		
+		base_coord_X 	= gripper_coord_X -gripper_offset_X
+		base_coord_Y 	= gripper_coord_Y -gripper_offset_Y
+		base_coord_Z 	= gripper_coord_Z -gripper_offset_Z
+
 		cartesian		= [roll, pitch, yaw, base_coord_X, base_coord_Y, base_coord_Z]
 		return self.cartesian_to_ik(cartesian=cartesian)
 
-	def get_joint_sols_from_tote_grasping(self, obj_label, grasp_results):
+	def get_joint_sols_from_tote_grasping(self, obj_label, grasp_results, grasp_type):
 		# obj_label is the identifier for bin or tote location
+		suction_method 												= self.__get_gripper_suction_method(grasp_type)
 		roll, pitch, yaw, item_coord_X, item_coord_Y, item_coord_Z 	= grasp_results
-		base_coord_X, base_coord_Y, base_coord_Z, _		= RobotToToteTransformation.get_item_coord_from_obj_to_robot(obj_label, item_coord_X, item_coord_Y, item_coord_Z)
+		base_coord_X, base_coord_Y, base_coord_Z, _					= RobotToToteTransformation.get_item_coord_from_obj_to_robot(obj_label, item_coord_X, item_coord_Y, item_coord_Z)
+		gripper_offset_X, gripper_offset_Y, gripper_offset_Z 		= suction_method.gripper_frame_to_end_effector_displacement(roll, pitch, yaw)
+		
+		base_coord_X 	= gripper_coord_X -gripper_offset_X
+		base_coord_Y 	= gripper_coord_Y -gripper_offset_Y
+		base_coord_Z 	= gripper_coord_Z -gripper_offset_Z
+
 		cartesian		= [roll, pitch, yaw, base_coord_X, base_coord_Y, base_coord_Z]
 		return self.cartesian_to_ik(cartesian=cartesian)
+
+	def __get_gripper_suction_method(self, grasp_type):
+		# 1 - Front suction method. 0 - Side suction method.
+		if(grasp_type):
+			return GripperFrontSuctionOffset
+		else:
+			return GripperSideSuctionOffset
 
 	def cartesian_to_ik(self, cartesian):
 		# Cartesian coordinates of [roll,pitch,yaw,X,Y,Z] to ik solutions
@@ -301,21 +322,21 @@ class MarioKinematics(object):
 				return False
 		return True
 
-	def delta_move_by_robot_frame(self, axis, delta_dis):
-		def get_goal_cartesian_from_delta_dis(roll, pitch, yaw, axis, delta_dis):
+	def delta_move_by_robot_frame(self, axis, delta_dist):
+		def get_goal_cartesian_from_delta_dist(roll, pitch, yaw, axis, delta_dist):
 			matrix_from_euler			= TF.euler_matrix(roll,pitch,yaw)
-			axis_translation_list 		= self.get_axis_translation_list(axis=axis, delta_dis=delta_dis)
+			axis_translation_list 		= self.get_axis_translation_list(axis=axis, delta_dist=delta_dist)
 			delta_matrix				= TF.translation_matrix(axis_translation_list)
 			# >>>>>>>>>>>>>> TODO finish relative frame translation <<<<<<<<<<<<<<<<
 
-		def get_axis_translation_list(axis, delta_dis):
+		def get_axis_translation_list(axis, delta_dist):
 			# Only move along the axis of the robot frame
 			if axis == 'x':
-				axis_translation_list 	= [delta_dis, 0, 0]
+				axis_translation_list 	= [delta_dist, 0, 0]
 			elif axis == 'y':
-				axis_translation_list 	= [0, delta_dis, 0]
+				axis_translation_list 	= [0, delta_dist, 0]
 			elif axis == 'z':
-				axis_translation_list 	= [0, 0, delta_dis]
+				axis_translation_list 	= [0, 0, delta_dist]
 			else:
 				raise Exception('MarioKinematics -> get_axis_translation_list -> axis given is not x,y,z')
 			return axis_translation_list
@@ -324,7 +345,7 @@ class MarioKinematics(object):
 		current_joint_state 		= self.get_robot_joint_state()
 		current_cartesian 			= self.cartesian_from_joint(current_joint_state)
 		roll, pitch, yaw, _, _, _ 	= current_cartesian
-		goal_cartesian 				= self.get_goal_cartesian_from_delta_dis(roll, pitch, yaw, delta_dis)
+		goal_cartesian 				= self.get_goal_cartesian_from_delta_dist(roll, pitch, yaw, delta_dist)
 		plan_to_cartesian(current_cartesian, goal_cartesian)
 
 	def plan_to_cartesian(self, current_joint_val, goal_cartesian, no_points=10):
@@ -346,22 +367,22 @@ class MarioKinematics(object):
 		# Current joint state of Mario
 		return self.__robot_joint_state
 
-class TestActionMethod(SubscribeToActionServer):
-	def __init__(self, *args, **kwargs):
+class MarioFullSystem(MarioKinematics, SubscribeToActionServer):
+	def __init__(self, is_simulation, *args, **kwargs):
 		rospy.init_node('UR5_motion_planner', anonymous=True)
-		is_simulation 			= True
 		self.joint_names 		= ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint', 'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
-		super(TestActionMethod, self).__init__(is_simulation, *args, **kwargs)
+		super(MarioFullSystem, self).__init__(is_simulation, *args, **kwargs)
 
 if __name__ == "__main__":
-	mario 			= MarioKinematics(is_simulation=True)
-	tester 			= TestActionMethod()
+	is_simulation	= False
+	mario 			= MarioFullSystem(is_simulation)
 
-	grasp_result 	= [-pi/2,0,0,0.05,-0.1,0.1]		# roll / pitch / yaw / X / Y / Z
-	obj_label 		= 'bin_c'
+	grasp_result 	= [0,0,0,0,0,0]		# roll / pitch / yaw / X / Y / Z
+	obj_label 		= 'bin_middle'
+	grasp_type 		= 1 				# Front suction
 
-	base_coord 					= mario.get_joint_sols_from_bin_grasping(obj_label, grasp_result)
+	base_coord 					= mario.get_joint_sols_from_bin_grasping(obj_label, grasp_result, grasp_type)
 	selected_base_coord 		= base_coord[0]
 	selected_base_coord[0:5] 	*= -1 				# Some hacks to translate to Gazebo frame of reference
 
-	tester.action_server_move_arm(joint_space=selected_base_coord, total_points=1)
+	mario.action_server_move_arm(joint_space=selected_base_coord, total_points=1)

@@ -11,7 +11,7 @@ from random import random
 class TestActionMethod(SubscribeToActionServer):
 	def __init__(self, *args, **kwargs):
 		rospy.init_node('UR5_motion_planner', anonymous=True)
-		is_simulation 			= True
+		is_simulation 			= False
 		self.joint_names 		= ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint', 'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
 		super(TestActionMethod, self).__init__(is_simulation, *args, **kwargs)
 

@@ -30,7 +30,8 @@ def grasp_Generate(x, y, z, roll, pitch, yaw, dimensions, strategyIDchosen):
     points[6] = [(xx/2),(xy/2),(xz/2)]
     points[7] = [-(xx/2),(xy/2),(xz/2)]
     
-    #Rotating the 8 points
+
+    #Rotating the 8 points, center is reference
     for i in range(0,8):
         points[i] = rotate(points[i][0],points[i][1],points[i][2],roll,pitch,yaw)
     
@@ -38,24 +39,27 @@ def grasp_Generate(x, y, z, roll, pitch, yaw, dimensions, strategyIDchosen):
     pickStatus = 0
     
     #Getting max boundary points of object
-    obj_Top = obj("Top", points)
-    obj_Right = obj("Right", points)
-    obj_Left = obj("Left", points)
-    obj_Front = obj("Front", points)
+    obj_Top = obj("Top", points) + z
+    obj_Right = obj("Right", points) + x
+    obj_Left = obj("Left", points) + x
+    obj_Front = y + obj("Front", points)
         
     ##################################Checking space constraint#########################################
         
     #if Top suction
     if strategyIDchosen in [1]: 
-        spaceRequired = spaceReq_TopSuction + safetyClearance
+        spaceRequired_Top = spaceReq_SideSuction + safetyClearance
+        spaceRequired_Left = spaceReq_GripperThickness/2 + safetyClearance
+        spaceRequired_Right = spaceReq_GripperThickness/2 + safetyClearance
+        spaceRequired_Bottom = 0
     
-        if spaceRequired <= (bin_z - obj_Top) and spaceRequired >= 0: 
+        ee_x = x
+        ee_y = y
+        ee_z = obj_Top
+        
+        if (spaceRequired_Top<(bin_z - obj_Top) and spaceRequired_Left<(ee_x) and spaceRequired_Right<(bin_x-ee_x) and spaceRequired_Bottom<(ee_z)): 
             #if there is enough space,
-            ee_x = x
-            ee_y = y
-            ee_z = obj_Top
             stratNotBlocked = 1
-            
             point, value = find_Max_4(2, points)
 
             #finding alternate points
@@ -64,14 +68,18 @@ def grasp_Generate(x, y, z, roll, pitch, yaw, dimensions, strategyIDchosen):
     
     #if Right suction
     elif strategyIDchosen in [2]: 
-        spaceRequired = spaceReq_RightSuction + safetyClearance
-        if spaceRequired <= (bin_x - obj_Right) and spaceRequired >= 0: 
+        spaceRequired_Top = spaceReq_GripperThickness/2 + safetyClearance
+        spaceRequired_Left = spaceReq_GripperThickness/2 + safetyClearance
+        spaceRequired_Right = spaceReq_SideSuction + safetyClearance
+        spaceRequired_Bottom = spaceReq_GripperThickness/2 + safetyClearance
+
+        ee_x = obj_Right
+        ee_y = y
+        ee_z = z
+    
+        if (spaceRequired_Top<(bin_z - ee_z) and spaceRequired_Left<(ee_x) and spaceRequired_Right<(bin_x-obj_Right) and spaceRequired_Bottom<(ee_z)):
             #if there is enough space,
-            ee_x = obj_Right
-            ee_y = y
-            ee_z = z
             stratNotBlocked = 1
-            
             point, value = find_Max_4(0, points)
             
         else:
@@ -79,28 +87,37 @@ def grasp_Generate(x, y, z, roll, pitch, yaw, dimensions, strategyIDchosen):
     
     #if Left suction
     elif strategyIDchosen in [3]:
-        spaceRequired = spaceReq_LeftSuction + safetyClearance
-        if spaceRequired <= obj_Left and spaceRequired >= 0: 
+        spaceRequired_Top = spaceReq_GripperThickness/2 + safetyClearance
+        spaceRequired_Left = spaceReq_SideSuction + safetyClearance
+        spaceRequired_Right = spaceReq_GripperThickness/2 + safetyClearance
+        spaceRequired_Bottom = spaceReq_GripperThickness/2 + safetyClearance
+        
+        ee_x = obj_Left
+        ee_y = y
+        ee_z = z
+        
+        if (spaceRequired_Top<(bin_z - ee_z) and spaceRequired_Left<(obj_Left) and spaceRequired_Right<(bin_x-ee_x) and spaceRequired_Bottom<(ee_z)):
             #if there is enough space,
-            ee_x = obj_Left
-            ee_y = y
-            ee_z = z
             stratNotBlocked = 1
             
             point, value = find_Min_4(0, points)
-            
+            print point
         else:
             stratNotBlocked = 0
     
     #if Front suction
     elif strategyIDchosen in [4]:
+        spaceRequired_Top = spaceReq_FrontSuction_Top + safetyClearance
+        spaceRequired_Left = spaceReq_GripperThickness/2 + safetyClearance
+        spaceRequired_Right = spaceReq_GripperThickness/2 + safetyClearance
+        spaceRequired_Bottom = spaceReq_FrontSuction_Bottom + safetyClearance
 
-        if True: 
-            ee_x = x
-            ee_y = obj_Front
-            ee_z = z
+        ee_x = x
+        ee_y = obj_Front
+        ee_z = z
+        
+        if (spaceRequired_Top<(bin_z-ee_z) and spaceRequired_Left<(ee_x) and spaceRequired_Right<(bin_x-ee_x) and spaceRequired_Bottom<(ee_z)):
             stratNotBlocked = 1
-            
             point, value = find_Min_4(1, points)
             
         else:
@@ -108,10 +125,16 @@ def grasp_Generate(x, y, z, roll, pitch, yaw, dimensions, strategyIDchosen):
     
     #if Front gripper
     elif strategyIDchosen in [5]:
-        if True: 
-            ee_x = x
-            ee_y = obj_Front
-            ee_z = z
+        spaceRequired_Top = spaceReq_FrontSuction_Top + safetyClearance
+        spaceRequired_Left = spaceReq_GripperThickness/2 + safetyClearance
+        spaceRequired_Right = spaceReq_GripperThickness/2 + safetyClearance
+        spaceRequired_Bottom = spaceReq_FrontSuction_Bottom + safetyClearance
+        
+        ee_x = x
+        ee_y = obj_Front
+        ee_z = z
+        
+        if (spaceRequired_Top<(bin_z-ee_z) and spaceRequired_Left<(ee_x) and spaceRequired_Right<(bin_x-ee_x) and spaceRequired_Bottom<(ee_z)):
             stratNotBlocked = 1
             
             point, value = find_Min_4(1, points)
@@ -121,17 +144,24 @@ def grasp_Generate(x, y, z, roll, pitch, yaw, dimensions, strategyIDchosen):
             
     #if Top gripper
     elif strategyIDchosen in [6]:
-        if True: 
-            ee_x = x
-            ee_y = y
-            ee_z = obj_Top
+        spaceRequired_Top = spaceReq_SideSuction + safetyClearance
+        spaceRequired_Left = spaceReq_GripperThickness/2 + safetyClearance
+        spaceRequired_Right = spaceReq_GripperThickness/2 + safetyClearance
+        spaceRequired_Bottom = 0
+    
+        ee_x = x
+        ee_y = y
+        ee_z = obj_Top
+        
+        if (spaceRequired_Top<(bin_z - obj_Top) and spaceRequired_Left<(ee_x) and spaceRequired_Right<(bin_x-ee_x) and spaceRequired_Bottom<(ee_z)): 
             stratNotBlocked = 1
-            
             point, value = find_Max_4(2, points)
             
         else:
             stratNotBlocked = 0
-    
+
+############################################################################## 
+
     if stratNotBlocked == 1:
         pickStatus = 1
     
@@ -139,10 +169,17 @@ def grasp_Generate(x, y, z, roll, pitch, yaw, dimensions, strategyIDchosen):
         pickStatus = 0    
     
     #Taking 3 out of the 4 points to find the plane and the normal to the plane
-    ee_plane, ee_normal = find_Plane_and_Normal(points[point[0]], points[point[1]], points[point[2]])
-    #Finding the RPY to allow e-e to face the normal of the plane
-    ee_roll, ee_pitch, ee_yaw = find_ee_RPY(ee_normal)
     
-    return pickStatus, ee_x, ee_y, ee_z, ee_roll, ee_pitch, ee_yaw, obj_Top, obj_Right, obj_Left, obj_Front, ee_plane, ee_normal
+    if (pickStatus == 1):
+        print points[point[0]]
+        ee_plane, ee_normal = find_Plane_and_Normal(strategyIDchosen, points[point[0]], points[point[1]], points[point[2]])
+        print "Normal: " + str(ee_normal)
+        #Finding the RPY to allow e-e to face the normal of the plane
+        ee_yaw, ee_pitch, ee_roll = find_ee_YPR(ee_normal)
+        return pickStatus, ee_x, ee_y, ee_z, ee_roll, ee_pitch, ee_yaw, obj_Top, obj_Right, obj_Left, obj_Front, ee_plane, ee_normal
+    
+    else:
+        return pickStatus,0,0,0,0,0,0,0,0,0,0,0,0
+
 
 
