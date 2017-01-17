@@ -21,7 +21,7 @@ from math import pi
 from std_msgs.msg import *
 from trajectory_msgs.msg import *
 from control_msgs.msg import *
-from mario_transformations import *
+from mario_utility import *
 from ur_kin_py.kin import Kinematics 
 from tf import transformations as TF
 from copy import copy
@@ -346,22 +346,7 @@ class MarioKinematics(object):
 		current_cartesian 			= self.cartesian_from_joint(current_joint_state)
 		roll, pitch, yaw, _, _, _ 	= current_cartesian
 		goal_cartesian 				= self.get_goal_cartesian_from_delta_dist(roll, pitch, yaw, delta_dist)
-		plan_to_cartesian(current_cartesian, goal_cartesian)
-
-	def plan_to_cartesian(self, current_joint_val, goal_cartesian, no_points=10):
-		# Goal cartesian is a list of [roll,pitch,yaw,X,Y,Z]
-		# Start with a linear planner that plans in cartesian space using SLERP interpolation
-		# Raises AssertinError when intermediate point has no solutions
-		joint_way_points 			= []
-		try:
-			for i in list(reversed(range(no_points))):
-				point 					= linear_pose_interp(current_cartesian, goal_cartesian, (i+1.0) /no_points)
-				way_point 				= quat2euler(point['rot']) + point['lin']
-				joint_way_points 		+= self.cartesian_to_ik(cartesian=way_point, single_sol=True)
-
-		except AssertionError:
-			raise AssertionError("No possible IK solutions found for coordinate: {0}".format(way_point))
-		return joint_way_points
+		PoseInterpolator.plan_to_cartesian(current_cartesian, goal_cartesian)
 
 	def get_robot_joint_state(self):
 		# Current joint state of Mario

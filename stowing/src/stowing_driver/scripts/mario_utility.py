@@ -12,6 +12,7 @@ and Z (blue) following the right hand rule.
 import numpy as np
 from math import pi
 from tf import transformations as TF
+from poseInterpolator import *
 
 # Bin / tote transformation class
 class GenericTransformationContainer(object):
@@ -76,7 +77,7 @@ class RobotToOldShelfTransformation(GenericTransformationContainer):
 	# Shelf is now 0.85 m in front of robot
 	# Robot's base height decreases to 1.283m
 	base_displacement_to_obj = {
-		'bin_middle' : [0.750, 0.125, 0.065]
+		'bin_middle' : [0.750, 0.105, 0.065]
 	}
 	x_rot = 0; y_rot = 0; z_rot = -pi/2 		# Rotation angles from bin to robot frame
 
@@ -108,3 +109,20 @@ class GripperSideSuctionOffset(GripperToEndEffectorTransformation):
 	Y_displacement 				= -0.0525
 	Z_displacement 				= 0
 	gripper_displacement_axis 	= [X_displacement, Y_displacement, Z_displacement] 	# Axis 
+
+
+# Interpolator class
+class PoseInterpolator(object):
+	# Goal cartesian is a list of [roll,pitch,yaw,X,Y,Z]
+	@classmethod
+	def plan_to_cartesian(self, current_cartesian, goal_cartesian, no_points=10):
+	joint_way_points 			= []
+	try:
+		for i in list(reversed(range(no_points))):
+			point 					= linear_pose_interp(current_cartesian, goal_cartesian, (i+1.0) /no_points)
+			way_point 				= quat2euler(point['rot']) + point['lin']
+			joint_way_points 		+= self.cartesian_to_ik(cartesian=way_point, single_sol=True)
+
+	except AssertionError:
+		raise AssertionError("No possible IK solutions found for coordinate: {0}".format(way_point))
+	return joint_way_points
