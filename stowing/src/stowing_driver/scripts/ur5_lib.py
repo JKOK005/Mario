@@ -322,12 +322,14 @@ class MarioKinematics(object):
 				return False
 		return True
 
-	def delta_move_by_robot_frame(self, axis, delta_dist):
+	def get_points_delta_robot_frame(self, axis, delta_dist):
 		def get_goal_cartesian_from_delta_dist(roll, pitch, yaw, axis, delta_dist):
 			matrix_from_euler			= TF.euler_matrix(roll,pitch,yaw)
 			axis_translation_list 		= self.get_axis_translation_list(axis=axis, delta_dist=delta_dist)
 			delta_matrix				= TF.translation_matrix(axis_translation_list)
-			# >>>>>>>>>>>>>> TODO finish relative frame translation <<<<<<<<<<<<<<<<
+			goal_matrix_base_frame 		= np.dot(matrix_from_euler, delta_matrix)
+			goal_translation_base_frame = TF.translation_from_matrix(goal_matrix_base_frame)
+			return [roll, pitch, yaw] + goal_matrix_base_frame.tolist()
 
 		def get_axis_translation_list(axis, delta_dist):
 			# Only move along the axis of the robot frame
@@ -341,16 +343,27 @@ class MarioKinematics(object):
 				raise Exception('MarioKinematics -> get_axis_translation_list -> axis given is not x,y,z')
 			return axis_translation_list
 
+		def plan_joint_way_points(self, current_cartesian, goal_cartesian):
+			way_points 				= PoseInterpolator.plan_to_cartesian_linear(current_cartesian, goal_cartesian)
+			try:
+				joint_way_points 	= [self.cartesian_to_ik(pts) for pts in way_points]
+				return joint_way_points
+			except AssertionError:
+				raise AssertionError("No possible IK solutions found for coordinate: {0}".format(pts))
+
 		# Moves the robot by an axis by a delta distance
-		current_joint_state 		= self.get_robot_joint_state()
-		current_cartesian 			= self.cartesian_from_joint(current_joint_state)
+		current_cartesian 			= self.get_robot_cartesian_state(current_joint_state)
 		roll, pitch, yaw, _, _, _ 	= current_cartesian
-		goal_cartesian 				= self.get_goal_cartesian_from_delta_dist(roll, pitch, yaw, delta_dist)
-		PoseInterpolator.plan_to_cartesian(current_cartesian, goal_cartesian)
+		goal_cartesian 				= self.get_goal_cartesian_from_delta_dist(roll, pitch, yaw, axis, delta_dist)
+		return self.plan_joint_way_points(current_cartesian, goal_cartesian)
 
 	def get_robot_joint_state(self):
 		# Current joint state of Mario
 		return self.__robot_joint_state
+
+	def get_robot_cartesian_state(self):
+		robot_joint_state 		= self.get_robot_joint_state
+		return self.cartesian_from_joint(robot_joint_state)
 
 class MarioFullSystem(MarioKinematics, SubscribeToActionServer):
 	def __init__(self, is_simulation, *args, **kwargs):

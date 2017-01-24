@@ -115,14 +115,10 @@ class GripperSideSuctionOffset(GripperToEndEffectorTransformation):
 class PoseInterpolator(object):
 	# Goal cartesian is a list of [roll,pitch,yaw,X,Y,Z]
 	@classmethod
-	def plan_to_cartesian(self, current_cartesian, goal_cartesian, no_points=10):
-	joint_way_points 			= []
-	try:
-		for i in list(reversed(range(no_points))):
+	def plan_to_cartesian_linear(self, current_cartesian, goal_cartesian, no_points=10):
+		way_points 					= []
+		for i in range(no_points):
 			point 					= linear_pose_interp(current_cartesian, goal_cartesian, (i+1.0) /no_points)
 			way_point 				= quat2euler(point['rot']) + point['lin']
-			joint_way_points 		+= self.cartesian_to_ik(cartesian=way_point, single_sol=True)
-
-	except AssertionError:
-		raise AssertionError("No possible IK solutions found for coordinate: {0}".format(way_point))
-	return joint_way_points
+			way_points 				+= [way_point]
+		return way_points
