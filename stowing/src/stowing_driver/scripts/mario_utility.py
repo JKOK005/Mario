@@ -115,10 +115,13 @@ class GripperSideSuctionOffset(GripperToEndEffectorTransformation):
 class PoseInterpolator(object):
 	# Goal cartesian is a list of [roll,pitch,yaw,X,Y,Z]
 	@classmethod
-	def plan_to_cartesian_linear(self, current_cartesian, goal_cartesian, no_points=10):
+	def plan_to_cartesian_linear(self, current_cartesian, goal_cartesian, no_points=20):
 		way_points 					= []
+		roll, pitch, yaw, _ ,_ ,_ 	= current_cartesian
 		for i in range(no_points):
-			point 					= linear_pose_interp(current_cartesian, goal_cartesian, (i+1.0) /no_points)
-			way_point 				= quat2euler(point['rot']) + point['lin']
+			start 					= array(current_cartesian[3:]) 
+			end 					= array(goal_cartesian[3:])
+			point 					= linear_translation(start, end, (i+1.0) /no_points)
+			way_point 				= [roll, pitch, yaw] + point.tolist()
 			way_points 				+= [way_point]
 		return way_points

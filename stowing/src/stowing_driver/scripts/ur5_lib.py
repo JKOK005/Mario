@@ -117,7 +117,7 @@ class SubscribeToActionServer(VelocityProfile):
 
 					point 					= JointTrajectoryPoint()
 					point.positions 		= end_modified.tolist()
-					point.velocities 		= [0.05,0.05,0.05,0.05,0.05,0.05]
+					point.velocities 		= [0.1,0.1,0.1,0.1,0.1,0.1]
 					point.accelerations 	= []
 					point.time_from_start 	= rospy.Duration(time_cumulated) 		# time from start must be in increasing order based on way point sequence
 
@@ -322,14 +322,16 @@ class MarioKinematics(object):
 				return False
 		return True
 
-	def get_points_delta_robot_frame(self, axis, delta_dist):
-		def get_goal_cartesian_from_delta_dist(roll, pitch, yaw, axis, delta_dist):
-			matrix_from_euler			= TF.euler_matrix(roll,pitch,yaw)
-			axis_translation_list 		= self.get_axis_translation_list(axis=axis, delta_dist=delta_dist)
-			delta_matrix				= TF.translation_matrix(axis_translation_list)
-			goal_matrix_base_frame 		= np.dot(matrix_from_euler, delta_matrix)
-			goal_translation_base_frame = TF.translation_from_matrix(goal_matrix_base_frame)
-			return [roll, pitch, yaw] + goal_matrix_base_frame.tolist()
+	def get_joint_space_from_delta_robot_frame(self, axis, delta_dist):
+		def get_goal_cartesian_from_delta_dist(current_cartesian, axis, delta_dist):
+			roll, pitch, yaw, x, y, z 			= current_cartesian
+			matrix_from_euler					= TF.euler_matrix(roll,pitch,yaw)
+			axis_translation_list 				= get_axis_translation_list(axis=axis, delta_dist=delta_dist)
+			delta_matrix						= TF.translation_matrix(axis_translation_list)
+			delta_goal_matrix_base_frame 		= np.dot(matrix_from_euler, delta_matrix)
+			delta_goal_translation_base_frame 	= TF.translation_from_matrix(delta_goal_matrix_base_frame)
+			final_goal_base_frame 				= delta_goal_translation_base_frame + [x,y,z]
+			return [roll, pitch, yaw] + final_goal_base_frame.tolist()
 
 		def get_axis_translation_list(axis, delta_dist):
 			# Only move along the axis of the robot frame
@@ -343,26 +345,30 @@ class MarioKinematics(object):
 				raise Exception('MarioKinematics -> get_axis_translation_list -> axis given is not x,y,z')
 			return axis_translation_list
 
-		def plan_joint_way_points(self, current_cartesian, goal_cartesian):
+		def plan_joint_way_points(current_cartesian, goal_cartesian):
 			way_points 				= PoseInterpolator.plan_to_cartesian_linear(current_cartesian, goal_cartesian)
+			print(way_points)
+			joint_way_points 		= []
 			try:
-				joint_way_points 	= [self.cartesian_to_ik(pts) for pts in way_points]
+				for pts in way_points:
+					ik_point 		= self.cartesian_to_ik(pts)[0]
+					ik_point[0:5] 	*= -1
+					joint_way_points.append(ik_point)
 				return joint_way_points
 			except AssertionError:
 				raise AssertionError("No possible IK solutions found for coordinate: {0}".format(pts))
 
 		# Moves the robot by an axis by a delta distance
-		current_cartesian 			= self.get_robot_cartesian_state(current_joint_state)
-		roll, pitch, yaw, _, _, _ 	= current_cartesian
-		goal_cartesian 				= self.get_goal_cartesian_from_delta_dist(roll, pitch, yaw, axis, delta_dist)
-		return self.plan_joint_way_points(current_cartesian, goal_cartesian)
+		current_cartesian 			= self.get_robot_cartesian_state()
+		goal_cartesian 				= get_goal_cartesian_from_delta_dist(current_cartesian, axis, delta_dist)
+		return plan_joint_way_points(current_cartesian, goal_cartesian)
 
 	def get_robot_joint_state(self):
 		# Current joint state of Mario
 		return self.__robot_joint_state
 
 	def get_robot_cartesian_state(self):
-		robot_joint_state 		= self.get_robot_joint_state
+		robot_joint_state 		= self.get_robot_joint_state()
 		return self.cartesian_from_joint(robot_joint_state)
 
 class MarioFullSystem(MarioKinematics, SubscribeToActionServer):
@@ -372,15 +378,16 @@ class MarioFullSystem(MarioKinematics, SubscribeToActionServer):
 		super(MarioFullSystem, self).__init__(is_simulation, *args, **kwargs)
 
 if __name__ == "__main__":
-	is_simulation	= False
+	is_simulation	= True
 	mario 			= MarioFullSystem(is_simulation)
 
-	grasp_result 	= [0,0,0,0,0,0]		# roll / pitch / yaw / X / Y / Z
-	obj_label 		= 'bin_middle'
-	grasp_type 		= 1 				# Front suction
+	# grasp_result 	= [0,0,0,0,0,0]		# roll / pitch / yaw / X / Y / Z
+	# obj_label 		= 'bin_middle'
+	# grasp_type 		= 1 				# Front suction
 
-	base_coord 					= mario.get_joint_sols_from_bin_grasping(obj_label, grasp_result, grasp_type)
-	selected_base_coord 		= base_coord[0]
-	selected_base_coord[0:5] 	*= -1 				# Some hacks to translate to Gazebo frame of reference
+	# base_coord 					= mario.get_joint_sols_from_bin_grasping(obj_label, grasp_result, grasp_type)
+	# selected_base_coord 		= base_coord[0]
+	# selected_base_coord[0:5] 	*= -1 				# Some hacks to translate to Gazebo frame of reference
 
-	mario.action_server_move_arm(joint_space=selected_base_coord, total_points=1)
+	selected_base_coord 		= mario.get_joint_space_from_delta_robot_frame('x', 0.05)
+	mario.action_server_move_arm(joint_space=selected_base_coord, total_points=len(selected_base_coord))
