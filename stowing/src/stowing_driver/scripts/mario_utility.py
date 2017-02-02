@@ -13,6 +13,7 @@ import numpy as np
 from math import pi
 from tf import transformations as TF
 from poseInterpolator import *
+from apc_global_params import *
 
 # Bin / tote transformation class
 class GenericTransformationContainer(object):
@@ -61,15 +62,15 @@ class RobotToNewShelfTransformation(GenericTransformationContainer):
 	# Shelf is now 0.85 m in front of robot
 	# Robot's base height decreases to 1.34m
 	base_displacement_to_obj = {
-		'bin_a' : [0.850, 0.613, 0.552],
-		'bin_b' : [0.850, 0.200, 0.552],
-		'bin_c' : [0.850, -0.213, 0.552],
-		'bin_d' : [0.850, 0.613, 0.137],
-		'bin_e' : [0.850, 0.200, 0.137],
-		'bin_f' : [0.850, -0.213, 0.137],
-		'bin_g' : [0.850, 0.613, -0.310],
-		'bin_h' : [0.850, 0.200, -0.310],
-		'bin_i' : [0.850, -0.213, -0.310],
+		'bin_A' : global_params["stow_bin_A"],
+		'bin_B' : global_params["stow_bin_B"],
+		'bin_C' : global_params["stow_bin_C"],
+		'bin_D' : global_params["stow_bin_D"],
+		'bin_E' : global_params["stow_bin_E"],
+		'bin_F' : global_params["stow_bin_F"],
+		'bin_G' : global_params["stow_bin_G"],
+		'bin_H' : global_params["stow_bin_H"],
+		'bin_I' : global_params["stow_bin_I"],
 	}
 	x_rot = 0; y_rot = 0; z_rot = -pi/2 		# Rotation angles from bin to robot frame
 

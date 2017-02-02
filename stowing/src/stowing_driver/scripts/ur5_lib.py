@@ -117,7 +117,7 @@ class SubscribeToActionServer(VelocityProfile):
 
 					point 					= JointTrajectoryPoint()
 					point.positions 		= end_modified.tolist()
-					point.velocities 		= [0.1,0.1,0.1,0.1,0.1,0.1]
+					point.velocities 		= [0.01,0.01,0.01,0.01,0.01,0.01]
 					point.accelerations 	= []
 					point.time_from_start 	= rospy.Duration(time_cumulated) 		# time from start must be in increasing order based on way point sequence
 
@@ -190,12 +190,12 @@ class SubscribeToActionServer(VelocityProfile):
 class MarioKinematics(object):
 	joint_lim_low 				= [-2*np.pi,-2*np.pi,-2*np.pi,-2*np.pi,-2*np.pi,-2*np.pi]			# Default joint limits.
 	joint_lim_high 				= [-i for i in joint_lim_low]
+	kin 						= Kinematics("ur5")
 
 	def __init__(self, is_simulation, *args, **kwargs):
 		# rospy.init_node('UR5_motion_planner', anonymous=True)
 		# self.joint_names 				= ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint', 'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
-		self.kin 						= Kinematics("ur5")
-		self.single_sol 				= False
+		
 		self.__robot_joint_state 		= []
 		if(is_simulation):
 			rospy.Subscriber('/arm_controller/state', JointTrajectoryControllerState, self.__robot_joint_state_callback)
@@ -212,7 +212,7 @@ class MarioKinematics(object):
 		return
 
 	@classmethod
-	def change_joint_limits(cls,lim_low,lim_high):
+	def change_joint_limits(cls, lim_low, lim_high):
 		try:
 			cls.__verify_joint_input(lim_low,lim_high)
 			cls.joint_lim_low			= lim_low
@@ -225,7 +225,7 @@ class MarioKinematics(object):
 		return
 
 	@classmethod
-	def __verify_joint_input(lim_low,lim_high):	
+	def __verify_joint_input(cls, lim_low,lim_high):	
 		assert type(lim_low) is list and len(lim_low) == 6
 		assert type(lim_high) is list and len(lim_high) == 6
 		for i in range(6):
@@ -233,20 +233,22 @@ class MarioKinematics(object):
 				raise Exception('Please sort your high and low limits')
 		return
 
-	def cartesian_from_joint(self, joint_vals):
+	@classmethod
+	def cartesian_from_joint(cls, joint_vals):
 		# Returns a list of [roll, pitch, yaw, X, Y, Z] from joint values
 		# joint_vals either be a list of multiple joint sets or a single joint set
 		if(all(isinstance(i, list) for i in joint_vals)):
 			lst 				= []
 			for each_joint_val in joint_vals:
-				fk_sol	 		= self.kin.forward(q=each_joint_val)
-				lst 			+= [self.__get_cartesian_from_matrix(fk_sol)]
+				fk_sol	 		= cls.kin.forward(q=each_joint_val)
+				lst 			+= [cls.__get_cartesian_from_matrix(fk_sol)]
 		else:
-			fk_sol	 			= self.kin.forward(q=joint_vals)
-			lst 				= self.__get_cartesian_from_matrix(fk_sol)
+			fk_sol	 			= cls.kin.forward(q=joint_vals)
+			lst 				= cls.__get_cartesian_from_matrix(fk_sol)
 		return lst
 
-	def __get_cartesian_from_matrix(self, h_matrix):
+	@classmethod
+	def __get_cartesian_from_matrix(cls, h_matrix):
 		# Returns a list of [roll, pitch, yaw, X, Y, Z]
 		euler_from_matrix					= list(TF.euler_from_matrix(h_matrix))
 		translation_from_matrix				= list(TF.translation_from_matrix(h_matrix))
@@ -389,5 +391,5 @@ if __name__ == "__main__":
 	# selected_base_coord 		= base_coord[0]
 	# selected_base_coord[0:5] 	*= -1 				# Some hacks to translate to Gazebo frame of reference
 
-	selected_base_coord 		= mario.get_joint_space_from_delta_robot_frame('x', 0.05)
+	selected_base_coord 		= mario.get_joint_space_from_delta_robot_frame('z', 0.03)
 	mario.action_server_move_arm(joint_space=selected_base_coord, total_points=len(selected_base_coord))

@@ -11,7 +11,7 @@ from random import random
 class TestActionMethod(SubscribeToActionServer):
 	def __init__(self, *args, **kwargs):
 		rospy.init_node('UR5_motion_planner', anonymous=True)
-		is_simulation 			= False
+		is_simulation 			= True
 		self.joint_names 		= ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint', 'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
 		super(TestActionMethod, self).__init__(is_simulation, *args, **kwargs)
 
@@ -20,10 +20,6 @@ class TestVelocityMethod(VelocityProfile):
 		super(TestVelocityMethod, self).__init__(*args, **kwargs)
 
 if __name__ == "__main__":
-	# tester 		= TestVelocityMethod()
-	# for i in range(1000):
-	# 	time 	= tester.get_time_ramp_trajectory(0.1, i, 1000)
-	# 	print(0.1/ time)
 	point_H 			= np.array([0.07054406801332647, -0.8703416585922241, 1.7938006559955042, 1.855142895375387, 1.4151552359210413, -0.2074654738055628])
 	
 	bin1 				= np.array([-0.75,-0.15,1.5,1.7,2.1,-1.571])
@@ -44,15 +40,12 @@ if __name__ == "__main__":
 	import IPython
 	IPython.embed()
 
-	collision_struct 	= {"checker":'pqp', 
-							"collision_options":[op.CollisionOptions.Contacts]}
-
 	start 					= robot_path[0].tolist()		# Always start at bin 1
 	while(raw_input() != 'q'):
 		rand_indx 			= int(floor((random()*10) %len(robot_path)))
 
 		target 				= robot_path[rand_indx].tolist()
-		planner.init_planning_setup(start, collision_struct)
+		planner.init_planning_setup(start, 'pqp')
 		final_traj 			= planner.optimize_trajopt(joint_target=target)
 		planner.simulate(trajectory=final_traj)
 		total_points		= len(final_traj)

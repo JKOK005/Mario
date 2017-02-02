@@ -41,11 +41,9 @@ class ORMotionPlanning(object):
 		"""
 		self.env 			= op.Environment()
 		self.load_environment_context(env_file)
-
 		self.robot 			= self.env.GetRobots()[0]
 		self.mario_arm 		= self.robot.GetManipulator('arm')
-
-		self.ur_kin 		= MarioKinematics(is_simulation=True)
+		# self.ur_kin 		= MarioKinematics(is_simulation=True)
 
 	def load_environment_context(self, env_file):
 		try:
@@ -56,10 +54,11 @@ class ORMotionPlanning(object):
 			print("Failed to load environment")
 		return
 
-	def init_planning_setup(self, init_joint_val, collision_struct):
+	def init_planning_setup(self, init_joint_val, collision_type):
 		# Before planning, initilize robot's current configuration and collision checking options
 		try:
 			self.__init_arm_joint(init_joint_val)
+			collision_struct 		= self.get_collision_struct(collision_type)
 			self.__init_collision_checker(collision_struct)
 		except Exception as e:
 			print("Failed to initialize planning setup")
@@ -100,8 +99,8 @@ class ORMotionPlanning(object):
 		return int(max(n_steps, n_steps_min))
 
 	def __get_n_steps_from_dist(self, starting_DOF, joint_target):
-		starting_cartesian 		= self.ur_kin.cartesian_from_joint(starting_DOF)[3:]
-		target_cartesian 		= self.ur_kin.cartesian_from_joint(joint_target)[3:]
+		starting_cartesian 		= MarioKinematics.cartesian_from_joint(starting_DOF)[3:]
+		target_cartesian 		= MarioKinematics.cartesian_from_joint(joint_target)[3:]
 		steps_per_meter			= 1000 		# 100 steps per meter
 
 		return self.__get_n_val(starting_cartesian, target_cartesian, steps_per_meter)
@@ -235,3 +234,6 @@ class ORMotionPlanning(object):
 		""" 
 		arm_indices				= self.get_manip().GetArmIndices()
 		self.get_robot().SetDOFValues(DOF, arm_indices)
+
+	def get_collision_struct(self, collision_type):
+		return {"checker":collision_type, "collision_options":[op.CollisionOptions.Contacts]}

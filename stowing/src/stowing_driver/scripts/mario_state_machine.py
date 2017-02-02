@@ -13,16 +13,50 @@ Dependencies:
 import rospy
 import smach
 import smach_ros
+from apc_global_params import *
+from ur5_lib import MarioFullSystem
+from or_motion_planning import ORMotionPlanning
 
-class Move_to_joint_space(smach.State):
-	# Motion planning state to given joint angle
-	pass
+""" Global parameters """
+is_simulation 				= True
+display_on_motion_planner 	= False
+
+""" Shared variables by all states """
+# Motion planner and OpenRave parameters
+class StateMover:
+	mario_motion_planner 	= ORMotionPlanning('apc_env.xml')
+	mario_full_system 		= MarioFullSystem(is_simulation)
+
+	@classmethod
+	def motionplan_move_to_item(cls, item_field):
+		start 			= cls.mario_full_system.get_robot_joint_state()
+		cls.mario_motion_planner.init_planning_setup(start, 'pqp')
+		final 			= planner.optimize_trajopt(joint_target=global_params[item_field])
+
+		if(display_on_motion_planner):
+			cls.mario_motion_planner.simulate(trajectory=final)
+
+		cls.mario_full_system.action_server_move_arm(joint_space=final, total_points=len(final))
+
+	@classmethod
+	def move_to_item(cls, item_field):
+		# This is without motion planning
+		# TODO: global params to be joint space but is now cartesian space. CHANGE
+		cls.mario_full_system.action_server_move_arm(joint_space=global_params[item_field], total_points=1)
+
+	@classmethod
+	def attempt_grasp(cls, delta_dis):
+		pass
+
 
 class Start_planning(smach.State):
 	# Gets JSON input from bin and performs sorting
 	# Ensures that the arm is at the scanning position above tote 
 	def __init__(self):
 		smach.State.__init__(self, outcomes=['goto_Main_vision'], input_keys=['input'], output_keys=['output'])
+
+	def parse_input(self):
+
 
 	def execute(self, userdata):
 		rospy.loginfo("Mario -> Start planning")
@@ -197,7 +231,7 @@ if __name__ == "__main__":
 	rospy.init_node('Mario_stowing')
 
 	parent 						= smach.StateMachine(outcomes=['terminate_stowing_process'])
-	parent.userdata.counter 	= 2.3
+	parent.userdata.data_field 	= 2.3
 
 	with parent:
 		smach.StateMachine.add('Start_planning', Start_planning(), 
@@ -205,22 +239,21 @@ if __name__ == "__main__":
 												'goto_Main_vision'	: 'child_Main_vision',
 												},
 								remapping	= {
-												'input'		: 'counter',
-												'output' 	: 'cout',
+												'input'		: 'data_field',
+												'output' 	: 'data_field',
 												})
-
 
 		# Add vision unit
 		child_Main_vision		= smach.StateMachine(outcomes=['goto_Main_grasping','goto_Reattempt_vision'])
-		child_Main_vision.userdata.counter = 50
+		child_Main_vision.userdata.data_field = 50
 		with child_Main_vision:
 			smach.StateMachine.add('Scan_and_capture_vision', Scan_and_capture_vision(), 
 									transitions	= {
 													'goto_PCL_segmentation_vision' 	: 'PCL_segmentation_vision'
 													},
 									remapping	= {
-													'input'			: 'counter',
-													'output' 		: 'cout',
+													'input'			: 'data_field',
+													'output' 		: 'data_field',
 													})
 
 			smach.StateMachine.add('PCL_segmentation_vision', PCL_segmentation_vision(), 
@@ -228,8 +261,8 @@ if __name__ == "__main__":
 													'goto_Compare_rgb_vision' 	: 'Compare_rgb_vision'
 													},
 									remapping	= {
-													'input'			: 'counter',
-													'output' 		: 'cout',
+													'input'			: 'data_field',
+													'output' 		: 'data_field',
 													})
 
 			smach.StateMachine.add('Compare_rgb_vision', Compare_rgb_vision(), 
@@ -238,8 +271,8 @@ if __name__ == "__main__":
 													'end_vision_goto_error_vision' 	: 'goto_Reattempt_vision',
 													},
 									remapping	= {
-													'input'			: 'counter',
-													'output' 		: 'cout',
+													'input'			: 'data_field',
+													'output' 		: 'data_field',
 													})
 
 		smach.StateMachine.add('child_Main_vision', child_Main_vision,
@@ -248,14 +281,14 @@ if __name__ == "__main__":
 												'goto_Reattempt_vision'	: 'Reattempt_vision_error'
 												},
 								remapping	= {
-												'input'		: 'counter',
-												'output' 	: 'cout',
+												'input'		: 'data_field',
+												'output' 	: 'data_field',
 												})
 
 
 		# Add grasping unit
 		child_Main_grasping 	= smach.StateMachine(outcomes=['goto_Main_stowing','goto_reattempt_grasp'])
-		child_Main_grasping.userdata.counter 	= 400
+		child_Main_grasping.userdata.data_field 	= 400
 		with child_Main_grasping:
 			smach.StateMachine.add('Strategy_dispatcher_grasping', Strategy_dispatcher_grasping(),
 									transitions	= {
@@ -263,8 +296,8 @@ if __name__ == "__main__":
 													'end_grasping_goto_error_grasping'	: 'goto_reattempt_grasp'
 													},
 									remapping	= {
-													'input'			: 'counter',
-													'output' 		: 'cout',
+													'input'			: 'data_field',
+													'output' 		: 'data_field',
 													})
 
 			smach.StateMachine.add('Implement_strategy_grasping', Implement_strategy_grasping(),
@@ -272,8 +305,8 @@ if __name__ == "__main__":
 													'goto_Execute_grasping' : 'Execute_grasping'
 													},
 									remapping	= {
-													'input'			: 'counter',
-													'output' 		: 'cout',
+													'input'			: 'data_field',
+													'output' 		: 'data_field',
 													})
 
 			smach.StateMachine.add('Execute_grasping', Execute_grasping(),
@@ -282,8 +315,8 @@ if __name__ == "__main__":
 													'end_grasping_goto_error_grasping'	: 'goto_reattempt_grasp'
 													},
 									remapping	= {
-													'input'			: 'counter',
-													'output' 		: 'cout',
+													'input'			: 'data_field',
+													'output' 		: 'data_field',
 													})
 
 		smach.StateMachine.add('child_Main_grasping', child_Main_grasping,
@@ -292,22 +325,22 @@ if __name__ == "__main__":
 												'goto_reattempt_grasp'	: 'Reattempt_grasp_error'
 												},
 								remapping	= {
-												'input'			: 'counter',
-												'output' 		: 'cout',
+												'input'			: 'data_field',
+												'output' 		: 'data_field',
 												})
 
 
 		# Add stowing unit
 		child_Main_stowing		= smach.StateMachine(outcomes=['goto_terminate_stowing_process','goto_repeat_stowing_process'])
-		child_Main_stowing.userdata.counter 	= 5000
+		child_Main_stowing.userdata.data_field 	= 5000
 		with child_Main_stowing:
 			smach.StateMachine.add('Pre_stow_position_stowing', Pre_stow_position_stowing(),
 									transitions	= {
 													'goto_Select_bin_stowing' : 'Select_bin_stowing'
 													},
 									remapping	= {
-													'input'			: 'counter',
-													'output' 		: 'cout',
+													'input'			: 'data_field',
+													'output' 		: 'data_field',
 													})
 
 			smach.StateMachine.add('Select_bin_stowing', Select_bin_stowing(),
@@ -316,8 +349,8 @@ if __name__ == "__main__":
 													'goto_Amnesty_tote' 		: 'Move_to_amnesty_tote'
 													},
 									remapping	= {
-													'input'			: 'counter',
-													'output' 		: 'cout',
+													'input'			: 'data_field',
+													'output' 		: 'data_field',
 													})
 
 			smach.StateMachine.add('Move_to_bin_stowing', Move_to_bin_stowing(),
@@ -326,8 +359,8 @@ if __name__ == "__main__":
 													'goto_Update_bin_and_repeat_stowing' 	: 'Update_bin_and_repeat_stowing'
 													},
 									remapping	= {
-													'input'			: 'counter',
-													'output' 		: 'cout',
+													'input'			: 'data_field',
+													'output' 		: 'data_field',
 													})
 
 			smach.StateMachine.add('Move_to_amnesty_tote', Move_to_amnesty_tote(),
@@ -335,8 +368,8 @@ if __name__ == "__main__":
 													'goto_Execute_stowing' 					: 'Execute_stowing',
 													},
 									remapping	= {
-													'input'			: 'counter',
-													'output' 		: 'cout',
+													'input'			: 'data_field',
+													'output' 		: 'data_field',
 													})
 
 			smach.StateMachine.add('Execute_stowing', Execute_stowing(),
@@ -344,8 +377,8 @@ if __name__ == "__main__":
 													'goto_Update_bin_and_repeat_stowing' 	: 'Update_bin_and_repeat_stowing'
 													},
 									remapping	= {
-													'input'			: 'counter',
-													'output' 		: 'cout',
+													'input'			: 'data_field',
+													'output' 		: 'data_field',
 													})
 
 			smach.StateMachine.add('Update_bin_and_repeat_stowing', Update_bin_and_repeat_stowing(),
@@ -354,8 +387,8 @@ if __name__ == "__main__":
 													'end_stowing_goto_repeat'		: 'goto_repeat_stowing_process'
 													},
 									remapping	= {
-													'input'			: 'counter',
-													'output' 		: 'cout',
+													'input'			: 'data_field',
+													'output' 		: 'data_field',
 													})
 
 		smach.StateMachine.add('child_Main_stowing', child_Main_stowing,
@@ -364,8 +397,8 @@ if __name__ == "__main__":
 												'goto_repeat_stowing_process'		: 'Start_planning'
 												},
 								remapping	= {
-												'input'		: 'counter',
-												'output' 	: 'cout',
+												'input'		: 'data_field',
+												'output' 	: 'data_field',
 												})
 
 
@@ -375,8 +408,8 @@ if __name__ == "__main__":
 												'goto_Main_vision'	: 'child_Main_vision',
 												},
 								remapping	= {
-												'input'		: 'counter',
-												'output' 	: 'cout',
+												'input'		: 'data_field',
+												'output' 	: 'data_field',
 												})
 
 
@@ -387,8 +420,8 @@ if __name__ == "__main__":
 												'goto_Reattempt_vision_error' 	: 'Reattempt_vision_error'
 												},
 								remapping	= {
-												'input'		: 'counter',
-												'output' 	: 'cout',
+												'input'		: 'data_field',
+												'output' 	: 'data_field',
 												})
 
 
