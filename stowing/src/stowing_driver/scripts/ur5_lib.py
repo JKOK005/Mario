@@ -21,6 +21,7 @@ from math import pi
 from std_msgs.msg import *
 from trajectory_msgs.msg import *
 from control_msgs.msg import *
+from sensor_msgs.msg import *
 from mario_utility import *
 from ur_kin_py.kin import Kinematics 
 from tf import transformations as TF
@@ -200,7 +201,7 @@ class MarioKinematics(object):
 		if(is_simulation):
 			rospy.Subscriber('/arm_controller/state', JointTrajectoryControllerState, self.__robot_joint_state_callback)
 		else:
-			rospy.Subscriber('/state', JointTrajectoryControllerState, self.__robot_joint_state_callback)
+			rospy.Subscriber('/joint_states', JointState, self.__robot_joint_state_callback)
 		super(MarioKinematics, self).__init__(is_simulation, *args, **kwargs)
 
 	def __unicode__(self):
@@ -258,7 +259,7 @@ class MarioKinematics(object):
 		# obj_label is the identifier for bin or tote location
 		suction_method 												= self.__get_gripper_suction_method(grasp_type)
 		roll, pitch, yaw, item_coord_X, item_coord_Y, item_coord_Z 	= grasp_results
-		gripper_coord_X, gripper_coord_Y, gripper_coord_Z, _		= RobotToOldShelfTransformation.get_item_coord_from_obj_to_robot(obj_label, item_coord_X, item_coord_Y, item_coord_Z)
+		gripper_coord_X, gripper_coord_Y, gripper_coord_Z, _		= RobotToNewShelfTransformation.get_item_coord_from_obj_to_robot(obj_label, item_coord_X, item_coord_Y, item_coord_Z)
 		gripper_offset_X, gripper_offset_Y, gripper_offset_Z 		= suction_method.gripper_frame_to_end_effector_displacement(roll, pitch, yaw)
 		
 		base_coord_X 	= gripper_coord_X -gripper_offset_X
@@ -367,7 +368,7 @@ class MarioKinematics(object):
 
 	def get_robot_joint_state(self):
 		# Current joint state of Mario
-		return self.__robot_joint_state
+		return list(self.__robot_joint_state)
 
 	def get_robot_cartesian_state(self):
 		robot_joint_state 		= self.get_robot_joint_state()
@@ -375,7 +376,7 @@ class MarioKinematics(object):
 
 class MarioFullSystem(MarioKinematics, SubscribeToActionServer):
 	def __init__(self, is_simulation, *args, **kwargs):
-		rospy.init_node('UR5_motion_planner', anonymous=True)
+		rospy.init_node('Mario_stowing', anonymous=True)
 		self.joint_names 		= ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint', 'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
 		super(MarioFullSystem, self).__init__(is_simulation, *args, **kwargs)
 
@@ -392,4 +393,5 @@ if __name__ == "__main__":
 	# selected_base_coord[0:5] 	*= -1 				# Some hacks to translate to Gazebo frame of reference
 
 	selected_base_coord 		= mario.get_joint_space_from_delta_robot_frame('z', 0.03)
-	mario.action_server_move_arm(joint_space=selected_base_coord, total_points=len(selected_base_coord))
+	selected_base_coord 		= [0.2687414328204554, 0.9837163130389612, -2.213135242462158, 1.3010690847979944, -1.2809619903564453, -1.5690296331988733]
+	mario.action_server_move_arm(joint_space=selected_base_coord, total_points=1)

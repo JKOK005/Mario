@@ -13,6 +13,7 @@ Dependencies:
 import rospy
 import smach
 import smach_ros
+from Queue import Queue
 from apc_global_params import *
 from ur5_lib import MarioFullSystem
 from or_motion_planning import ORMotionPlanning
@@ -23,15 +24,22 @@ display_on_motion_planner 	= False
 
 """ Shared variables by all states """
 # Motion planner and OpenRave parameters
+task_queue 					= Queue()	# FIFO
+
 class StateMover:
 	mario_motion_planner 	= ORMotionPlanning('apc_env.xml')
 	mario_full_system 		= MarioFullSystem(is_simulation)
 
 	@classmethod
 	def motionplan_move_to_item(cls, item_field):
+		assert item_field in global_params.keys()
 		start 			= cls.mario_full_system.get_robot_joint_state()
+
+		for each in range(len(start) -1):
+			start[each] 	= -start[each] 			# THIS IS A HACK CAUSE IM TOO LAZY TO MAKE THINGS RIGHT :/
+
 		cls.mario_motion_planner.init_planning_setup(start, 'pqp')
-		final 			= planner.optimize_trajopt(joint_target=global_params[item_field])
+		final 			= cls.mario_motion_planner.optimize_trajopt(joint_target=global_params[item_field])
 
 		if(display_on_motion_planner):
 			cls.mario_motion_planner.simulate(trajectory=final)
@@ -41,25 +49,33 @@ class StateMover:
 	@classmethod
 	def move_to_item(cls, item_field):
 		# This is without motion planning
-		# TODO: global params to be joint space but is now cartesian space. CHANGE
+		assert item_field in global_params.keys()
 		cls.mario_full_system.action_server_move_arm(joint_space=global_params[item_field], total_points=1)
 
 	@classmethod
-	def attempt_grasp(cls, delta_dis):
-		pass
+	def move_to_joint_space_single(cls, joint_space):
+		cls.mario_full_system.action_server_move_arm(joint_space=joint_space, total_points=1)
 
+	@classmethod
+	def attempt_grasp(cls, axis, delta_dis):
+		assert item_field in ['x' ,'y', 'z']
+		cls.mario_full_system.get_joint_space_from_delta_robot_frame(axis, delta_dis)
 
 class Start_planning(smach.State):
 	# Gets JSON input from bin and performs sorting
 	# Ensures that the arm is at the scanning position above tote 
 	def __init__(self):
 		smach.State.__init__(self, outcomes=['goto_Main_vision'], input_keys=['input'], output_keys=['output'])
+		StateMover.move_to_joint_space_single(joint_space=global_params['starting_position'])
 
-	def parse_input(self):
-
+	def dequeue_task(self):
+		if(not task_queue.empty()):
+			return task_queue.get(block=False)
 
 	def execute(self, userdata):
-		rospy.loginfo("Mario -> Start planning")
+		rospy.loginfo("Mario -> Start moving to first bin in queue")
+		ready_bin_label 		= self.dequeue_task()
+		StateMover.motionplan_move_to_item(ready_bin_label)
 		return 'goto_Main_vision'
 
 class Scan_and_capture_vision(smach.State):
@@ -101,20 +117,6 @@ class Reattempt_vision_error(smach.State):
 	def execute(self, userdata):
 		rospy.loginfo("Mario -> Image capture failed. Moving arm to tote for rescan")
 		return 'goto_Main_vision'
-
-class Reattempt_grasp_error(smach.State):
-	# Error handling - Regrasping attempt for target object
-	# Transits to reattempting vision if failure rate for grasping is too high
-	def __init__(self):
-		smach.State.__init__(self, outcomes=['goto_Main_grasping','goto_Reattempt_vision_error'], input_keys=['input'], output_keys=['output'])
-
-	def execute(self, userdata):
-		rospy.loginfo("Mario -> Grasping of target object failed. Reattempting to generate new grasp data.")
-		
-		if(True):
-			return 'goto_Main_grasping'
-		else:
-			return 'goto_Reattempt_vision_error'
 
 class Strategy_dispatcher_grasping(smach.State):
 	# Evaluates all possible grasping strategies for a given target object
@@ -180,6 +182,20 @@ class Select_bin_stowing(smach.State):
 		else:
 			return 'goto_Amnesty_tote'
 
+class Reattempt_grasp_error(smach.State):
+	# Error handling - Regrasping attempt for target object
+	# Transits to reattempting vision if failure rate for grasping is too high
+	def __init__(self):
+		smach.State.__init__(self, outcomes=['goto_Main_grasping','goto_Reattempt_vision_error'], input_keys=['input'], output_keys=['output'])
+
+	def execute(self, userdata):
+		rospy.loginfo("Mario -> Grasping of target object failed. Reattempting to generate new grasp data.")
+		
+		if(True):
+			return 'goto_Main_grasping'
+		else:
+			return 'goto_Reattempt_vision_error'
+
 class Move_to_amnesty_tote(smach.State):
 	# Motion plan to pre-stowing position for amnesty tote
 	def __init__(self):
@@ -222,13 +238,13 @@ class Update_bin_and_repeat_stowing(smach.State):
 	def execute(self, userdata):
 		rospy.loginfo("Mario -> Stowing success! Updating bin and checking for empty tote list")
 		
-		if(True):
+		if(task_queue.empty()):
 			return 'end_stowing_goto_terminate'
 		else:
 			return 'end_stowing_goto_repeat'
 
 if __name__ == "__main__":
-	rospy.init_node('Mario_stowing')
+	rospy.init_node('Mario_stowing', anonymous=True)
 
 	parent 						= smach.StateMachine(outcomes=['terminate_stowing_process'])
 	parent.userdata.data_field 	= 2.3
@@ -424,6 +440,10 @@ if __name__ == "__main__":
 												'output' 	: 'data_field',
 												})
 
+
+	initial_task_sequence 				= ["ready_bin_A", "ready_bin_B"]
+	for i in initial_task_sequence:
+		task_queue.put(i)
 
 	parent.execute()
 	rospy.loginfo("Mario -> Stowing task completed. Terminating Mario's operationsself.")

@@ -62,15 +62,15 @@ class RobotToNewShelfTransformation(GenericTransformationContainer):
 	# Shelf is now 0.85 m in front of robot
 	# Robot's base height decreases to 1.34m
 	base_displacement_to_obj = {
-		'bin_A' : global_params["stow_bin_A"],
-		'bin_B' : global_params["stow_bin_B"],
-		'bin_C' : global_params["stow_bin_C"],
-		'bin_D' : global_params["stow_bin_D"],
-		'bin_E' : global_params["stow_bin_E"],
-		'bin_F' : global_params["stow_bin_F"],
-		'bin_G' : global_params["stow_bin_G"],
-		'bin_H' : global_params["stow_bin_H"],
-		'bin_I' : global_params["stow_bin_I"],
+		'bin_A' : bin_calibration_coords["bot_left_bin_A"],
+		'bin_B' : bin_calibration_coords["bot_left_bin_B"],
+		'bin_C' : bin_calibration_coords["bot_left_bin_C"],
+		'bin_D' : bin_calibration_coords["bot_left_bin_D"],
+		'bin_E' : bin_calibration_coords["bot_left_bin_E"],
+		'bin_F' : bin_calibration_coords["bot_left_bin_F"],
+		'bin_G' : bin_calibration_coords["bot_left_bin_G"],
+		'bin_H' : bin_calibration_coords["bot_left_bin_H"],
+		'bin_I' : bin_calibration_coords["bot_left_bin_I"],
 	}
 	x_rot = 0; y_rot = 0; z_rot = -pi/2 		# Rotation angles from bin to robot frame
 
