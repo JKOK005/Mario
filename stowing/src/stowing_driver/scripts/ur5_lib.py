@@ -23,6 +23,7 @@ from trajectory_msgs.msg import *
 from control_msgs.msg import *
 from sensor_msgs.msg import *
 from mario_utility import *
+from gripper_driver.msg import *
 from ur_kin_py.kin import Kinematics 
 from tf import transformations as TF
 from copy import copy
@@ -89,7 +90,7 @@ class SubscribeToActionServer(VelocityProfile):
 
 			point 					= JointTrajectoryPoint()
 			point.positions 		= single_point.tolist()
-			point.velocities 		= [0.1,0.1,0.1,0.1,0.1,0.1]
+			point.velocities 		= [0.01,0.01,0.01,0.01,0.01,0.01]
 			point.accelerations 	= []
 			point.time_from_start 	= rospy.Duration(5) 		# time from start must be in increasing order based on way point sequence
 		return [point]
@@ -188,6 +189,61 @@ class SubscribeToActionServer(VelocityProfile):
 			rospy.loginfo("SubscribeToActionServer -> Movement of arm complete")
 		return
 
+class GripperController(object):
+	def __init__(self, *args, **kwargs):
+		self.motor_command_pub 	= rospy.Publisher('/motor/command', motor_command, queue_size=10)
+		self.pump_input_pub 	= rospy.Publisher('gripper/pump_input', Bool, queue_size=10)
+		super(GripperController, self).__init__(*args, **kwargs)
+
+	def __frame_pump_msg_and_publish(self, pump_input):
+		msg 		= Bool()
+		msg.data 	= pump_input
+		self.pump_input_pub.publish(msg)
+		return
+
+	def on_pump(self):
+		self.__frame_pump_msg_and_publish(1)
+		return
+
+	def off_pump(self):
+		self.__frame_pump_msg_and_publish(0)
+		return
+
+	def __frame_gripper_msg_and_publish(self, read_angle, read_load, gripper_ready, gripper_open, gripper_close, gripper_standby):
+		msg 				= motor_command()
+		msg.read_angle 		= read_angle
+		msg.read_load 		= read_load
+		msg.gripper_ready 	= gripper_ready
+		msg.gripper_open 	= gripper_open
+		msg.gripper_close 	= gripper_close
+		msg.gripper_standby = gripper_standby
+		self.motor_command_pub.publish(msg)
+		return
+
+	def open_gripper(self):
+		self.__frame_gripper_msg_and_publish(0,0,0,1,0,0)
+		return
+
+	def close_gripper(self):
+		self.__frame_gripper_msg_and_publish(0,0,0,0,1,0)
+		return
+
+	def ready_gripper(self):
+		self.__frame_gripper_msg_and_publish(0,0,1,0,0,0)
+		return
+
+	def standby_gripper(self):
+		self.__frame_gripper_msg_and_publish(0,0,0,0,0,1)
+		return
+
+	def read_angle(self):
+		self.__frame_gripper_msg_and_publish(1,0,0,0,0,0)
+		return
+
+	def read_load(self):
+		self.__frame_gripper_msg_and_publish(0,1,0,0,0,0)
+		return
+
 class MarioKinematics(object):
 	joint_lim_low 				= [-2*np.pi,-2*np.pi,-2*np.pi,-2*np.pi,-2*np.pi,-2*np.pi]			# Default joint limits.
 	joint_lim_high 				= [-i for i in joint_lim_low]
@@ -199,15 +255,19 @@ class MarioKinematics(object):
 		
 		self.__robot_joint_state 		= []
 		if(is_simulation):
-			rospy.Subscriber('/arm_controller/state', JointTrajectoryControllerState, self.__robot_joint_state_callback)
+			rospy.Subscriber('/arm_controller/state', JointTrajectoryControllerState, self.__robot_joint_state_callback_simulation)
 		else:
-			rospy.Subscriber('/joint_states', JointState, self.__robot_joint_state_callback)
+			rospy.Subscriber('/joint_states', JointState, self.__robot_joint_state_callback_actual)
 		super(MarioKinematics, self).__init__(is_simulation, *args, **kwargs)
 
 	def __unicode__(self):
 		return """UR5 custom motion planning library"""
-		
-	def __robot_joint_state_callback(self, data):
+	
+	def __robot_joint_state_callback_actual(self, data):
+		self.__robot_joint_state 		= data.position
+		return
+
+	def __robot_joint_state_callback_simulation(self, data):
 		actual_joint_state_msg_frame 	= data.actual
 		self.__robot_joint_state  		= actual_joint_state_msg_frame.positions
 		return
@@ -374,7 +434,7 @@ class MarioKinematics(object):
 		robot_joint_state 		= self.get_robot_joint_state()
 		return self.cartesian_from_joint(robot_joint_state)
 
-class MarioFullSystem(MarioKinematics, SubscribeToActionServer):
+class MarioFullSystem(MarioKinematics, SubscribeToActionServer, GripperController):
 	def __init__(self, is_simulation, *args, **kwargs):
 		rospy.init_node('Mario_stowing', anonymous=True)
 		self.joint_names 		= ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint', 'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']

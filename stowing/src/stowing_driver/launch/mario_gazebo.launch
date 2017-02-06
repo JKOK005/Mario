@@ -5,6 +5,9 @@
   <arg name="gui" default="true"/>
   <arg name="use_new_shelf" default="true"/>
   
+  <!-- Launch gripper controller -->
+  <node name="gripper_controller" pkg="gripper_driver" type="gripper_v2.py" respawn="true" output="screen" />
+
   <!-- startup simulated world -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="world_name" default="worlds/empty.world"/>

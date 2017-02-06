@@ -19,7 +19,7 @@ from ur5_lib import MarioFullSystem
 from or_motion_planning import ORMotionPlanning
 
 """ Global parameters """
-is_simulation 				= True
+is_simulation 				= False
 display_on_motion_planner 	= False
 
 """ Shared variables by all states """
@@ -61,12 +61,20 @@ class StateMover:
 		assert item_field in ['x' ,'y', 'z']
 		cls.mario_full_system.get_joint_space_from_delta_robot_frame(axis, delta_dis)
 
+	@classmethod
+	def pump_state(cls, state):
+		if(state):
+			cls.mario_full_system.on_pump()
+		else:
+			cls.mario_full_system.off_pump()
+
 class Start_planning(smach.State):
 	# Gets JSON input from bin and performs sorting
 	# Ensures that the arm is at the scanning position above tote 
 	def __init__(self):
 		smach.State.__init__(self, outcomes=['goto_Main_vision'], input_keys=['input'], output_keys=['output'])
 		StateMover.move_to_joint_space_single(joint_space=global_params['starting_position'])
+		rospy.sleep(5)
 
 	def dequeue_task(self):
 		if(not task_queue.empty()):
@@ -241,6 +249,11 @@ class Update_bin_and_repeat_stowing(smach.State):
 		if(task_queue.empty()):
 			return 'end_stowing_goto_terminate'
 		else:
+			rospy.sleep(1)
+			StateMover.pump_state(True)
+			rospy.sleep(5)
+			StateMover.pump_state(False)
+			rospy.sleep(1)
 			return 'end_stowing_goto_repeat'
 
 if __name__ == "__main__":
@@ -441,7 +454,7 @@ if __name__ == "__main__":
 												})
 
 
-	initial_task_sequence 				= ["ready_bin_A", "ready_bin_B"]
+	initial_task_sequence 				=  ["ready_bin_A", "ready_bin_B", "ready_bin_C", "ready_bin_D", "ready_bin_E", "ready_bin_H"]
 	for i in initial_task_sequence:
 		task_queue.put(i)
 

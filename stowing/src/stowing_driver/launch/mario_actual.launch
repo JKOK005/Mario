@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="robot_ip" default="192.168.0.10"/>
+
+  <!-- Launch arm controller -->
+  <include file="$(find ur_bringup)/launch/ur5_bringup.launch">
+    <arg name="robot_ip" value="$(arg robot_ip)" />
+  </include>
+
+  <!-- Launch gripper controller -->
+  <node name="gripper_controller" pkg="gripper_driver" type="gripper_v2.py" respawn="true" output="screen" />
+</launch>
