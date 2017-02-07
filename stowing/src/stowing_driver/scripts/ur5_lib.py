@@ -315,7 +315,7 @@ class MarioKinematics(object):
 		translation_from_matrix				= list(TF.translation_from_matrix(h_matrix))
 		return euler_from_matrix + translation_from_matrix
 
-	def get_joint_sols_from_bin_grasping(self, obj_label, grasp_results, grasp_type):
+	def get_joint_sol_from_bin_grasping(self, obj_label, grasp_results, grasp_type):
 		# obj_label is the identifier for bin or tote location
 		suction_method 												= self.__get_gripper_suction_method(grasp_type)
 		roll, pitch, yaw, item_coord_X, item_coord_Y, item_coord_Z 	= grasp_results
@@ -325,11 +325,16 @@ class MarioKinematics(object):
 		base_coord_X 	= gripper_coord_X -gripper_offset_X
 		base_coord_Y 	= gripper_coord_Y -gripper_offset_Y
 		base_coord_Z 	= gripper_coord_Z -gripper_offset_Z
-
 		cartesian		= [roll, pitch, yaw, base_coord_X, base_coord_Y, base_coord_Z]
-		return self.cartesian_to_ik(cartesian=cartesian)
 
-	def get_joint_sols_from_tote_grasping(self, obj_label, grasp_results, grasp_type):
+		import IPython
+		IPython.embed()
+
+		selected_ik_sol 		= self.cartesian_to_ik(cartesian=cartesian)[0]		# HACKS FOR GAZEBO
+		selected_ik_sol[0:5]	*= -1
+		return selected_ik_sol
+
+	def get_joint_sol_from_tote_grasping(self, obj_label, grasp_results, grasp_type):
 		# obj_label is the identifier for bin or tote location
 		suction_method 												= self.__get_gripper_suction_method(grasp_type)
 		roll, pitch, yaw, item_coord_X, item_coord_Y, item_coord_Z 	= grasp_results
@@ -339,7 +344,6 @@ class MarioKinematics(object):
 		base_coord_X 	= gripper_coord_X -gripper_offset_X
 		base_coord_Y 	= gripper_coord_Y -gripper_offset_Y
 		base_coord_Z 	= gripper_coord_Z -gripper_offset_Z
-
 		cartesian		= [roll, pitch, yaw, base_coord_X, base_coord_Y, base_coord_Z]
 		return self.cartesian_to_ik(cartesian=cartesian)
 

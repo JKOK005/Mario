@@ -117,21 +117,7 @@ ENDIF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unsp
 IF(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   INCLUDE("/home/apc16/apc_2016/mario_catkin_workspace/stowing/build/gtest/cmake_install.cmake")
-  INCLUDE("/home/apc16/apc_2016/mario_catkin_workspace/stowing/build/Boost.NumPy/cmake_install.cmake")
-  INCLUDE("/home/apc16/apc_2016/mario_catkin_workspace/stowing/build/openrave_catkin/cmake_install.cmake")
-  INCLUDE("/home/apc16/apc_2016/mario_catkin_workspace/stowing/build/or_ompl/cmake_install.cmake")
-  INCLUDE("/home/apc16/apc_2016/mario_catkin_workspace/stowing/build/universal_robot/universal_robot/cmake_install.cmake")
-  INCLUDE("/home/apc16/apc_2016/mario_catkin_workspace/stowing/build/universal_robot/ur_bringup/cmake_install.cmake")
-  INCLUDE("/home/apc16/apc_2016/mario_catkin_workspace/stowing/build/universal_robot/ur_description/cmake_install.cmake")
-  INCLUDE("/home/apc16/apc_2016/mario_catkin_workspace/stowing/build/universal_robot/ur_gazebo/cmake_install.cmake")
-  INCLUDE("/home/apc16/apc_2016/mario_catkin_workspace/stowing/build/universal_robot/ur_msgs/cmake_install.cmake")
-  INCLUDE("/home/apc16/apc_2016/mario_catkin_workspace/stowing/build/stowing_driver/cmake_install.cmake")
-  INCLUDE("/home/apc16/apc_2016/mario_catkin_workspace/stowing/build/universal_robot/ur_driver/cmake_install.cmake")
-  INCLUDE("/home/apc16/apc_2016/mario_catkin_workspace/stowing/build/universal_robot/ur10_moveit_config/cmake_install.cmake")
-  INCLUDE("/home/apc16/apc_2016/mario_catkin_workspace/stowing/build/universal_robot/ur3_moveit_config/cmake_install.cmake")
-  INCLUDE("/home/apc16/apc_2016/mario_catkin_workspace/stowing/build/universal_robot/ur5_moveit_config/cmake_install.cmake")
-  INCLUDE("/home/apc16/apc_2016/mario_catkin_workspace/stowing/build/universal_robot/ur_kinematics/cmake_install.cmake")
-  INCLUDE("/home/apc16/apc_2016/mario_catkin_workspace/stowing/build/ur_kin_py/cmake_install.cmake")
+  INCLUDE("/home/apc16/apc_2016/mario_catkin_workspace/stowing/build/gripper_driver/cmake_install.cmake")
 
 ENDIF(NOT CMAKE_INSTALL_LOCAL_ONLY)
 

@@ -1,0 +1,8 @@
+prefix=/home/apc16/apc_2016/mario_catkin_workspace/stowing/install
+
+Name: gripper_driver
+Description: Description of gripper_driver
+Version: 0.0.0
+Cflags: -I/home/apc16/apc_2016/mario_catkin_workspace/stowing/install/include
+Libs: -L/home/apc16/apc_2016/mario_catkin_workspace/stowing/install/lib 
+Requires: message_runtime roscpp rospy std_msgs

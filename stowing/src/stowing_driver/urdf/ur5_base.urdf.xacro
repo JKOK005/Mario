@@ -11,7 +11,7 @@
   <xacro:ur5_robot prefix="" joint_limited="false"/>
 
   <!-- ur5 robot with base -->
-  <xacro:ur5_with_base height="0.6415" length="1.283" radius="0.06"/>
+  <xacro:ur5_with_base height="0.67" length="1.34" radius="0.06"/>
 
   <!-- Gripper -->
   <xacro:include filename="$(find stowing_driver)/urdf/gripper.urdf.xacro" />

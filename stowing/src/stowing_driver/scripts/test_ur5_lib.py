@@ -7,6 +7,7 @@ from or_motion_planning import ORMotionPlanning
 import openravepy as op
 from math import floor
 from random import random
+from apc_global_params import *
 
 class TestActionMethod(SubscribeToActionServer):
 	def __init__(self, *args, **kwargs):
@@ -31,22 +32,27 @@ if __name__ == "__main__":
 	bin8 				= np.array([0.04,-1.3,0.75,3.5,1.5,-1.571])
 	bin9 				= np.array([0.75,-1.3,1.0,3.0,0.8,-1.75])
 
-	start 				= bin1
+	# start 				= bin1
+	start 				= global_params["starting_position"]
 	robot_path 			= [bin1] + [bin2] + [bin3] + [bin4] + [bin5] + [bin6] + [bin7] + [bin8] + [bin9]
 	tester 				= TestActionMethod()
 	planner 			= ORMotionPlanning('apc_env.xml')
 	tester.action_server_move_arm(start, total_points=1)
+
 	import IPython
 	IPython.embed()
 
-	start 					= robot_path[0].tolist()		# Always start at bin 1
-	while(raw_input() != 'q'):
-		rand_indx 			= int(floor((random()*10) %len(robot_path)))
+	planner.init_planning_setup(start, 'pqp')
+	tester.action_server_move_arm(joint_space=start, total_points=1)
 
-		target 				= robot_path[rand_indx].tolist()
-		planner.init_planning_setup(start, 'pqp')
-		final_traj 			= planner.optimize_trajopt(joint_target=target)
-		planner.simulate(trajectory=final_traj)
-		total_points		= len(final_traj)
-		tester.action_server_move_arm(joint_space=final_traj, total_points=total_points)
-		start 				= target
+	# start 					= robot_path[0].tolist()		# Always start at bin 1
+	# while(raw_input() != 'q'):
+	# 	rand_indx 			= int(floor((random()*10) %len(robot_path)))
+
+	# 	target 				= robot_path[rand_indx].tolist()
+	# 	planner.init_planning_setup(start, 'pqp')
+	# 	final_traj 			= planner.optimize_trajopt(joint_target=target)
+	# 	planner.simulate(trajectory=final_traj)
+	# 	total_points		= len(final_traj)
+	# 	tester.action_server_move_arm(joint_space=final_traj, total_points=total_points)
+	# 	start 				= target

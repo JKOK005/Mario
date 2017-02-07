@@ -11,10 +11,18 @@ def rotate(x,y,z,roll,pitch,yaw):
     #Note: All angles are in Radians, rotations are counter-clockwise by convention
     #Rotation matrix source: http://msl.cs.uiuc.edu/planning/node102.html
     
-    x = x*(math.cos(yaw)*math.cos(pitch)) + y*(math.cos(yaw)*math.sin(pitch)*math.sin(roll) - math.sin(yaw)*math.cos(roll)) + z*(math.cos(yaw)*math.sin(pitch)*math.cos(roll) + math.sin(yaw)*math.sin(roll))   
-    y = x*(math.sin(yaw)*math.cos(pitch)) + y*(math.sin(yaw)*math.sin(pitch)*math.sin(roll) + math.cos(yaw)*math.cos(roll)) + z*(math.sin(yaw)*math.sin(pitch)*math.cos(roll) - math.cos(yaw)*math.sin(roll))
-    z = x*(-math.sin(pitch)) + y*(math.cos(pitch)*math.sin(roll)) + z*(math.cos(pitch)*math.cos(roll))
-    return x,y,z
+    x_new = x*(math.cos(yaw)*math.cos(pitch)) + y*(math.cos(yaw)*math.sin(pitch)*math.sin(roll) - math.sin(yaw)*math.cos(roll)) + z*(math.cos(yaw)*math.sin(pitch)*math.cos(roll) + math.sin(yaw)*math.sin(roll))   
+    y_new = x*(math.sin(yaw)*math.cos(pitch)) + y*(math.sin(yaw)*math.sin(pitch)*math.sin(roll) + math.cos(yaw)*math.cos(roll)) + z*(math.sin(yaw)*math.sin(pitch)*math.cos(roll) - math.cos(yaw)*math.sin(roll))
+    z_new = x*(-math.sin(pitch)) + y*(math.cos(pitch)*math.sin(roll)) + z*(math.cos(pitch)*math.cos(roll))
+    
+    if x_new < 0.0001:
+        x_new = 0.0
+    if y_new < 0.0001:
+        y_new = 0.0
+    if z_new < 0.0001:
+        z_new = 0.0
+    
+    return x_new, y_new, z_new
 
 def obj (boundary, points):
     """
@@ -99,7 +107,7 @@ def find_Plane_and_Normal (strategyIDchosen, p1, p2, p3):
 #     print ("a = " + str(a) + ", b = " + str(b) + ", c = " + str(c) + ", d = " + str(d))
 #     print ("Normal vector: " + str([a, b, c]))
     
-        return [a, b, c, d], [a, b, c]
+        return [a, b, c, d], [a, b, c] #plane, normal
 
 def find_Max_4 (axis, points):
     """
@@ -149,6 +157,7 @@ def find_ee_YPR(ee_normal):
     Output: RPY rotation of e-e to face that normal vector (from the original position 
     of facing [0,1,0], which is facing directly into the bin)
     """
+    print ee_normal
     x = float(ee_normal[0])
     y = float(ee_normal[1])
     z = float(ee_normal[2])
@@ -340,5 +349,5 @@ def find_ee_YPR(ee_normal):
             ee_yaw = atan(-x/y)
             ee_roll = -atan(-z/y)
     
-    print "E_e Yaw, Pitch, Roll in degrees:" + str(ee_yaw /pi*180) + ", " + str(ee_pitch /pi*180) + ", " + str(ee_roll/pi*180)
+#     print "E_e Yaw, Pitch, Roll in degrees:" + str(ee_yaw /pi*180) + ", " + str(ee_pitch /pi*180) + ", " + str(ee_roll/pi*180)
     return ee_yaw, ee_pitch, ee_roll

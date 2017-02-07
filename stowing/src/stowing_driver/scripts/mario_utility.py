@@ -33,7 +33,7 @@ class GenericTransformationContainer(object):
 
 	@classmethod
 	def get_full_translation_from_obj_to_robot(cls, obj_label):
-		return TF.translation_matrix(cls.base_displacement_to_obj[obj_label])
+		return TF.translation_matrix(base_displacement_to_bot_left_bin[obj_label])
 
 	@classmethod
 	def get_full_rotation_from_obj_to_robot(cls, x_rot, y_rot, z_rot):
@@ -61,33 +61,15 @@ class GenericTransformationContainer(object):
 class RobotToNewShelfTransformation(GenericTransformationContainer):
 	# Shelf is now 0.85 m in front of robot
 	# Robot's base height decreases to 1.34m
-	base_displacement_to_obj = {
-		'bin_A' : bin_calibration_coords["bot_left_bin_A"],
-		'bin_B' : bin_calibration_coords["bot_left_bin_B"],
-		'bin_C' : bin_calibration_coords["bot_left_bin_C"],
-		'bin_D' : bin_calibration_coords["bot_left_bin_D"],
-		'bin_E' : bin_calibration_coords["bot_left_bin_E"],
-		'bin_F' : bin_calibration_coords["bot_left_bin_F"],
-		'bin_G' : bin_calibration_coords["bot_left_bin_G"],
-		'bin_H' : bin_calibration_coords["bot_left_bin_H"],
-		'bin_I' : bin_calibration_coords["bot_left_bin_I"],
-	}
 	x_rot = 0; y_rot = 0; z_rot = -pi/2 		# Rotation angles from bin to robot frame
 
 class RobotToOldShelfTransformation(GenericTransformationContainer):
 	# Shelf is now 0.85 m in front of robot
 	# Robot's base height decreases to 1.283m
-	base_displacement_to_obj = {
-		'bin_middle' : [0.750, 0.105, 0.065]
-	}
 	x_rot = 0; y_rot = 0; z_rot = -pi/2 		# Rotation angles from bin to robot frame
 
 class RobotToToteTransformation(GenericTransformationContainer):
 	# Provide amnesty and stowing tote base displacement here
-	base_displacement_to_obj = {
-		'tote_amnesty' : [0,0,0],
-		'tote_stowing' : [0,0,0],
-	}
 	x_rot = 0; y_rot = 0; z_rot = 0 		# Rotation angles from tote to robot frame
 
 # Gripper transformation class
@@ -97,7 +79,7 @@ class GripperToEndEffectorTransformation(object):
 	def gripper_frame_to_end_effector_displacement(cls, roll, pitch, yaw):
 		gripper_displacement_as_array 				= np.array(cls.gripper_displacement_axis).reshape(3,1)
 		gripper_to_end_effector_transformation 		= TF.euler_matrix(roll,pitch,yaw)[:3,:3]
-		return np.dot(gripper_to_end_effector_transformation, gripper_displacement_as_array)
+		return np.dot(gripper_to_end_effector_transformation, gripper_displacement_as_array).reshape(1,3).tolist()[0]
 
 class GripperFrontSuctionOffset(GripperToEndEffectorTransformation):
 	X_displacement  			= 0.350		# As measured from the end effector to the gripper end effector using Gazebo coordinate frame
