@@ -77,20 +77,21 @@ class GripperToEndEffectorTransformation(object):
 	# Maps gripper end effector to Mario's end effector
 	@classmethod
 	def gripper_frame_to_end_effector_displacement(cls, roll, pitch, yaw):
+		default_roll_offser 						= -pi/2 		# offset hardcoded to make the gripper's axis align with gazebo's axis
 		gripper_displacement_as_array 				= np.array(cls.gripper_displacement_axis).reshape(3,1)
-		gripper_to_end_effector_transformation 		= TF.euler_matrix(roll,pitch,yaw)[:3,:3]
+		gripper_to_end_effector_transformation 		= TF.euler_matrix(roll -default_roll_offser, pitch, yaw)[:3,:3]
 		return np.dot(gripper_to_end_effector_transformation, gripper_displacement_as_array).reshape(1,3).tolist()[0]
 
 class GripperFrontSuctionOffset(GripperToEndEffectorTransformation):
-	X_displacement  			= 0.350		# As measured from the end effector to the gripper end effector using Gazebo coordinate frame
-	Y_displacement 				= -0.0525
-	Z_displacement 				= 0
+	X_displacement  			= 0.345		# As measured from the end effector to the gripper end effector using Gazebo coordinate frame
+	Y_displacement 				= 0
+	Z_displacement 				= 0.02
 	gripper_displacement_axis 	= [X_displacement, Y_displacement, Z_displacement] 	# Axis 
 
 class GripperSideSuctionOffset(GripperToEndEffectorTransformation):
-	X_displacement  			= 0.350		# As measured from the end effector to the gripper end effector using Gazebo coordinate frame
-	Y_displacement 				= -0.0525
-	Z_displacement 				= 0
+	X_displacement  			= 0.370		# As measured from the end effector to the gripper end effector using Gazebo coordinate frame
+	Y_displacement 				= 0
+	Z_displacement 				= -0.10
 	gripper_displacement_axis 	= [X_displacement, Y_displacement, Z_displacement] 	# Axis 
 
 

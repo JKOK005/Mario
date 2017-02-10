@@ -318,7 +318,7 @@ class MarioKinematics(object):
 	def get_joint_sol_from_bin_grasping(self, obj_label, grasp_results, grasp_type):
 		# obj_label is the identifier for bin or tote location
 		suction_method 												= self.__get_gripper_suction_method(grasp_type)
-		roll, pitch, yaw, item_coord_X, item_coord_Y, item_coord_Z 	= grasp_results
+		yaw, pitch, roll, item_coord_X, item_coord_Y, item_coord_Z 	= grasp_results
 		gripper_coord_X, gripper_coord_Y, gripper_coord_Z, _		= RobotToNewShelfTransformation.get_item_coord_from_obj_to_robot(obj_label, item_coord_X, item_coord_Y, item_coord_Z)
 		gripper_offset_X, gripper_offset_Y, gripper_offset_Z 		= suction_method.gripper_frame_to_end_effector_displacement(roll, pitch, yaw)
 		
@@ -327,11 +327,9 @@ class MarioKinematics(object):
 		base_coord_Z 	= gripper_coord_Z -gripper_offset_Z
 		cartesian		= [roll, pitch, yaw, base_coord_X, base_coord_Y, base_coord_Z]
 
-		import IPython
-		IPython.embed()
-
 		selected_ik_sol 		= self.cartesian_to_ik(cartesian=cartesian)[0]		# HACKS FOR GAZEBO
 		selected_ik_sol[0:5]	*= -1
+
 		return selected_ik_sol
 
 	def get_joint_sol_from_tote_grasping(self, obj_label, grasp_results, grasp_type):
@@ -392,6 +390,8 @@ class MarioKinematics(object):
 	def get_joint_space_from_delta_robot_frame(self, axis, delta_dist):
 		def get_goal_cartesian_from_delta_dist(current_cartesian, axis, delta_dist):
 			roll, pitch, yaw, x, y, z 			= current_cartesian
+			default_roll_offser 				= -pi/2 				# offset hardcoded to make the gripper's axis align with gazebo's axis
+			roll 								-= default_roll_offser
 			matrix_from_euler					= TF.euler_matrix(roll,pitch,yaw)
 			axis_translation_list 				= get_axis_translation_list(axis=axis, delta_dist=delta_dist)
 			delta_matrix						= TF.translation_matrix(axis_translation_list)
@@ -414,7 +414,6 @@ class MarioKinematics(object):
 
 		def plan_joint_way_points(current_cartesian, goal_cartesian):
 			way_points 				= PoseInterpolator.plan_to_cartesian_linear(current_cartesian, goal_cartesian)
-			print(way_points)
 			joint_way_points 		= []
 			try:
 				for pts in way_points:
@@ -448,14 +447,14 @@ if __name__ == "__main__":
 	is_simulation	= True
 	mario 			= MarioFullSystem(is_simulation)
 
-	# grasp_result 	= [0,0,0,0,0,0]		# roll / pitch / yaw / X / Y / Z
-	# obj_label 		= 'bin_middle'
-	# grasp_type 		= 1 				# Front suction
+	grasp_result 	= [0, 0.0, -1.5707963267948966, 0.303, 0.185, 0.1155]		# roll / pitch / yaw / X / Y / Z
+	obj_label 		= 'ready_bin_E'
+	grasp_type 		= 0 				# Side suction
 
-	# base_coord 					= mario.get_joint_sols_from_bin_grasping(obj_label, grasp_result, grasp_type)
+	selected_base_coord 		= mario.get_joint_sol_from_bin_grasping(obj_label, grasp_result, grasp_type)
 	# selected_base_coord 		= base_coord[0]
 	# selected_base_coord[0:5] 	*= -1 				# Some hacks to translate to Gazebo frame of reference
 
-	selected_base_coord 		= mario.get_joint_space_from_delta_robot_frame('z', 0.03)
-	selected_base_coord 		= [0.2687414328204554, 0.9837163130389612, -2.213135242462158, 1.3010690847979944, -1.2809619903564453, -1.5690296331988733]
+	# selected_base_coord 		= mario.get_joint_space_from_delta_robot_frame('z', 0.03)
+	# selected_base_coord 		= [0.2687414328204554, 0.9837163130389612, -2.213135242462158, 1.3010690847979944, -1.2809619903564453, -1.5690296331988733]
 	mario.action_server_move_arm(joint_space=selected_base_coord, total_points=1)
