@@ -182,7 +182,6 @@ class Implement_strategy_grasping(smach.State):
 		StateMover.move_to_joint_space_single(global_params[current_task])
 
 		end_effector_pos			= userdata.input.get('end_effector_pos')
-		print(end_effector_pos)
 		StateMover.position_arm_for_grasping(current_task, end_effector_pos, 0)
 		return 'goto_Execute_grasping'
 
@@ -199,9 +198,11 @@ class Execute_grasping(smach.State):
 		if(strategyIDchosen == 0):
 			approach['axis']  		= 'z'	# Top suction
 			approach['direction'] 	= -1 	# Approach top down
+			rospy.loginfo("Execute_grasping -> Approaching from Z axis")
 		elif(strategyIDchosen == 1):
 			approach['axis']  		= 'x'	# Front suction
 			approach['direction'] 	= 1 	# Approach front
+			rospy.loginfo("Execute_grasping -> Approaching from X axis")
 		return approach
 
 	def execute(self, userdata):
@@ -223,6 +224,7 @@ class Pre_stow_position_stowing(smach.State):
 
 	def execute(self, userdata):
 		rospy.loginfo("Mario -> Moving to pre-stowing position")
+		StateMover.move_to_joint_space_single(global_params[current_task])
 		return 'goto_Select_bin_stowing'
 
 class Select_bin_stowing(smach.State):
@@ -292,17 +294,17 @@ class Update_bin_and_repeat_stowing(smach.State):
 	def __init__(self):
 		smach.State.__init__(self, outcomes=['end_stowing_goto_terminate','end_stowing_goto_repeat'], input_keys=['input'], output_keys=['output'])
 
+	def __reset_all_variables(self):
+		global banned_strats 				
+		banned_strats 	= [0 ,2 ,3 ,4 ,5 ,6]
+
 	def execute(self, userdata):
 		rospy.loginfo("Mario -> Stowing success! Updating bin and checking for empty tote list")
 		
 		if(task_queue.empty()):
 			return 'end_stowing_goto_terminate'
 		else:
-			rospy.sleep(1)
-			StateMover.pump_state(True)
-			rospy.sleep(5)
-			StateMover.pump_state(False)
-			rospy.sleep(1)
+			self.__reset_all_variables();
 			return 'end_stowing_goto_repeat'
 
 if __name__ == "__main__":
@@ -503,7 +505,7 @@ if __name__ == "__main__":
 												})
 
 
-	initial_task_sequence 				=  ["ready_bin_E"]
+	initial_task_sequence 				=  ["ready_bin_B", "ready_bin_C", "ready_bin_E"]
 	for i in initial_task_sequence:
 		task_queue.put(i)
 

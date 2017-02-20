@@ -87,7 +87,6 @@ class SubscribeToActionServer(VelocityProfile):
 		for instance in joint_space:
 			single_point 			= instance
 			single_point[0:5] 		*= -1 						# Some hacks to align Gazebo coordinate system with OpenRave
-
 			point 					= JointTrajectoryPoint()
 			point.positions 		= single_point.tolist()
 			point.velocities 		= [0.01,0.01,0.01,0.01,0.01,0.01]
@@ -418,7 +417,7 @@ class MarioKinematics(object):
 			try:
 				for pts in way_points:
 					ik_point 		= self.cartesian_to_ik(pts)[0]
-					ik_point[0:5] 	*= -1
+					ik_point[0:5] 	*= -1 							# HACKS to convert values to Gazebo referene frame
 					joint_way_points.append(ik_point)
 				return joint_way_points
 			except AssertionError:
