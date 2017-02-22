@@ -20,8 +20,8 @@ from or_motion_planning import ORMotionPlanning
 from jxGraspingMain import *
 
 """ Global parameters """
-is_simulation 				= True
-display_on_motion_planner 	= False
+is_simulation 				= False
+display_on_motion_planner 	= True
 pick_or_stow 				= 0 		# 0 - pick task / 1 - stow task
 
 """ Shared variables by all states """
@@ -210,7 +210,7 @@ class Execute_grasping(smach.State):
 		StateMover.pump_state(True)
 		strategy_id 	= userdata.input.get('strategy_id')
 		approach 		= self.get_grasp_axis_and_direction(strategy_id)
-		StateMover.attempt_grasp(approach, 0.1)
+		StateMover.attempt_grasp(approach, 0.05)
 		
 		if(True):
 			return 'end_grasping_goto_stowing'
@@ -505,7 +505,7 @@ if __name__ == "__main__":
 												})
 
 
-	initial_task_sequence 				=  ["ready_bin_B", "ready_bin_C", "ready_bin_E"]
+	initial_task_sequence 				=  ["ready_bin_E"]
 	for i in initial_task_sequence:
 		task_queue.put(i)
 

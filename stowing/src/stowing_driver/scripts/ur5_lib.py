@@ -89,7 +89,7 @@ class SubscribeToActionServer(VelocityProfile):
 			single_point[0:5] 		*= -1 						# Some hacks to align Gazebo coordinate system with OpenRave
 			point 					= JointTrajectoryPoint()
 			point.positions 		= single_point.tolist()
-			point.velocities 		= [0.01,0.01,0.01,0.01,0.01,0.01]
+			point.velocities 		= [0.001,0.001,0.001,0.001,0.001,0.001]
 			point.accelerations 	= []
 			point.time_from_start 	= rospy.Duration(5) 		# time from start must be in increasing order based on way point sequence
 		return [point]
@@ -118,7 +118,7 @@ class SubscribeToActionServer(VelocityProfile):
 
 					point 					= JointTrajectoryPoint()
 					point.positions 		= end_modified.tolist()
-					point.velocities 		= [0.01,0.01,0.01,0.01,0.01,0.01]
+					point.velocities 		= [0.001,0.001,0.001,0.001,0.001,0.001]
 					point.accelerations 	= []
 					point.time_from_start 	= rospy.Duration(time_cumulated) 		# time from start must be in increasing order based on way point sequence
 
