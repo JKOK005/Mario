@@ -35,15 +35,14 @@ class StateMover:
 	mario_full_system 		= MarioFullSystem(is_simulation)
 
 	@classmethod
-	def motionplan_move_to_item(cls, item_field):
-		assert item_field in global_params.keys()
-		start 			= cls.mario_full_system.get_robot_joint_state()
+	def motionplan_move_to_joint_space(cls, joint_target):
+		start 				= cls.mario_full_system.get_robot_joint_state()
 
 		for each in range(len(start) -1):
 			start[each] 	= -start[each] 			# THIS IS A HACK CAUSE IM TOO LAZY TO MAKE THINGS RIGHT :/
 
 		cls.mario_motion_planner.init_planning_setup(start, 'pqp')
-		final 			= cls.mario_motion_planner.optimize_trajopt(joint_target=global_params[item_field])
+		final 				= cls.mario_motion_planner.optimize_trajopt(joint_target=joint_target)
 
 		if(display_on_motion_planner):
 			cls.mario_motion_planner.simulate(trajectory=final)
@@ -83,7 +82,7 @@ class Start_planning(smach.State):
 	# Ensures that the arm is at the scanning position above tote 
 	def __init__(self):
 		smach.State.__init__(self, outcomes=['goto_Main_vision'], input_keys=['input'], output_keys=['output'])
-		StateMover.move_to_joint_space_single(joint_space=global_params['starting_position'])
+		StateMover.motionplan_move_to_joint_space(joint_target=global_params['starting_position'])
 		rospy.sleep(5)
 
 	def dequeue_task(self):
@@ -94,7 +93,8 @@ class Start_planning(smach.State):
 		rospy.loginfo("Mario -> Start moving to first bin in queue")
 		global current_task 
 		current_task 	= self.dequeue_task()
-		StateMover.motionplan_move_to_item(current_task)
+		joint_target 	= global_params[current_task]
+		StateMover.motionplan_move_to_joint_space(joint_target)
 		return 'goto_Main_vision'
 
 class Scan_and_capture_vision(smach.State):
@@ -297,6 +297,7 @@ class Update_bin_and_repeat_stowing(smach.State):
 	def __reset_all_variables(self):
 		global banned_strats 				
 		banned_strats 	= [0 ,2 ,3 ,4 ,5 ,6]
+		rospy.sleep(5)
 
 	def execute(self, userdata):
 		rospy.loginfo("Mario -> Stowing success! Updating bin and checking for empty tote list")
@@ -505,7 +506,7 @@ if __name__ == "__main__":
 												})
 
 
-	initial_task_sequence 				=  ["ready_bin_E"]
+	initial_task_sequence 				=  ["ready_bin_A","ready_bin_B","ready_bin_C","ready_bin_A"]
 	for i in initial_task_sequence:
 		task_queue.put(i)
 

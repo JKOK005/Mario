@@ -94,7 +94,6 @@ class GripperSideSuctionOffset(GripperToEndEffectorTransformation):
 	Z_displacement 				= -0.10
 	gripper_displacement_axis 	= [X_displacement, Y_displacement, Z_displacement] 	# Axis 
 
-
 # Interpolator class
 class PoseInterpolator(object):
 	# Goal cartesian is a list of [roll,pitch,yaw,X,Y,Z]

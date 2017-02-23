@@ -160,7 +160,7 @@ class SubscribeToActionServer(VelocityProfile):
 		goal_message.trajectory 			= trajectory
 		goal_message.path_tolerance			= path_tolerance
 		goal_message.goal_tolerance			= goal_tolerance
-		goal_message.goal_time_tolerance 	= rospy.Duration(5,0)
+		goal_message.goal_time_tolerance 	= rospy.Duration(2,0)
 		return goal_message
 
 	def __establish_server_connection(self):
@@ -181,7 +181,7 @@ class SubscribeToActionServer(VelocityProfile):
 		goal_message 			= self.__frame_goal_message(joint_space, total_points)
 		self.server_client.send_goal(goal_message)
 		rospy.loginfo("SubscribeToActionServer -> Sending motion planning points to server")
-		if(not self.server_client.wait_for_result(rospy.Duration(20,0))):
+		if(not self.server_client.wait_for_result(rospy.Duration(30,0))):
 			rospy.logerr("SubscribeToActionServer -> Server took too long to respond with result.")
 			self.server_client.cancel_goal()
 		else:
@@ -326,8 +326,9 @@ class MarioKinematics(object):
 		base_coord_Z 	= gripper_coord_Z -gripper_offset_Z
 		cartesian		= [roll, pitch, yaw, base_coord_X, base_coord_Y, base_coord_Z]
 
-		selected_ik_sol 		= self.cartesian_to_ik(cartesian=cartesian)[0]		# HACKS FOR GAZEBO
-		selected_ik_sol[0:5]	*= -1
+		candidate_sols 			= self.cartesian_to_ik(cartesian=cartesian)
+		selected_ik_sol 		= self.kin.get_closest_joint_sol(current_joint=self.get_robot_joint_state(), candidate_sols=candidate_sols)		
+		selected_ik_sol[0:5]	*= -1 			# HACKS FOR GAZEBO
 
 		return selected_ik_sol
 
@@ -414,10 +415,12 @@ class MarioKinematics(object):
 		def plan_joint_way_points(current_cartesian, goal_cartesian):
 			way_points 				= PoseInterpolator.plan_to_cartesian_linear(current_cartesian, goal_cartesian)
 			joint_way_points 		= []
+			current_joint 			= self.get_robot_joint_state()
 			try:
 				for pts in way_points:
-					ik_point 		= self.cartesian_to_ik(pts)[0]
-					ik_point[0:5] 	*= -1 							# HACKS to convert values to Gazebo referene frame
+					candidate_sols 		= self.cartesian_to_ik(cartesian=pts)
+					ik_point 			= self.kin.get_closest_joint_sol(current_joint=current_joint, candidate_sols=candidate_sols)		
+					ik_point[0:5] 		*= -1 							# HACKS to convert values to Gazebo referene frame
 					joint_way_points.append(ik_point)
 				return joint_way_points
 			except AssertionError:
