@@ -506,7 +506,7 @@ if __name__ == "__main__":
 												})
 
 
-	initial_task_sequence 				=  ["ready_bin_A","ready_bin_B","ready_bin_C","ready_bin_A"]
+	initial_task_sequence 				=  ["ready_bin_C"]
 	for i in initial_task_sequence:
 		task_queue.put(i)
 

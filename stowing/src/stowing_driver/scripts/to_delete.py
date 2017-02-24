@@ -14,3 +14,10 @@ import IPython
 
 kin  			= MarioFullSystem(True)
 kin.action_server_move_arm(global_params['starting_position'],1)
+# pts = kin.get_joint_space_from_delta_robot_frame('x',0.1)
+# kin.action_server_move_arm(pts, len(pts))
+
+# pts = kin.get_joint_space_from_delta_robot_frame('x',-0.1)
+# kin.action_server_move_arm(pts, len(pts))
+
+# print(pts)

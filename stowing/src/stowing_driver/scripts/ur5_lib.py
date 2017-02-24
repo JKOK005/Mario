@@ -30,8 +30,8 @@ from copy import copy
 
 class VelocityProfile(object):
 	def __init__(self, *args, **kwargs):
-		self.max_angular_vel	= 0.2
-		self.min_angular_vel	= 0.1
+		self.max_angular_vel	= 0.4
+		self.min_angular_vel	= 0.2
 		super(VelocityProfile, self).__init__(*args, **kwargs)
 
 	def __get_velocity_ramp(self, itr, total_points):
@@ -89,7 +89,7 @@ class SubscribeToActionServer(VelocityProfile):
 			single_point[0:5] 		*= -1 						# Some hacks to align Gazebo coordinate system with OpenRave
 			point 					= JointTrajectoryPoint()
 			point.positions 		= single_point.tolist()
-			point.velocities 		= [0.001,0.001,0.001,0.001,0.001,0.001]
+			point.velocities 		= [0.005,0.005,0.005,0.005,0.005,0.005]
 			point.accelerations 	= []
 			point.time_from_start 	= rospy.Duration(5) 		# time from start must be in increasing order based on way point sequence
 		return [point]
@@ -118,7 +118,7 @@ class SubscribeToActionServer(VelocityProfile):
 
 					point 					= JointTrajectoryPoint()
 					point.positions 		= end_modified.tolist()
-					point.velocities 		= [0.001,0.001,0.001,0.001,0.001,0.001]
+					point.velocities 		= [0.005,0.005,0.005,0.005,0.005,0.005]
 					point.accelerations 	= []
 					point.time_from_start 	= rospy.Duration(time_cumulated) 		# time from start must be in increasing order based on way point sequence
 
@@ -160,7 +160,7 @@ class SubscribeToActionServer(VelocityProfile):
 		goal_message.trajectory 			= trajectory
 		goal_message.path_tolerance			= path_tolerance
 		goal_message.goal_tolerance			= goal_tolerance
-		goal_message.goal_time_tolerance 	= rospy.Duration(2,0)
+		goal_message.goal_time_tolerance 	= rospy.Duration(5,0)
 		return goal_message
 
 	def __establish_server_connection(self):
