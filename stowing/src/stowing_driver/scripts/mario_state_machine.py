@@ -20,8 +20,8 @@ from or_motion_planning import ORMotionPlanning
 from jxGraspingMain import *
 
 """ Global parameters """
-is_simulation 				= False
-display_on_motion_planner 	= True
+is_simulation 				= True
+display_on_motion_planner 	= False
 pick_or_stow 				= 0 		# 0 - pick task / 1 - stow task
 
 """ Shared variables by all states """
@@ -58,7 +58,7 @@ class StateMover:
 	def position_arm_for_grasping(cls, obj_label, grasp_results, grasp_type):
 		assert obj_label in global_params.keys()
 		joint_space 	= cls.mario_full_system.get_joint_sol_from_bin_grasping(obj_label, grasp_results, grasp_type)
-		cls.motionplan_move_to_joint_space(joint_space.tolist())
+		cls.move_to_joint_space_single(joint_space)
 
 	@classmethod
 	def attempt_grasp(cls, approach, delta_dis):
@@ -66,7 +66,6 @@ class StateMover:
 		limit 		 	= [approach['direction'], approach['direction'] *-1]
 		way_points 		= cls.mario_full_system.get_joint_space_from_delta_robot_frame(axis, delta_dis *limit[0])
 		cls.move_to_joint_space_single(way_points)
-		print(way_points)
 		rospy.sleep(1)
 		way_points 		= cls.mario_full_system.get_joint_space_from_delta_robot_frame(axis, delta_dis *limit[1])
 		cls.move_to_joint_space_single(way_points)
@@ -226,7 +225,7 @@ class Pre_stow_position_stowing(smach.State):
 
 	def execute(self, userdata):
 		rospy.loginfo("Mario -> Moving to pre-stowing position")
-		StateMover.motionplan_move_to_joint_space(global_params[current_task])
+		StateMover.move_to_joint_space_single(global_params[current_task])
 		return 'goto_Select_bin_stowing'
 
 class Select_bin_stowing(smach.State):
@@ -508,7 +507,7 @@ if __name__ == "__main__":
 												})
 
 
-	initial_task_sequence 				=  ["ready_bin_B"]
+	initial_task_sequence 				=  ["ready_bin_C", "ready_bin_D", "ready_bin_E", "ready_bin_F"]
 	for i in initial_task_sequence:
 		task_queue.put(i)
 
