@@ -94,14 +94,14 @@ class ORMotionPlanning(object):
 		end 					= np.array(target_cartesian)
 		dist 					= np.linalg.norm(end -start)
 		n_steps 				= np.ceil(dist *steps_per_meter)
-		n_steps_min 			= 50		# Minimum number of steps
+		n_steps_min 			= 100		# Minimum number of steps
 
 		return int(max(n_steps, n_steps_min))
 
 	def __get_n_steps_from_dist(self, starting_DOF, joint_target):
 		starting_cartesian 		= MarioKinematics.cartesian_from_joint(starting_DOF)[3:]
 		target_cartesian 		= MarioKinematics.cartesian_from_joint(joint_target)[3:]
-		steps_per_meter			= 1000 		# 100 steps per meter
+		steps_per_meter			= 1000 		
 
 		return self.__get_n_val(starting_cartesian, target_cartesian, steps_per_meter)
 

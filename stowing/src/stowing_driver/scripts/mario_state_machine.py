@@ -58,7 +58,7 @@ class StateMover:
 	def position_arm_for_grasping(cls, obj_label, grasp_results, grasp_type):
 		assert obj_label in global_params.keys()
 		joint_space 	= cls.mario_full_system.get_joint_sol_from_bin_grasping(obj_label, grasp_results, grasp_type)
-		cls.move_to_joint_space_single(joint_space)
+		cls.motionplan_move_to_joint_space(joint_space.tolist())
 
 	@classmethod
 	def attempt_grasp(cls, approach, delta_dis):
@@ -66,6 +66,7 @@ class StateMover:
 		limit 		 	= [approach['direction'], approach['direction'] *-1]
 		way_points 		= cls.mario_full_system.get_joint_space_from_delta_robot_frame(axis, delta_dis *limit[0])
 		cls.move_to_joint_space_single(way_points)
+		print(way_points)
 		rospy.sleep(1)
 		way_points 		= cls.mario_full_system.get_joint_space_from_delta_robot_frame(axis, delta_dis *limit[1])
 		cls.move_to_joint_space_single(way_points)
@@ -183,6 +184,7 @@ class Implement_strategy_grasping(smach.State):
 
 		end_effector_pos			= userdata.input.get('end_effector_pos')
 		StateMover.position_arm_for_grasping(current_task, end_effector_pos, 0)
+		rospy.sleep(5)
 		return 'goto_Execute_grasping'
 
 class Execute_grasping(smach.State):
@@ -210,7 +212,7 @@ class Execute_grasping(smach.State):
 		StateMover.pump_state(True)
 		strategy_id 	= userdata.input.get('strategy_id')
 		approach 		= self.get_grasp_axis_and_direction(strategy_id)
-		StateMover.attempt_grasp(approach, 0.05)
+		StateMover.attempt_grasp(approach, 0.1)
 		
 		if(True):
 			return 'end_grasping_goto_stowing'
@@ -224,7 +226,7 @@ class Pre_stow_position_stowing(smach.State):
 
 	def execute(self, userdata):
 		rospy.loginfo("Mario -> Moving to pre-stowing position")
-		StateMover.move_to_joint_space_single(global_params[current_task])
+		StateMover.motionplan_move_to_joint_space(global_params[current_task])
 		return 'goto_Select_bin_stowing'
 
 class Select_bin_stowing(smach.State):
@@ -506,7 +508,7 @@ if __name__ == "__main__":
 												})
 
 
-	initial_task_sequence 				=  ["ready_bin_C"]
+	initial_task_sequence 				=  ["ready_bin_B"]
 	for i in initial_task_sequence:
 		task_queue.put(i)
 

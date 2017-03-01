@@ -12,12 +12,10 @@ import IPython
 # sol[5] 			= -pi/2
 # kin.action_server_move_arm(sol,1)
 
-kin  			= MarioFullSystem(True)
+kin  			= MarioFullSystem(False)
 kin.action_server_move_arm(global_params['starting_position'],1)
 # pts = kin.get_joint_space_from_delta_robot_frame('x',0.1)
-# kin.action_server_move_arm(pts, len(pts))
+# kin.action_server_move_arm(pts[-1], 1)
 
 # pts = kin.get_joint_space_from_delta_robot_frame('x',-0.1)
-# kin.action_server_move_arm(pts, len(pts))
-
-# print(pts)
+# kin.action_server_move_arm(pts[-1], 1)

@@ -420,6 +420,7 @@ class MarioKinematics(object):
 				for pts in way_points:
 					candidate_sols 		= self.cartesian_to_ik(cartesian=pts)
 					ik_point 			= self.kin.get_closest_joint_sol(current_joint=current_joint, candidate_sols=candidate_sols)		
+					current_joint 		= ik_point
 					ik_point[0:5] 		*= -1 							# HACKS to convert values to Gazebo referene frame
 					joint_way_points.append(ik_point)
 				return joint_way_points
