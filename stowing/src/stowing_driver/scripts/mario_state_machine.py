@@ -20,15 +20,15 @@ from or_motion_planning import ORMotionPlanning
 from jxGraspingMain import *
 
 """ Global parameters """
-is_simulation 				= True
-display_on_motion_planner 	= False
+is_simulation 				= False
+display_on_motion_planner 	= True
 pick_or_stow 				= 0 		# 0 - pick task / 1 - stow task
 
 """ Shared variables by all states """
 # Motion planner and OpenRave parameters
 task_queue 					= Queue()	# FIFO
 current_task 				= None
-banned_strats 				= [0 ,2 ,3 ,4 ,5 ,6]
+banned_strats 				= [0 ,3 ,2 ,4 ,5 ,6]
 
 class StateMover:
 	mario_motion_planner 	= ORMotionPlanning('apc_env.xml')
@@ -55,8 +55,17 @@ class StateMover:
 		cls.mario_full_system.action_server_move_arm(joint_space=joint_space, total_points=1)
 
 	@classmethod
-	def position_arm_for_grasping(cls, obj_label, grasp_results, grasp_type):
+	def get_suction_type_from_grasp_strategy(cls, grasp_strategy_id):
+		# 4 - Front suction approach. Anything else - Side suction approaach.
+		if(grasp_strategy_id == 4):
+			return 1
+		else:
+			return 0
+
+	@classmethod
+	def position_arm_for_grasping(cls, obj_label, grasp_results, grasp_strategy_id):
 		assert obj_label in global_params.keys()
+		grasp_type 		= cls.get_suction_type_from_grasp_strategy(grasp_strategy_id)
 		joint_space 	= cls.mario_full_system.get_joint_sol_from_bin_grasping(obj_label, grasp_results, grasp_type)
 		cls.move_to_joint_space_single(joint_space)
 
@@ -182,7 +191,8 @@ class Implement_strategy_grasping(smach.State):
 		StateMover.move_to_joint_space_single(global_params[current_task])
 
 		end_effector_pos			= userdata.input.get('end_effector_pos')
-		StateMover.position_arm_for_grasping(current_task, end_effector_pos, 0)
+		strategy_id 				= userdata.input.get('strategy_id')
+		StateMover.position_arm_for_grasping(current_task, end_effector_pos, strategy_id)
 		rospy.sleep(5)
 		return 'goto_Execute_grasping'
 
@@ -196,14 +206,14 @@ class Execute_grasping(smach.State):
 	def get_grasp_axis_and_direction(self, strategyIDchosen):
 		approach 	= {'axis': ' ', 'direction' : 1}
 		# JX FILL UP
-		if(strategyIDchosen == 0):
-			approach['axis']  		= 'z'	# Top suction
-			approach['direction'] 	= -1 	# Approach top down
-			rospy.loginfo("Execute_grasping -> Approaching from Z axis")
-		elif(strategyIDchosen == 1):
+		if(StateMover.get_suction_type_from_grasp_strategy(strategyIDchosen)):
 			approach['axis']  		= 'x'	# Front suction
 			approach['direction'] 	= 1 	# Approach front
 			rospy.loginfo("Execute_grasping -> Approaching from X axis")
+		else:
+			approach['axis']  		= 'z'	# Top suction
+			approach['direction'] 	= -1 	# Approach top down
+			rospy.loginfo("Execute_grasping -> Approaching from Z axis")
 		return approach
 
 	def execute(self, userdata):
@@ -211,7 +221,7 @@ class Execute_grasping(smach.State):
 		StateMover.pump_state(True)
 		strategy_id 	= userdata.input.get('strategy_id')
 		approach 		= self.get_grasp_axis_and_direction(strategy_id)
-		StateMover.attempt_grasp(approach, 0.1)
+		StateMover.attempt_grasp(approach, 0.05)
 		
 		if(True):
 			return 'end_grasping_goto_stowing'
@@ -304,6 +314,7 @@ class Update_bin_and_repeat_stowing(smach.State):
 		rospy.loginfo("Mario -> Stowing success! Updating bin and checking for empty tote list")
 		
 		if(task_queue.empty()):
+			StateMover.pump_state(False)
 			return 'end_stowing_goto_terminate'
 		else:
 			self.__reset_all_variables();
@@ -507,7 +518,7 @@ if __name__ == "__main__":
 												})
 
 
-	initial_task_sequence 				=  ["ready_bin_C", "ready_bin_D", "ready_bin_E", "ready_bin_F"]
+	initial_task_sequence 				=  ["ready_bin_E"]
 	for i in initial_task_sequence:
 		task_queue.put(i)
 

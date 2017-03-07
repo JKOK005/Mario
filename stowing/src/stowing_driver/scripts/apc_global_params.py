@@ -48,7 +48,7 @@ hard_coded_items 			= {
 	"ready_bin_B" 		: {"coords" : [0, 0, 0, 0.20, 0.01, 0.05], "id" : 2}, 
 	"ready_bin_C" 		: {"coords" : [0, 0, 0, 0.20, 0.01, 0.05], "id" : 3}, 
 	"ready_bin_D" 		: {"coords" : [0, 0, 0, 0.20, 0.01, 0.05], "id" : 4}, 
-	"ready_bin_E" 		: {"coords" : [0, 0, 0, 0.20, 0.01, 0.05], "id" : 5}, 
+	"ready_bin_E" 		: {"coords" : [0, 0, 0, 0.18, 0.1, 0.08], "id" : 1}, 
 	"ready_bin_F" 		: {"coords" : [0, 0, 0, 0.20, 0.01, 0.05], "id" : 6}, 
 	"ready_bin_G" 		: {"coords" : [0, 0, 0, 0.20, 0.01, 0.05], "id" : 7}, 
 	"ready_bin_H" 		: {"coords" : [0, 0, 0, 0.20, 0.01, 0.05], "id" : 8}, 

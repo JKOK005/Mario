@@ -330,6 +330,9 @@ class MarioKinematics(object):
 		selected_ik_sol 		= self.kin.get_closest_joint_sol(current_joint=self.get_robot_joint_state(), candidate_sols=candidate_sols)		
 		selected_ik_sol[0:5]	*= -1 			# HACKS FOR GAZEBO
 
+		import IPython
+		IPython.embed()
+
 		return selected_ik_sol
 
 	def get_joint_sol_from_tote_grasping(self, obj_label, grasp_results, grasp_type):
