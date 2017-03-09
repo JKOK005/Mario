@@ -83,13 +83,13 @@ class GripperToEndEffectorTransformation(object):
 		return np.dot(gripper_to_end_effector_transformation, gripper_displacement_as_array).reshape(1,3).tolist()[0]
 
 class GripperFrontSuctionOffset(GripperToEndEffectorTransformation):
-	X_displacement  			= 0.345		# As measured from the end effector to the gripper end effector using Gazebo coordinate frame
+	X_displacement  			= 0.335		# As measured from the end effector to the gripper end effector using Gazebo coordinate frame
 	Y_displacement 				= 0
 	Z_displacement 				= 0.02
 	gripper_displacement_axis 	= [X_displacement, Y_displacement, Z_displacement] 	# Axis 
 
 class GripperSideSuctionOffset(GripperToEndEffectorTransformation):
-	X_displacement  			= 0.370		# As measured from the end effector to the gripper end effector using Gazebo coordinate frame
+	X_displacement  			= 0.340		# As measured from the end effector to the gripper end effector using Gazebo coordinate frame
 	Y_displacement 				= 0
 	Z_displacement 				= -0.10
 	gripper_displacement_axis 	= [X_displacement, Y_displacement, Z_displacement] 	# Axis 

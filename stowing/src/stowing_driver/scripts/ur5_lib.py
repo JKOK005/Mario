@@ -30,8 +30,8 @@ from copy import copy
 
 class VelocityProfile(object):
 	def __init__(self, *args, **kwargs):
-		self.max_angular_vel	= 0.4
-		self.min_angular_vel	= 0.2
+		self.max_angular_vel	= 0.8
+		self.min_angular_vel	= 0.6
 		super(VelocityProfile, self).__init__(*args, **kwargs)
 
 	def __get_velocity_ramp(self, itr, total_points):
@@ -329,9 +329,6 @@ class MarioKinematics(object):
 		candidate_sols 			= self.cartesian_to_ik(cartesian=cartesian)
 		selected_ik_sol 		= self.kin.get_closest_joint_sol(current_joint=self.get_robot_joint_state(), candidate_sols=candidate_sols)		
 		selected_ik_sol[0:5]	*= -1 			# HACKS FOR GAZEBO
-
-		import IPython
-		IPython.embed()
 
 		return selected_ik_sol
 
