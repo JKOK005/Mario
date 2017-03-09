@@ -28,7 +28,7 @@ pick_or_stow 				= 0 		# 0 - pick task / 1 - stow task
 # Motion planner and OpenRave parameters
 task_queue 					= Queue()	# FIFO
 current_task 				= None
-banned_strats 				= [0 ,3 ,2 ,4 ,5 ,6]
+banned_strats 				= [0 ,2 ,3 ,2 ,5 ,6]
 
 class StateMover:
 	mario_motion_planner 	= ORMotionPlanning('apc_env.xml')
@@ -151,7 +151,6 @@ class Strategy_dispatcher_grasping(smach.State):
 	# Filters out illegal grasping poses
 	# Checks space constraint of grasp relative to tote
 	# Determine grasping confidence with vision > tolerance
-	# JX FILL UP
 	def __init__(self):
 		smach.State.__init__(self, outcomes=['goto_Implement_strategy_grasping','end_grasping_goto_error_grasping'], input_keys=['input'], output_keys=['output'])
 
@@ -518,7 +517,7 @@ if __name__ == "__main__":
 												})
 
 
-	initial_task_sequence 				=  ["ready_bin_B"]
+	initial_task_sequence 				=  ["ready_bin_E"]
 	for i in initial_task_sequence:
 		task_queue.put(i)
 

@@ -30,7 +30,7 @@ from copy import copy
 
 class VelocityProfile(object):
 	def __init__(self, *args, **kwargs):
-		self.max_angular_vel	= 0.8
+		self.max_angular_vel	= 1.2
 		self.min_angular_vel	= 0.6
 		super(VelocityProfile, self).__init__(*args, **kwargs)
 

@@ -192,11 +192,11 @@ def ee_position_numpoints(ee_position):
 #itemID, pickorstow, x, y, z, roll, pitch, yaw, bannedstrat1, bannedstrat2
 
 if __name__ == "__main__":
-    itemID      = 8 #0 if new item
+    itemID      = 1 #0 if new item
     pickorstow  = 0
-    position    = [0.06,0.08,0.015] # x,y,z
-    RPY         = [0,0,pi/2] # Roll, pitch, yaw
+    position    = [0.18,0.05,0.08] # x,y,z
+    RPY         = [0,0,0] # Roll, pitch, yaw
     newObjDim   = [0.11,0.22,0.9] #width, depth, height   
-    bannedstrats= [0,2,3,4,5,6]
+    bannedstrats= [0,1,3,4,5,6]
 
-    grasp_Main(itemID, pickorstow, position, RPY, newObjDim, bannedstrats)
+    grasp_Main(itemID, pickorstow, position, RPY, bannedstrats, newObjDim)
