@@ -1,0 +1,6 @@
+#exclude all files but the source file
+/Pics/*
+/Videos/*
+/stowing/*
+!/stowing/src
+
