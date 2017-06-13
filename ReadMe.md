@@ -32,4 +32,4 @@ Key scripts to take note of are:
 
 The following image shows the UML diagram for Mario and exposes key interfaces which the user can use:
 
-![Mario UML](/relative/images/mario_class.png)
+![Mario UML](/images/mario_class.png)
